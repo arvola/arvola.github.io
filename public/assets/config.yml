@@ -47,13 +47,16 @@ services:
     items:
       - name: "Curio Spice"
         logo: "assets/logos/curio.png"
+        subtitle: Great, ethical spices.
         tag: "spices"
         url: "https://curiospice.com/"
       - name: "Burlap & Barrel"
         logo: "assets/logos/burlap.png"
+        subtitle: Select spices.
         tag: "spices"
         url: "https://www.burlapandbarrel.com/"
       - name: "Hibiki-An"
+        subtitle: The best green tea.
         url: "https://www.hibiki-an.com/"
         logo: "assets/logos/hibiki-an.jpg"
 
