@@ -1,10 +1,14 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
+    "revision": "89e3827e2d6c0cce36dc7eebb919f24e",
+    "url": "CNAME"
+  },
+  {
     "revision": "038f736c9cd4f3ede443a2471dc3be18",
     "url": "assets/additionnal-page.yml.dist"
   },
   {
-    "revision": "d1869e5a49728cb1683c2fda0dc6df15",
+    "revision": "2f7d69427a0711a6b7d61c071dafd98f",
     "url": "assets/config.yml"
   },
   {
@@ -62,14 +66,6 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "b105a999e86ebd7a9768be1eb1fa3869",
     "url": "assets/logos/johnnys.jpg"
-  },
-  {
-    "revision": "2310e486d38639bd762c521ecfff5673",
-    "url": "assets/logos/sample.png"
-  },
-  {
-    "revision": "251284a7da3dbe13b758d4939254e95c",
-    "url": "assets/logos/sample2.png"
   },
   {
     "revision": "299503dbb36a775a2f7dd2a3648e114a",
