@@ -53,10 +53,12 @@ export default {
   .image {
     display: flex;
     align-items: center;
+    justify-content: center;
   }
 
   img {
     max-height: 100%;
+    width: auto;
   }
 }
 </style>
