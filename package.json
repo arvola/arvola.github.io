@@ -1,0 +1,28 @@
+{
+    "name": "arvola-home",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "tsc && vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "fast-simplex-noise": "^4.0.0",
+        "simplex-noise": "^4.0.1"
+    },
+    "devDependencies": {
+        "@types/node": "^20.8.2",
+        "autoprefixer": "^10.4.15",
+        "dotenv": "^16.3.1",
+        "esno": "^0.17.0",
+        "g-sheets-api": "^2.2.0",
+        "google-spreadsheet": "^4.1.0",
+        "postcss-nested": "^6.0.1",
+        "sharp": "^0.32.6",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.0.2",
+        "vite": "^4.4.5"
+    }
+}

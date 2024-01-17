@@ -1,0 +1,235 @@
+:root {
+    font-family: Avenir, Montserrat, Corbel, "URW Gothic", source-sans-pro,
+        sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+
+    --background: #233d12ff;
+    --ground-dark: #233d12ff;
+    --ground-darkish: #6eab36;
+    --ground-mid: #386c0bff;
+    --ground-midder: #5a9c20;
+    --ground-light: #38a700ff;
+    --ground-lighter: #bbff99;
+    --sky: #2ca6a4ff;
+    --light-sky: #60dddbff;
+    --clouds: #e0f5f3ff;
+    --clouds-dark: #bdefed;
+    --sun: #ffee70ff;
+    --sunner: #febf37;
+    --underground: #160f05;
+    --undergrounder: #402a0c;
+    --underground-shadow: #160f0555;
+
+    --underground-text: #8d816f;
+    --underground-active: #591c00;
+    --underground-active-text: #dddddd;
+
+    --title: #bbff99;
+    --boxes: #fdfddd;
+    --text: #160f05;
+    --heading: #386c0b;
+    --link: #2ca6a4;
+}
+
+html,
+body {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    color: var(--text);
+    background-color: var(--background);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: Didot, "Bodoni MT", "Noto Serif Display", "URW Palladio L",
+        P052, Sylfaen, serif;
+    color: var(--heading);
+}
+
+#header {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+}
+
+.evening {
+    --background: #040b1b;
+    --ground-dark: #06122cff;
+    --ground-darkish: #06122cff;
+    --ground-mid: #0c1e2cff;
+    --ground-midder: #12292cff;
+    --ground-light: #1d402bff;
+    --ground-lighter: #3e654dff;
+    --sky: #333051ff;
+    --light-sky: #98435bff;
+    --clouds: #041c42ff;
+    --clouds-dark: #041c4200;
+    --sun: #fd8b59ff;
+    --sunner: #febf37;
+    --underground: #010710;
+    --undergrounder: #020712;
+    --underground-shadow: #00000088;
+
+    --underground-text: #98435b;
+    --underground-active: #98435b55;
+    --underground-active-text: #db728f;
+
+    --title: #fd8b59;
+    --text: #160f05;
+    --heading: #386c0b;
+    --link: #2ca6a4;
+}
+.night {
+    --background: #000000;
+    --ground-dark: #000;
+    --ground-darkish: #000;
+    --ground-mid: #000;
+    --ground-midder: #000;
+    --ground-light: #000;
+    --ground-lighter: #000;
+    --sky: #001232;
+    --light-sky: #0c1e2c;
+    --clouds: #041c42ff;
+    --clouds-dark: #041c4200;
+    --sun: #fd8b59ff;
+    --sunner: #febf37;
+    --underground: #010710;
+    --undergrounder: #020712;
+    --underground-shadow: #02071244;
+    --underground-text: #0047b5;
+    --underground-active: #0047b533;
+    --underground-active-text: #3d88fc;
+
+    --title: #eeeeee;
+    --text: #160f05;
+    --heading: #386c0b;
+    --link: #2ca6a4;
+}
+#ground-canvas,
+#header-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2200px;
+    height: 220px;
+}
+
+#sprites {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2200px;
+    height: 220px;
+}
+
+#header-bottom {
+    box-sizing: border-box;
+    height: 36px;
+    width: 100%;
+    border-top: 1px solid var(--underground);
+    background: linear-gradient(0deg, var(--undergrounder), var(--underground));
+
+    color: var(--underground-text);
+    line-height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+
+    .icon {
+        fill: var(--underground-text);
+    }
+}
+
+#time-select {
+    margin-left: 10px;
+    input[type="radio"] {
+        appearance: none;
+        visibility: hidden;
+        width: 0;
+        height: 0;
+        display: none;
+    }
+
+    label {
+        cursor: pointer;
+        border: 1px solid currentColor;
+        border-radius: 15px;
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    input[type="radio"]:checked + label {
+        background: var(--underground-active);
+        color: var(--underground-active-text);
+    }
+}
+
+.title {
+    color: var(--title);
+    font-size: 60px;
+    line-height: 60px;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-top: 0;
+    text-transform: uppercase;
+
+    .a {
+        letter-spacing: 2px;
+    }
+
+    .rvola {
+        font-size: 40px;
+    }
+
+    .home {
+        display: block;
+        position: relative;
+        top: -13px;
+        text-transform: uppercase;
+        font-size: 24px;
+        line-height: 24px;
+        font-weight: 700;
+        letter-spacing: -1px;
+        padding-left: 90px;
+    }
+}
+
+#app {
+    padding: 0 16px;
+    color: var(--text);
+}
+
+.box {
+    background-color: var(--boxes);
+    border-radius: 10px;
+    padding: 5px 10px;
+
+    & > h2 {
+        margin: 0 0 20px;
+    }
+}
+
+.card-link {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.business-card {
+
+}

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/apple-touch-icon.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/favicon-32x32.png"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+        <meta name="msapplication-TileColor" content="#00aba9" />
+        <meta name="theme-color" content="#ffffff" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Arvola Home</title>
+    </head>
+    <body>
+        <div id="header-wrap">
+            <div id="header-bottom">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    height="1em"
+                    viewBox="0 0 512 512"
+                >
+                    <!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                    <path
+                        class="icon"
+                        d="M256 0a256 256 0 1 1 0 512A256 256 0 1 1 256 0zM232 120V256c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2V120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                    />
+                </svg>
+                <div id="time-select"></div>
+            </div>
+
+            <div id="header">
+                <canvas id="header-canvas"></canvas>
+                <canvas id="ground-canvas"></canvas>
+                <canvas id="sprites"></canvas>
+            </div>
+        </div>
+        <div id="app">
+            <h1 class="title">
+                <span class="a">A</span><span class="rvola">rvola</span>
+                <span class="home">home</span>
+            </h1>
+
+            <div class="box">
+                <h2>My</h2>
+
+                <a href="#" class="card-link">
+                    <div class="business-card">
+                        <div class="logo-holder"></div>
+                        <div class="card-name">GitHub</div>
+                        <div class="card-text">Mikael's GitHub account.</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <script type="module" src="/src/main.ts"></script>
+    </body>
+</html>
