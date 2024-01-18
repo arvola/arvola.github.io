@@ -4,6 +4,6 @@ export interface Link {
     name: string;
     subtitle: string;
     url: string;
-    logo: string;
+    logo?: string;
     logoHash?: string;
 }

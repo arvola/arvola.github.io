@@ -1,7 +1,8 @@
 import hatch from "./tex/hatch2.jpg";
 import kitty from "./img/kitty.svg";
 import milky from "./img/milkyway.png";
-import { createNoise2D } from "simplex-noise";
+import { bzCurve, colorsFromCanvas, noise, NoiseParam, octaves } from "./graphics.ts";
+import { img } from "./img.ts";
 
 export type Canvases = {
     base: HTMLCanvasElement;
@@ -132,21 +133,6 @@ export function drawDaytimeYard(
     grounds(canvas.ground, ctx.ground, c, 0.5, "multiply");
 }
 
-const seedAlpha = "abcdefghjklmnopqrstuvwxyz ";
-const seedText =
-    "reed organ plays funny music when smashed together in big fists and given enough speed to crumble with pizzazz in your face loudly proclaiming truth and beauty that at the end is nothing but empty gibberish masquerading as profound but which in itself becomes deeper through its satire of depth oh god how long does this need to be i just want some perlin simplex noise to make pretty stars and maybe some clouds and stuff the galaxy would also be cool i just need it to get to over five hundred twelve so it can be yay";
-const seed: number[] = [];
-for (let i = 511; i >= 0; i--) {
-    let one = seedText[i];
-    let two = seedText[i--];
-    seed.push(seedAlpha.indexOf(one) / 27 + seedAlpha.indexOf(two) / 270);
-}
-const seedFunc = () => {
-    let i = 0;
-    return () => seed[i++ % 256]!;
-};
-
-const noise = createNoise2D(seedFunc());
 const milkywayX = 400;
 const milkywayY = 300;
 
@@ -159,98 +145,6 @@ n2Canv.width = milkywayX * devicePixelRatio;
 n2Canv.height = milkywayY * devicePixelRatio;
 const n2Ctx = n2Canv.getContext("2d")!;
 n2Ctx.scale(devicePixelRatio, devicePixelRatio);
-
-function circ(x: number, curve = 2) {
-    return x === 0
-        ? 0
-        : x === 1
-        ? 1
-        : x < 0.5
-        ? Math.pow(x, curve) * Math.pow(2, curve - 1)
-        : 1 - Math.pow(-2 * x + 2, curve) / 2;
-}
-
-function sweepIt(
-    pos: number,
-    start: number,
-    end: number,
-    curve?: 2 | 4 | 6 | 8 | 10
-) {
-    if (pos < start) {
-        return 0;
-    } else if (pos > end) {
-        return 0;
-    } else {
-        let sw = (2 * pos - start - end) / (end - start);
-        if (curve) {
-            sw = Math.pow(Math.E, -2 * Math.pow(sw / 0.6, curve));
-        } else {
-            sw = 1 - Math.abs(sw);
-        }
-        return sw;
-    }
-}
-
-function octaves(x: number, y: number, param: NoiseParam[]) {
-    let val = 0;
-    let div = 0;
-    let thr = 0;
-    let cur: NoiseParam["curve"] = 0;
-    let xs: NoiseParam["xSweep"];
-    let ys: NoiseParam["ySweep"];
-    for (let { f, amp, curve, threshold, xSweep, ySweep } of param) {
-        if (amp > 0) {
-            let n = (1 + noise(x * f, y * f)) / 2;
-            //val = val === -1 ? n : n * val;
-            val += n * amp;
-            div += amp;
-            thr = threshold || thr;
-            cur = curve || cur;
-            xs = xSweep || xs;
-            ys = ySweep || ys;
-        }
-        ++f;
-    }
-
-    val = val / div;
-
-    if (xs) {
-        val *= sweepIt(x, xs.start, xs.end, xs.curve);
-    }
-    if (ys) {
-        val *= sweepIt(y, ys.start, ys.end, ys.curve);
-    }
-
-    if (thr) {
-        if (val < thr) {
-            val = 0;
-        } else {
-            val = (val - thr) / (1 - thr);
-        }
-    }
-    if (cur) {
-        val = circ(val, cur);
-    }
-
-    return val;
-}
-
-type NoiseParam = {
-    f: number;
-    amp: number;
-    curve?: number;
-    threshold?: number;
-    xSweep?: {
-        start: number;
-        end: number;
-        curve?: 2 | 4 | 6 | 8 | 10;
-    };
-    ySweep?: {
-        start: number;
-        end: number;
-        curve?: 2 | 4 | 6 | 8 | 10;
-    };
-};
 
 function milkyway(
     color: string,
@@ -604,76 +498,29 @@ function clouds({ ctx, c }: Drawing) {
         [60, 25],
         [50, 8],
     ]);
-}
-
-let imgCache: Record<string, HTMLImageElement | HTMLCanvasElement> = {};
-
-function img(
-    src: string,
-    opt: {
-        scale?: number;
-        rotate?: number;
-        mirror?: boolean;
-    } | null,
-    cb: (image: HTMLImageElement | HTMLCanvasElement) => void
-) {
-    const key = src + JSON.stringify(opt);
-
-    if (imgCache[key]) {
-        cb(imgCache[key]);
-        return;
-    }
-
-    var im = new Image();
-    im.src = src;
-    im.addEventListener(
-        "load",
-        () => {
-            if (opt) {
-                let w = im.width;
-                let h = im.height;
-                if (opt.scale) {
-                    w *= opt.scale;
-                    h *= opt.scale;
-                }
-
-                let max = Math.max(w, h);
-                max = Math.sqrt(2 * Math.pow(max, 2));
-                let halfMax = max / 2;
-                const can2 = document.createElement("canvas");
-                can2.width = max * devicePixelRatio;
-                can2.height = max * devicePixelRatio;
-                const ct = can2.getContext("2d")!;
-                if (opt.mirror) {
-                    ct.scale(devicePixelRatio * -1, devicePixelRatio);
-                    if (opt.rotate) {
-                        ct.translate(-halfMax, halfMax);
-                        ct.rotate(opt.rotate);
-                        ct.translate(halfMax, -halfMax);
-                    }
-                } else if (opt.rotate) {
-                    ct.translate(halfMax, halfMax);
-                    ct.rotate(opt.rotate);
-                    ct.translate(-halfMax, -halfMax);
-                }
-                ct.drawImage(
-                    im,
-                    opt.mirror ? -w / 2 - halfMax : halfMax - w / 2,
-                    halfMax - h / 2,
-                    w,
-                    h
-                );
-
-                ct.setTransform(1, 0, 0, 1, 0, 0);
-                imgCache[key] = can2;
-                cb(can2);
-            } else {
-                imgCache[key] = im;
-                cb(im);
-            }
-        },
-        { once: true, capture: false }
-    );
+    cloud(ctx.base, c.clouds, c.cloudsDark, 600, 50, [
+        [10, 0],
+        [10, 18],
+        [0, 20],
+        [20, 20],
+        [40, 20],
+        [50, 20],
+        [40, 10],
+    ]);
+    cloud(ctx.base, c.clouds, c.cloudsDark, 800, 0, [
+        [30, 0],
+        [30, 0],
+        [0, 0],
+        [45, 20],
+        [0, 20],
+        [10, 15],
+        [40, 30],
+        [20, 22],
+        [30, 22],
+        [50, 22],
+        [60, 25],
+        [50, 18],
+    ]);
 }
 
 const radiuses = [0, 5, 2, 8, 0, 3, 7, 6, 4];
@@ -706,51 +553,6 @@ function cloud(
     }
     ctx.fill();
     ctx.closePath();
-}
-
-function gradient(a: [number, number], b: [number, number]) {
-    return (b[1] - a[1]) / (b[0] - a[0]);
-}
-
-function bzCurve(ctx: CanvasRenderingContext2D, points: [number, number][]) {
-    const f = 0.3;
-    const t = 0.6;
-
-    ctx.moveTo(points[0][0], points[0][1]);
-
-    let m = 0;
-    let dx1 = 0;
-    let dy1 = 0;
-
-    let preP = points[0];
-
-    for (let i = 1; i < points.length; i++) {
-        let curP = points[i];
-        let nexP = points[i + 1];
-        let dx2: number;
-        let dy2: number;
-        if (nexP) {
-            m = gradient(preP, nexP);
-            dx2 = (nexP[0] - curP[0]) * -f;
-            dy2 = dx2 * m * t;
-        } else {
-            dx2 = 0;
-            dy2 = 0;
-        }
-
-        ctx.bezierCurveTo(
-            preP[0] - dx1,
-            preP[1] - dy1,
-            curP[0] + dx2,
-            curP[1] + dy2,
-            curP[0],
-            curP[1]
-        );
-
-        dx1 = dx2;
-        dy1 = dy2;
-        preP = curP;
-    }
 }
 
 function grounds(
@@ -900,29 +702,3 @@ function ground(
     ctx.fill();
 }
 
-function colorsFromCanvas(canvas: HTMLCanvasElement) {
-    const style = getComputedStyle(canvas);
-
-    const colors = {
-        sky: "--sky",
-        lightSky: "--light-sky",
-        groundDark: "--ground-dark",
-        groundDarkish: "--ground-darkish",
-        groundMid: "--ground-mid",
-        groundMidder: "--ground-midder",
-        groundLight: "--ground-light",
-        groundLighter: "--ground-lighter",
-        clouds: "--clouds",
-        cloudsDark: "--clouds-dark",
-        sun: "--sun",
-        sunner: "--sunner",
-        underground: "--underground",
-        background: "--background"
-    };
-
-    return Object.fromEntries(
-        Object.entries(colors).map(([key, val]) => {
-            return [key, style.getPropertyValue(val)];
-        })
-    ) as typeof colors;
-}
