@@ -5,5 +5,10 @@ export interface Link {
     subtitle: string;
     url: string;
     logo?: string;
-    logoHash?: string;
+}
+
+export interface Category {
+    title: string;
+    links: Link[];
+    icon?: string;
 }

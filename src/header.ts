@@ -521,6 +521,19 @@ function clouds({ ctx, c }: Drawing) {
         [60, 25],
         [50, 18],
     ]);
+    cloud(ctx.base, c.clouds, c.cloudsDark, 960, 100, [
+        [30, 0],
+        [0, 0],
+        [45, 20],
+        [0, 20],
+        [10, 15],
+        [40, 30],
+        [20, 22],
+        [30, 22],
+        [50, 22],
+        [60, 25],
+        [50, 18],
+    ]);
 }
 
 const radiuses = [0, 5, 2, 8, 0, 3, 7, 6, 4];
@@ -599,6 +612,9 @@ function grounds(
         [290, 172],
         [550, 180],
         [560, 179],
+        [660, 175],
+        [700, 177],
+        [740, 180],
     ]);
     ground(
         ctx,
@@ -614,6 +630,9 @@ function grounds(
             [300, 180],
             [550, 190],
             [560, 190],
+            [660, 187],
+            [700, 189],
+            [740, 190],
         ],
         10
     );
@@ -659,8 +678,8 @@ function grounds(
 
         ground(
             ctx,
-            c.background,
-            c.background,
+            c.groundDark,
+            c.groundDark,
             [
                 [0, 190],
                 [40, 192],

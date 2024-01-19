@@ -10,7 +10,7 @@
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
 
-    --background: #233d12ff;
+    --background: #eef8f7;
     --ground-dark: #233d12ff;
     --ground-darkish: #6eab36;
     --ground-mid: #386c0bff;
@@ -31,11 +31,11 @@
     --underground-active: #591c00;
     --underground-active-text: #dddddd;
 
-    --title: #e8f6df;
-    --boxes: #fdfddd;
-    --boxes-border: #fdfddd;
+    --title: #160f05;
+    --boxes: #fff;
+    --boxes-border: #fff;
     --text: #160f05;
-    --heading: #da5115;
+    --heading: #160f05;
     --link: #2ca6a4;
 }
 
@@ -61,11 +61,17 @@ h6 {
     color: var(--heading);
 }
 
+#header-wrap {
+    padding: 20px;
+}
+
 #header {
     width: 100%;
     height: 220px;
     overflow: hidden;
     position: relative;
+    border-radius: 5px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px, rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
 }
 
 .evening {
@@ -193,7 +199,6 @@ h6 {
     letter-spacing: -1px;
     margin-top: 20px;
     text-transform: uppercase;
-    text-shadow: 3px 3px #000;
 
     .a {
         letter-spacing: 2px;
@@ -222,10 +227,11 @@ h6 {
 }
 
 .box {
-    background-color: var(--boxes);
+    background: #aaa;
     border: 1px solid var(--boxes-border);
     border-radius: 10px;
     padding: 5px 10px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
 
     & > h2 {
         margin: 0 0 20px;
@@ -235,6 +241,8 @@ h6 {
 .card-link {
     color: var(--text);
     text-decoration: none;
+
+    display: block;
 }
 
 .business-card {
