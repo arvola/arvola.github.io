@@ -1,5 +1,11 @@
+/**
+ * Simple cache to keep images in memory after first load.
+ */
 let imgCache: Record<string, HTMLImageElement | HTMLCanvasElement> = {};
 
+/**
+ * Load an image from a URL and apply optional transformations.
+ */
 export function img(
     src: string,
     opt: {

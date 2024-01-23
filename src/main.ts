@@ -1,21 +1,18 @@
-import {
-    positionAdjust,
-    drawDaytimeYard,
-    redrawSprites,
-    drawEveningYard,
-    drawNightYard,
-} from "./header";
+import { positionAdjust, redrawSprites } from "./header/header.ts";
 import "./style.css";
 import { html } from "./template";
 import "./data";
+import { drawDaytimeYard } from "./header/daytime.ts";
+import { drawEveningYard } from "./header/evening.ts";
+import { drawNightYard } from "./header/night.ts";
 
 type Styles = "daytime" | "evening" | "night";
 const styles: Styles[] = ["daytime", "evening", "night"];
 let styleIndex = 0;
 
 window.addEventListener("load", () => {
+    // Add the different time of day options to the page
     const select = document.getElementById("time-select")!;
-
     for (let it of styles) {
         select.insertAdjacentHTML(
             "beforeend",
@@ -25,24 +22,26 @@ window.addEventListener("load", () => {
                     name="times"
                     value="${it}"
                 />
-                <label for="time-${it}">${it}</label>`
+                <label for="time-${it}">${it}</label>`,
         );
-        let input = document.getElementById(
-            `time-${it}`
-        ) as HTMLInputElement;
+        let input = document.getElementById(`time-${it}`) as HTMLInputElement;
 
         input.addEventListener("change", (ev) => {
             let val = (ev.target as HTMLInputElement).value;
             draw(val as any);
-        })
+        });
     }
-    draw("daytime");
-
     document.getElementById("header")?.addEventListener("click", () => {
         draw(styles[styleIndex++ % styles.length]);
     });
+
+    // Draw the default time
+    draw("daytime");
 });
 
+/**
+ * Keyboard shortcuts to adjust the positioning of the kitty.
+ */
 const adjustments: {
     key: string;
     attr: keyof typeof positionAdjust;
@@ -122,7 +121,6 @@ window.addEventListener("keydown", (ev) => {
             positionAdjust[adj.attr] += value;
         }
         redrawSprites();
-        console.log(positionAdjust);
     }
 
     if (ev.key === "d") {
@@ -135,25 +133,23 @@ window.addEventListener("keydown", (ev) => {
 });
 
 function draw(time?: Styles) {
-    const wrap = document.getElementById("header-wrap")!;
     const header = document.getElementById(
-        "header-canvas"
+        "header-canvas",
     ) as HTMLCanvasElement;
-    const sprites = document.getElementById("sprites") as HTMLCanvasElement;
     const ground = document.getElementById(
-        "ground-canvas"
+        "ground-canvas",
     ) as HTMLCanvasElement;
 
     document.body.classList.value = time || "";
     switch (time) {
         case "evening":
-            drawEveningYard(header, ground, sprites);
+            drawEveningYard(header, ground);
             break;
         case "night":
-            drawNightYard(header, ground, sprites);
+            drawNightYard(header, ground);
             break;
         default:
-            drawDaytimeYard(header, ground, sprites);
+            drawDaytimeYard(header, ground);
     }
 
     (document.getElementById(`time-${time}`) as HTMLInputElement).checked =

@@ -156,6 +156,9 @@ export function bzCurve(ctx: CanvasRenderingContext2D, points: [number, number][
     }
 }
 
+/**
+ * Get the actual color values from CSS variables for the canvas.
+ */
 export function colorsFromCanvas(canvas: HTMLCanvasElement) {
     const style = getComputedStyle(canvas);
 

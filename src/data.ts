@@ -15,8 +15,8 @@ export interface Category {
     icon?: string;
 }
 
+// We can just render the categories and links right away, since the script is at the bottom of the HTML.
 const boxes = document.getElementById("boxes") as HTMLDivElement;
-
 for (let cat of data) {
     boxes.insertAdjacentHTML("beforeend", html`
         <div class="box">
