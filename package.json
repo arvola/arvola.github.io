@@ -11,22 +11,18 @@
         "links": "esno scripts/links.ts"
     },
     "dependencies": {
-        "fast-simplex-noise": "^4.0.0",
         "simplex-noise": "^4.0.1"
     },
     "devDependencies": {
-        "@types/node": "^20.8.10",
+        "@types/node": "^20.11.5",
         "autoprefixer": "^10.4.17",
-        "dotenv": "^16.3.1",
+        "dotenv": "^16.3.2",
         "esno": "^4.0.0",
-        "g-sheets-api": "^2.2.0",
         "google-spreadsheet": "^4.1.1",
         "postcss-nested": "^6.0.1",
         "sharp": "^0.33.2",
-        "ts-node": "^10.9.2",
-        "tsx": "4.7.0",
         "typescript": "^5.3.3",
-        "vite": "^5.0.11",
+        "vite": "^5.0.12",
         "change-case": "^5.4.2",
         "glob": "^10.3.10",
         "prettier": "^3.2.4"

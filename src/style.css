@@ -34,9 +34,11 @@
     --title: #160f05;
     --boxes: #fff;
     --boxes-border: #fff;
+    --boxes-icon: #38a700ff;
     --text: #160f05;
     --heading: #160f05;
     --link: #2ca6a4;
+    --card-border: #e0ded8;
 }
 
 html,
@@ -56,9 +58,11 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: Didot, "Bodoni MT", "URW Palladio L",
-        P052, Sylfaen, serif;
     color: var(--heading);
+}
+
+a {
+    color: var(--link);
 }
 
 #header-wrap {
@@ -75,13 +79,13 @@ h6 {
 }
 
 .evening {
-    --background: #040b1b;
+    --background: #253252;
     --ground-dark: #06122cff;
     --ground-darkish: #06122cff;
     --ground-mid: #0c1e2cff;
     --ground-midder: #12292cff;
-    --ground-light: #1d402bff;
-    --ground-lighter: #3e654dff;
+    --ground-light: #1c3d29;
+    --ground-lighter: #294936;
     --sky: #333051ff;
     --light-sky: #98435bff;
     --clouds: #041c42ff;
@@ -97,11 +101,13 @@ h6 {
     --underground-active-text: #db728f;
 
     --title: #fd8b59;
-    --boxes: #aea8e7;
+    --boxes: #d5d5de;
     --boxes-border: #aea8e7;
+    --boxes-icon: #98435bff;
     --text: #160f05;
     --heading: #333051ff;
-    --link: #2ca6a4;
+    --link: #325fa2;
+    --card-border: #b5b2cc;
 }
 .night {
     --background: #000000;
@@ -125,11 +131,17 @@ h6 {
     --underground-active-text: #3d88fc;
 
     --title: #eeeeee;
-    --boxes: #0047b533;
+    --boxes: #000e24;
     --boxes-border: #041c42ff;
-    --text: #8797b0;
+    --boxes-icon: rgb(31, 61, 121);
+    --text: #9fb1d2;
     --heading: #ad2621;
-    --link: #2ca6a4;
+    --link: #2a5fb4;
+    --card-border: #041c42ff;
+
+    #header {
+        box-shadow: rgba(164, 164, 196, 0.25) 0px 0px 27px 0;
+    }
 }
 #ground-canvas,
 #header-canvas {
@@ -200,6 +212,9 @@ h6 {
     margin-top: 20px;
     text-transform: uppercase;
 
+    font-family: Didot, "Bodoni MT", "URW Palladio L",
+    P052, Sylfaen, serif;
+
     .a {
         letter-spacing: 2px;
     }
@@ -222,29 +237,129 @@ h6 {
 }
 
 #app {
-    padding: 0 16px;
+    padding: 0 16px 16px;
     color: var(--text);
 }
 
+#boxes {
+    column-width: 360px;
+    column-gap: 40px;
+}
+
+#footer {
+    border-top: 1px solid var(--undergrounder);
+    background: var(--underground);
+    color: var(--underground-text);
+    font-size: 0.8em;
+    padding: 6px 12px;
+    text-align: center;
+}
+
 .box {
-    background: #aaa;
+    background: var(--boxes);
     border: 1px solid var(--boxes-border);
     border-radius: 10px;
     padding: 5px 10px;
     box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+    break-inside: avoid;
+    margin-bottom: 40px;
 
-    & > h2 {
-        margin: 0 0 20px;
+    .box-title {
+        margin: 25px 0 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .box-icon-wrap {
+            width: 60px;
+            height: 60px;
+            background: var(--boxes-icon);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 100px;
+
+            svg {
+                color: var(--boxes);
+                scale: 1.6;
+            }
+        }
+
+        h2 {
+            margin: 25px 0 0 0;
+            font-weight: normal;
+            font-size: 32px;
+        }
     }
 }
+
 
 .card-link {
     color: var(--text);
     text-decoration: none;
 
     display: block;
+    border-bottom: 1px solid var(--card-border);
+    border-left: 0px solid var(--link);
+
+    transition: border-left-width 0.1s ease-in-out;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        border-left: 5px solid var(--link);
+    }
 }
 
 .business-card {
+    display: flex;
 
+    padding: 10px 10px 10px 0;
+    margin: 10px 0 0 0;
+    column-gap: 10px;
+
+    .logo-holder {
+        margin: 0 10px;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+
+        .logo-backer {
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            width: 66px;
+            height: 66px;
+            border-radius: 60px;
+            z-index: -1;
+        }
+
+        img {
+            max-width: 60px;
+            max-height: 40px;
+            display: block;
+        }
+    }
+
+    .card-name {
+        font-size: 21px;
+        grid-area: title;
+    }
+    .card-text {
+        grid-area: desc;
+    }
+}
+
+.night .business-card .logo-holder {
+
+    opacity: 0.7;
+
+    .logo-backer {
+        background: #fff;
+    }
 }

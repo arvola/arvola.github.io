@@ -7,46 +7,11 @@ import {
 } from "./header";
 import "./style.css";
 import { html } from "./template";
-import data from "./data.json";
+import "./data";
 
 type Styles = "daytime" | "evening" | "night";
 const styles: Styles[] = ["daytime", "evening", "night"];
 let styleIndex = 0;
-
-const boxes = document.getElementById("boxes") as HTMLDivElement;
-
-for (let cat of data) {
-    const icon = new URL("./icons/" + cat.icon, import.meta.url).href;
-    boxes.insertAdjacentHTML("beforeend", html`
-        <div class="box">
-            <div class="box-title">
-                <div class="box-icon-wrap">
-                    <img src="${icon}" alt="" />
-                </div>
-                <h2>${cat.title}</h2>
-            </div>
-            <div class="cards"></div>
-        </div>`);
-    const box = boxes.lastElementChild as HTMLDivElement;
-    const cards = box.querySelector(".cards") as HTMLDivElement;
-
-    for (let link of cat.links) {
-        let logo: string = "";
-        if (link.logo) {
-            logo = new URL("./links/" + link.logo, import.meta.url).href;
-        }
-        cards.insertAdjacentHTML("beforeend", html`
-            <a href="${link.url}" target="_blank" class="card-link">
-                <div class="business-card">
-                    <div class="logo-holder">
-                        <img src="${logo}" alt="" />
-                    </div>
-                    <div class="card-name">${link.name}</div>
-                    <div class="card-text">${link.subtitle}</div>
-                </div>
-            </a>`)
-    }
-}
 
 window.addEventListener("load", () => {
     const select = document.getElementById("time-select")!;

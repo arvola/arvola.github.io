@@ -27,7 +27,7 @@ const doc = new GoogleSpreadsheet(process.env.SHEET_ID, {
     apiKey: process.env.GOOGLE_API_KEY,
 });
 
-const circle = Buffer.from('<svg><circle r="128" cx="128" cy="128"/></svg>');
+const circle = Buffer.from('<svg><circle r="64" cx="64" cy="64"/></svg>');
 
 (async () => {
     await doc.loadInfo();
@@ -73,8 +73,8 @@ const circle = Buffer.from('<svg><circle r="128" cx="128" cy="128"/></svg>');
                     out = img
                         .resize({
                             fit: "inside",
-                            width: 256,
-                            height: 256,
+                            width: 128,
+                            height: 128,
                         })
                         .composite([
                             {
@@ -98,8 +98,8 @@ const circle = Buffer.from('<svg><circle r="128" cx="128" cy="128"/></svg>');
                     out = sharp(await out.toBuffer());
                     out.resize({
                             fit: "inside",
-                            width: 256,
-                            height: 256,
+                            width: 128,
+                            height: 128,
                         })
                         .composite([
                             {
@@ -108,6 +108,13 @@ const circle = Buffer.from('<svg><circle r="128" cx="128" cy="128"/></svg>');
                             },
                         ]);
                     ext = "png";
+                } else {
+                    out = img
+                        .resize({
+                            fit: "inside",
+                            width: 128,
+                            height: 128,
+                        })
                 }
 
                 imgPath += "." + ext;
@@ -121,8 +128,7 @@ const circle = Buffer.from('<svg><circle r="128" cx="128" cy="128"/></svg>');
             cat = {
                 title: it.category,
                 icon:
-                    kebabCase(it.category.replaceAll(/[^a-zA-Z0-9 -]/g, "")) +
-                    ".svg",
+                    kebabCase(it.category.replaceAll(/[^a-zA-Z0-9 -]/g, "")),
                 links: [],
             };
             data.push(cat);
