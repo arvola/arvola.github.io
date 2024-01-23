@@ -1,0 +1,386 @@
+:root {
+    font-family: Avenir, Montserrat, Corbel, "URW Gothic", source-sans-pro,
+        sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+
+    --background: #eef8f7;
+    --ground-dark: #233d12ff;
+    --ground-darkish: #6eab36;
+    --ground-mid: #386c0bff;
+    --ground-midder: #5a9c20;
+    --ground-light: #38a700ff;
+    --ground-lighter: #bbff99;
+    --sky: #2ca6a4ff;
+    --light-sky: #60dddbff;
+    --clouds: #e0f5f3ff;
+    --clouds-dark: #bdefed;
+    --sun: #ffee70ff;
+    --sunner: #febf37;
+    --underground: #160f05;
+    --undergrounder: #402a0c;
+    --underground-shadow: #160f0555;
+
+    --underground-text: #8d816f;
+    --underground-active: #591c00;
+    --underground-active-text: #dddddd;
+
+    --title: #160f05;
+    --boxes: #fff;
+    --boxes-border: #fff;
+    --boxes-icon: #38a700ff;
+    --text: #160f05;
+    --heading: #160f05;
+    --link: #2ca6a4;
+    --card-border: #e0ded8;
+}
+
+html,
+body {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    color: var(--text);
+    background-color: var(--background);
+    transition: background-color .5s, color .5s;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--heading);
+    transition: color .5s;
+}
+
+a {
+    color: var(--link);
+    transition: color .5s;
+}
+
+#header-wrap {
+    padding: 20px;
+}
+
+#header {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 5px;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px, rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+}
+
+.evening {
+    --background: #253252;
+    --ground-dark: #06122cff;
+    --ground-darkish: #06122cff;
+    --ground-mid: #0c1e2cff;
+    --ground-midder: #12292cff;
+    --ground-light: #1c3d29;
+    --ground-lighter: #294936;
+    --sky: #333051ff;
+    --light-sky: #98435bff;
+    --clouds: #041c42ff;
+    --clouds-dark: #041c4200;
+    --sun: #fd8b59ff;
+    --sunner: #febf37;
+    --underground: #010710;
+    --undergrounder: #020712;
+    --underground-shadow: #00000088;
+
+    --underground-text: #98435b;
+    --underground-active: #98435b55;
+    --underground-active-text: #db728f;
+
+    --title: #fd8b59;
+    --boxes: #d5d5de;
+    --boxes-border: #aea8e7;
+    --boxes-icon: #98435bff;
+    --text: #160f05;
+    --heading: #333051ff;
+    --link: #325fa2;
+    --card-border: #b5b2cc;
+}
+.night {
+    --background: #000000;
+    --ground-dark: #000;
+    --ground-darkish: #000;
+    --ground-mid: #000;
+    --ground-midder: #000;
+    --ground-light: #000;
+    --ground-lighter: #000;
+    --sky: #001232;
+    --light-sky: #0c1e2c;
+    --clouds: #041c42ff;
+    --clouds-dark: #041c4200;
+    --sun: #fd8b59ff;
+    --sunner: #febf37;
+    --underground: #010710;
+    --undergrounder: #020712;
+    --underground-shadow: #02071244;
+    --underground-text: #0047b5;
+    --underground-active: #0047b533;
+    --underground-active-text: #3d88fc;
+
+    --title: #eeeeee;
+    --boxes: #000e24;
+    --boxes-border: #041c42ff;
+    --boxes-icon: rgb(31, 61, 121);
+    --text: #9fb1d2;
+    --heading: #ad2621;
+    --link: #2a5fb4;
+    --card-border: #041c42ff;
+
+    #header {
+        box-shadow: rgba(164, 164, 196, 0.25) 0px 0px 27px 0;
+    }
+}
+#ground-canvas,
+#header-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2200px;
+    height: 220px;
+}
+
+#sprites {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2200px;
+    height: 220px;
+}
+
+#kitty {
+    position: absolute;
+    top: 129px;
+    left: 143px;
+    width: 100px;
+    cursor: move;
+    user-select: none;
+
+    img {
+        max-width: 100%;
+    }
+}
+
+#header-bottom {
+    box-sizing: border-box;
+    height: 36px;
+    width: 100%;
+    border-top: 1px solid var(--underground);
+    background: linear-gradient(0deg, var(--undergrounder), var(--underground));
+
+    color: var(--underground-text);
+    line-height: 30px;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    transition: background-color .5s, color .5s;
+
+    .icon {
+        fill: var(--underground-text);
+    }
+}
+
+#time-select {
+    margin-left: 10px;
+    input[type="radio"] {
+        appearance: none;
+        visibility: hidden;
+        width: 0;
+        height: 0;
+        display: none;
+    }
+
+    label {
+        cursor: pointer;
+        border: 1px solid currentColor;
+        border-radius: 15px;
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    input[type="radio"]:checked + label {
+        background: var(--underground-active);
+        color: var(--underground-active-text);
+    }
+}
+
+.title {
+    color: var(--title);
+    font-size: 60px;
+    line-height: 60px;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-top: 20px;
+    text-transform: uppercase;
+
+    font-family: Didot, "Bodoni MT", "URW Palladio L",
+    P052, Sylfaen, serif;
+
+    .a {
+        letter-spacing: 2px;
+    }
+
+    .rvola {
+        font-size: 52px;
+    }
+
+    .home {
+        display: block;
+        position: relative;
+        top: -8px;
+        text-transform: uppercase;
+        font-size: 24px;
+        line-height: 24px;
+        font-weight: 700;
+        letter-spacing: -1px;
+        padding-left: 90px;
+    }
+}
+
+#app {
+    padding: 0 16px 16px;
+    color: var(--text);
+}
+
+#boxes {
+    column-width: 360px;
+    column-gap: 40px;
+}
+
+#footer {
+    border-top: 1px solid var(--undergrounder);
+    background: var(--underground);
+    color: var(--underground-text);
+    font-size: 0.8em;
+    padding: 6px 12px;
+    text-align: center;
+}
+
+.box {
+    background: var(--boxes);
+    border: 1px solid var(--boxes-border);
+    border-radius: 10px;
+    padding: 5px 10px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+    break-inside: avoid;
+    margin-bottom: 40px;
+
+    .box-title {
+        margin: 25px 0 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .box-icon-wrap {
+            width: 60px;
+            height: 60px;
+            background: var(--boxes-icon);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 100px;
+            transition: background-color .5s, color .5s;
+
+            svg {
+                color: var(--boxes);
+                scale: 1.6;
+            }
+        }
+
+        h2 {
+            margin: 25px 0 0 0;
+            font-weight: normal;
+            font-size: 32px;
+        }
+    }
+}
+
+
+.card-link {
+    color: var(--text);
+    text-decoration: none;
+
+    display: block;
+    border-bottom: 1px solid var(--card-border);
+    border-left: 0px solid var(--link);
+
+    transition: border-left-width 0.1s ease-in-out, color .5s;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        border-left: 5px solid var(--link);
+    }
+}
+
+.business-card {
+    display: flex;
+
+    padding: 10px 10px 10px 0;
+    margin: 10px 0 0 0;
+    column-gap: 10px;
+
+    .logo-holder {
+        margin: 0 10px;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+
+        .logo-backer {
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            width: 66px;
+            height: 66px;
+            border-radius: 60px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity .5s;
+        }
+
+        img {
+            max-width: 60px;
+            max-height: 40px;
+            display: block;
+        }
+    }
+
+    .card-name {
+        font-size: 21px;
+        grid-area: title;
+    }
+    .card-text {
+        grid-area: desc;
+    }
+}
+
+.night .business-card .logo-holder {
+
+    opacity: 0.7;
+
+    .logo-backer {
+        background: #fff;
+        opacity: 1;
+    }
+}
