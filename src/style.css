@@ -165,11 +165,12 @@ a {
 
 #kitty {
     position: absolute;
-    top: 129px;
-    left: 143px;
-    width: 100px;
+    top: 99px;
+    left: 133px;
+    width: 80px;
     cursor: move;
     user-select: none;
+    transform: rotate(5deg);
 
     img {
         max-width: 100%;
