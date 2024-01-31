@@ -54,8 +54,8 @@ export function initCanvases(canvas: Canvases): Drawing {
     // If the kitty has not been positioned yet, do that now
     if (positionAdjust.offsetX === 1) {
         const bounds = canvas.base.getBoundingClientRect();
-        positionAdjust.offsetX = bounds.left + 121;
-        positionAdjust.offsetY = bounds.top + 64;
+        positionAdjust.offsetX = bounds.left + 113;
+        positionAdjust.offsetY = bounds.top + 43;
         redrawSprites();
     }
 
@@ -102,6 +102,7 @@ kitty.addEventListener("mousedown", (event: MouseEvent) => {
 export function redrawSprites() {
     kitty.style.left = (positionAdjust.offsetX + positionAdjust.x) + "px";
     kitty.style.top = (positionAdjust.offsetY + positionAdjust.y) + "px";
+    console.log(positionAdjust.x, positionAdjust.y);
 }
 
 /**
