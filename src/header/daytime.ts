@@ -1,4 +1,5 @@
 import { clouds, grounds, initCanvases, redrawSprites } from "./header.ts";
+import { zeroOpacity } from "./graphics.ts";
 
 /**
  * Draw the daytime yard graphic onto the given canvases.
@@ -26,7 +27,7 @@ export function drawDaytimeYard(
         400,
     );
     sunlightGradient.addColorStop(0, c.lightSky);
-    sunlightGradient.addColorStop(1, c.lightSky.slice(0, 7) + "00");
+    sunlightGradient.addColorStop(1, zeroOpacity(c.lightSky));
     ctx.base.fillStyle = sunlightGradient;
     ctx.base.arc(350, 20, 500, 0, 2 * Math.PI);
     ctx.base.globalAlpha = 0.5;

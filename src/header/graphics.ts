@@ -185,3 +185,21 @@ export function colorsFromCanvas(canvas: HTMLCanvasElement) {
         })
     ) as typeof colors;
 }
+
+export function zeroOpacity(color: string) {
+    let val = color.trim();
+    if (val.startsWith('#')) {
+        val = val.slice(1);
+    }
+    if (val.length >= 6) {
+        let ret = '#' + val.slice(0, 6) + "00";
+        return ret;
+    }
+    if (val.length === 3) {
+        let ret = '#' + val[0] + val[0] + val[1] + val[1] + val[2] + val[2] + "00";
+        return ret;
+    }
+
+    // Not sure how to convert, just return color as is
+    return color;
+}

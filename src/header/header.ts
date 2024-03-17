@@ -102,7 +102,6 @@ kitty.addEventListener("mousedown", (event: MouseEvent) => {
 export function redrawSprites() {
     kitty.style.left = (positionAdjust.offsetX + positionAdjust.x) + "px";
     kitty.style.top = (positionAdjust.offsetY + positionAdjust.y) + "px";
-    console.log(positionAdjust.x, positionAdjust.y);
 }
 
 /**
