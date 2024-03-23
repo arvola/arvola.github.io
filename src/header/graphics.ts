@@ -186,20 +186,44 @@ export function colorsFromCanvas(canvas: HTMLCanvasElement) {
     ) as typeof colors;
 }
 
-export function zeroOpacity(color: string) {
+/**
+ * Returns a hex color with a new given opacity.
+ *
+ * This is necessary for certain versions of Firefox that seem to have a bug with
+ * gradients and global opacity.
+ */
+export function opacity(color: string, opacity: number | string) {
     let val = color.trim();
     if (val.startsWith('#')) {
         val = val.slice(1);
     }
+    let op: string;
+    if (typeof opacity === "number") {
+        op = Math.floor(opacity * 255).toString(16);
+        if (op.length === 1) {
+            op = "0" + op;
+        }
+    } else {
+        op = opacity;
+    }
+
+    if (op.length !== 2) {
+        console.warn("Invalid opacity given to opacity function:", opacity);
+    }
+
     if (val.length >= 6) {
-        let ret = '#' + val.slice(0, 6) + "00";
+        let ret = '#' + val.slice(0, 6) + op;
         return ret;
     }
     if (val.length === 3) {
-        let ret = '#' + val[0] + val[0] + val[1] + val[1] + val[2] + val[2] + "00";
+        let ret = '#' + val[0] + val[0] + val[1] + val[1] + val[2] + val[2] + op;
         return ret;
     }
 
     // Not sure how to convert, just return color as is
     return color;
+}
+
+export function zeroOpacity(color: string) {
+    return opacity(color,0);
 }
