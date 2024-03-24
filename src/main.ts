@@ -16,13 +16,13 @@ window.addEventListener("load", () => {
     for (let it of styles) {
         select.insertAdjacentHTML(
             "beforeend",
-            html`<input
+            html`<div class="time-item-wrap"><input
                     type="radio"
                     id="time-${it}"
                     name="times"
                     value="${it}"
                 />
-                <label for="time-${it}">${it}</label>`,
+                <label for="time-${it}">${it}</label></div>`,
         );
         let input = document.getElementById(`time-${it}`) as HTMLInputElement;
 
@@ -56,30 +56,6 @@ const adjustments: {
     shiftValue?: number;
     op?: "+" | "*";
 }[] = [
-    {
-        key: "ArrowLeft",
-        attr: "x",
-        value: -1,
-        shiftValue: -10,
-    },
-    {
-        key: "ArrowRight",
-        attr: "x",
-        value: 1,
-        shiftValue: 10,
-    },
-    {
-        key: "ArrowUp",
-        attr: "y",
-        value: -1,
-        shiftValue: -10,
-    },
-    {
-        key: "ArrowDown",
-        attr: "y",
-        value: 1,
-        shiftValue: 10,
-    },
     {
         key: "[",
         attr: "rotation",

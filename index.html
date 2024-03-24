@@ -11,65 +11,75 @@
         <meta property="og:image" content="/preview.jpg" />
     </head>
     <body>
-        <div id="header-bottom">
-            <!--! Icon from https://www.mingcute.com/ -->
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-            >
-                <title>time_fill</title>
-                <g id="time_fill" fill="none" fill-rule="nonzero">
-                    <path
-                        d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01-.184-.092Z"
-                    />
-                    <path
-                        class="icon"
-                        d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2Zm0 4a1 1 0 0 0-1 1v5a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V7a1 1 0 0 0-1-1Z"
-                    />
-                </g>
-            </svg>
-
-            <div id="time-select"></div>
-        </div>
-        <div id="header-wrap">
-            <div id="header">
-                <canvas id="header-canvas"></canvas>
-                <canvas id="ground-canvas"></canvas>
-                <canvas id="sprites"></canvas>
+        <header>
+            <div id="header-controls">
+                <div id="controls-legend">
+                    <!--! Icon from https://www.mingcute.com/ -->
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        role="img"
+                        aria-label="Select the style of graphics on the page"
+                    >
+                        <title>time_fill</title>
+                        <desc>
+                            Clock icon to indicate time selection for
+                            graphics
+                        </desc>
+                        <g id="time_fill" fill="none" fill-rule="nonzero">
+                            <path
+                                d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002-.071.035-.02.004-.014-.004-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01-.017.428.005.02.01.013.104.074.015.004.012-.004.104-.074.012-.016.004-.017-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113-.013.002-.185.093-.01.01-.003.011.018.43.005.012.008.007.201.093c.012.004.023 0 .029-.008l.004-.014-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014-.034.614c0 .012.007.02.017.024l.015-.002.201-.093.01-.008.004-.011.017-.43-.003-.012-.01-.01-.184-.092Z"
+                            />
+                            <path
+                                class="icon"
+                                d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2Zm0 4a1 1 0 0 0-1 1v5a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V7a1 1 0 0 0-1-1Z"
+                            />
+                        </g>
+                    </svg>
+                </div>
+                <div id="time-select" role="radiogroup" aria-labelledby="controls-legend">
+                </div>
             </div>
-        </div>
-        <div id="app">
+            <div id="header-wrap">
+                <div id="header">
+                    <canvas id="header-canvas" role="img" aria-label="Pretty weather graphic to soothe visitors"></canvas>
+                    <canvas id="ground-canvas"></canvas>
+                    <canvas id="sprites"></canvas>
+                </div>
+            </div>
+        </header>
+        <main id="app">
             <h1 class="title">
                 <span class="a">A</span><span class="rvola">rvola</span>
                 <span class="home">home</span>
             </h1>
 
             <div id="boxes"></div>
-        </div>
-        <div id="footer">
+        </main>
+        <footer id="footer">
             <p>
                 &#169; 2024 Mikael Arvola. All graphics crafted by Mikael
                 Arvola, except: the category icons by
-                <a href="https://www.mingcute.com/" target="_blank">MingCute</a
+                <a href="https://www.mingcute.com/">MingCute</a
                 >, and the logos for each link, which belong to their respective
                 owners.
             </p>
             <p>
-                <a href="https://github.com/arvola/arvola.github.io" target="_blank"
+                <a
+                    href="https://github.com/arvola/arvola.github.io"
                     >Source Code</a
                 >. The only production library used is
                 <a
                     href="https://www.npmjs.com/package/simplex-noise"
-                    target="_blank"
                     >simplex-noise</a
                 >. The build process uses
-                <a href="https://vitejs.dev/" target="_blank">Vite</a>.
+                <a href="https://vitejs.dev/">Vite</a>.
             </p>
-        </div>
+        </footer>
         <div id="kitty">
-            <img src="./src/img/kitty.svg" alt="Kitty" />
+            <img src="./src/img/kitty.svg" alt="Floating Kitty Graphic" />
         </div>
 
         <!--! Icons from https://www.mingcute.com/ -->

@@ -42,7 +42,7 @@ for (let cat of data) {
             logo = new URL(`./links/${link.logo}`, import.meta.url).href;
         }
         cards.insertAdjacentHTML("beforeend", html`
-            <a href="${link.url}" target="_blank" class="card-link">
+            <a href="${link.url}" class="card-link">
                 <div class="business-card">
                     <div class="logo-holder">
                         <div class="logo-backer"></div>
