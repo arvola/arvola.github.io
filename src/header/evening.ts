@@ -1,4 +1,5 @@
 import { clouds, grounds, initCanvases, redrawSprites } from "./header.ts";
+import { opacity } from "./graphics.ts";
 
 export function drawEveningYard(
     base: HTMLCanvasElement,
@@ -25,11 +26,10 @@ export function drawEveningYard(
         sunY,
         200
     );
-    sunGradient.addColorStop(0, c.sunner);
+    sunGradient.addColorStop(0, opacity(c.sunner, 0.4));
     sunGradient.addColorStop(1, "#ffffff00");
     ctx.base.fillStyle = sunGradient;
     ctx.base.arc(sunX, sunY, 200, 0, 2 * Math.PI);
-    ctx.base.globalAlpha = 0.4;
     ctx.base.fill();
     ctx.base.closePath();
     ctx.base.globalAlpha = 1;

@@ -1,5 +1,5 @@
 import { clouds, grounds, initCanvases, redrawSprites } from "./header.ts";
-import { zeroOpacity } from "./graphics.ts";
+import { opacity, zeroOpacity } from "./graphics.ts";
 
 /**
  * Draw the daytime yard graphic onto the given canvases.
@@ -26,11 +26,11 @@ export function drawDaytimeYard(
         20,
         400,
     );
-    sunlightGradient.addColorStop(0, c.lightSky);
+    sunlightGradient.addColorStop(0, opacity(c.lightSky, 0.5));
     sunlightGradient.addColorStop(1, zeroOpacity(c.lightSky));
     ctx.base.fillStyle = sunlightGradient;
     ctx.base.arc(350, 20, 500, 0, 2 * Math.PI);
-    ctx.base.globalAlpha = 0.5;
+
     ctx.base.fill();
     ctx.base.closePath();
 
@@ -42,15 +42,15 @@ export function drawDaytimeYard(
         20,
         100,
     );
-    sunGradient.addColorStop(0, c.sunner);
-    sunGradient.addColorStop(0.33, c.sunner);
-    sunGradient.addColorStop(0.331, c.sun);
-    sunGradient.addColorStop(0.66, c.sun);
-    sunGradient.addColorStop(0.661, "#fff");
-    sunGradient.addColorStop(1, "#fff");
+    sunGradient.addColorStop(0, opacity(c.sunner, 0.1));
+    sunGradient.addColorStop(0.33, opacity(c.sunner, 0.1));
+    sunGradient.addColorStop(0.331,opacity( c.sun, 0.1));
+    sunGradient.addColorStop(0.66, opacity(c.sun, 0.1));
+    sunGradient.addColorStop(0.661,opacity( "#fff", 0.1));
+    sunGradient.addColorStop(1, opacity("#fff", 0.1));
     ctx.base.fillStyle = sunGradient;
     ctx.base.arc(350, 20, 100, 0, 2 * Math.PI);
-    ctx.base.globalAlpha = 0.1;
+    //ctx.base.globalAlpha = 0.1;
     ctx.base.fill();
     ctx.base.closePath();
 
