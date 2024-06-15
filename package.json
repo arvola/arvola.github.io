@@ -14,17 +14,17 @@
         "simplex-noise": "^4.0.1"
     },
     "devDependencies": {
-        "@types/node": "^20.11.5",
-        "autoprefixer": "^10.4.17",
-        "dotenv": "^16.3.2",
-        "esno": "^4.0.0",
-        "google-spreadsheet": "^4.1.1",
+        "@types/node": "^20.14.2",
+        "autoprefixer": "^10.4.19",
+        "dotenv": "^16.4.5",
+        "esno": "^4.7.0",
+        "google-spreadsheet": "^4.1.2",
         "postcss-nested": "^6.0.1",
-        "sharp": "^0.33.2",
-        "typescript": "^5.3.3",
-        "vite": "^5.0.12",
-        "change-case": "^5.4.2",
-        "glob": "^10.3.10",
-        "prettier": "^3.2.4"
+        "sharp": "^0.33.4",
+        "typescript": "^5.4.5",
+        "vite": "^5.3.1",
+        "change-case": "^5.4.4",
+        "glob": "^10.4.1",
+        "prettier": "^3.3.2"
     }
 }
