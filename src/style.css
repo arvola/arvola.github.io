@@ -11,12 +11,12 @@
     -webkit-text-size-adjust: 100%;
 
     --background: #eef8f7;
-    --ground-dark: #233d12ff;
-    --ground-darkish: #6eab36;
-    --ground-mid: #386c0bff;
-    --ground-midder: #5a9c20;
-    --ground-light: #38a700ff;
-    --ground-lighter: #bbff99;
+    --ground-dark: #3a651d;
+    --ground-darkish: #689f2d;
+    --ground-mid: #51bc1c;
+    --ground-midder: #558a28;
+    --ground-light: #45b60c;
+    --ground-lighter: #9ada7a;
     --sky: #2ca6a4ff;
     --light-sky: #60dddbff;
     --clouds: #e0f5f3ff;
@@ -27,7 +27,7 @@
     --undergrounder: #402a0c;
     --underground-shadow: #160f0555;
 
-    --underground-text: #8d816f;
+    --underground-text: #ccbfad;
     --underground-active: #591c00;
     --underground-active-text: #dddddd;
 
@@ -50,7 +50,9 @@ body {
 body {
     color: var(--text);
     background-color: var(--background);
-    transition: background-color .5s, color .5s;
+    transition:
+        background-color 0.5s,
+        color 0.5s;
 }
 
 h1,
@@ -60,12 +62,12 @@ h4,
 h5,
 h6 {
     color: var(--heading);
-    transition: color .5s;
+    transition: color 0.5s;
 }
 
 a {
     color: var(--link);
-    transition: color .5s;
+    transition: color 0.5s;
 }
 
 #header-wrap {
@@ -74,11 +76,16 @@ a {
 
 #header {
     width: 100%;
+    max-width: 2048px;
     height: 220px;
     overflow: hidden;
     position: relative;
     border-radius: 5px;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px, rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+    box-shadow:
+        rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+        rgba(0, 0, 0, 0.3) 0px 8px 16px -8px,
+        rgba(0, 0, 0, 0.16) 0px 3px 6px,
+        rgba(0, 0, 0, 0.23) 0px 3px 6px;
 }
 
 .evening {
@@ -112,6 +119,7 @@ a {
     --link: #325fa2;
     --card-border: #b5b2cc;
 }
+
 .night {
     --background: #000000;
     --ground-dark: #000;
@@ -146,6 +154,7 @@ a {
         box-shadow: rgba(164, 164, 196, 0.25) 0px 0px 27px 0;
     }
 }
+
 #ground-canvas,
 #header-canvas {
     position: absolute;
@@ -155,7 +164,7 @@ a {
     height: 220px;
 }
 
-#sprites {
+#sprites, #overlay-canvas {
     position: absolute;
     left: 0;
     top: 0;
@@ -165,8 +174,8 @@ a {
 
 #kitty {
     position: absolute;
-    top: 99px;
-    left: 133px;
+    top: 132px;
+    left: 78px;
     width: 80px;
     cursor: move;
     user-select: none;
@@ -187,7 +196,9 @@ a {
     align-items: center;
 
     color: var(--underground-text);
-    transition: background-color .5s, color .5s;
+    transition:
+        background-color 0.5s,
+        color 0.5s;
 
     .icon {
         fill: var(--underground-text);
@@ -196,6 +207,7 @@ a {
 
 #controls-legend {
     margin-left: 10px;
+
     svg {
         display: block;
     }
@@ -230,7 +242,7 @@ a {
         border: 1px solid currentColor;
         border-radius: 15px;
         font-size: 11px;
-        padding: 5px 10px 2px;
+        padding: 3px 10px 2px;
         display: block;
         z-index: -1;
     }
@@ -255,8 +267,7 @@ a {
     margin-top: 20px;
     text-transform: uppercase;
 
-    font-family: Didot, "Bodoni MT", "URW Palladio L",
-    P052, Sylfaen, serif;
+    font-family: Didot, "Bodoni MT", "URW Palladio L", P052, Sylfaen, serif;
 
     .a {
         letter-spacing: 2px;
@@ -321,7 +332,9 @@ a {
             justify-content: center;
             align-items: center;
             border-radius: 100px;
-            transition: background-color .5s, color .5s;
+            transition:
+                background-color 0.5s,
+                color 0.5s;
 
             svg {
                 color: var(--boxes);
@@ -337,11 +350,17 @@ a {
     }
 }
 
+ul.cards {
+    padding: 0;
+    margin: 0;
+}
 
 .card-link {
     color: var(--text);
     text-decoration: none;
 
+    margin: 0;
+    padding: 0;
     display: block;
     border-bottom: 1px solid var(--card-border);
     border-left: 0 solid var(--link);
@@ -350,7 +369,9 @@ a {
     box-sizing: content-box;
     width: 100%;
 
-    transition: border-width 0.1s ease-in-out, color .5s;
+    transition:
+        border-width 0.1s ease-in-out,
+        color 0.5s;
 
     &:last-child {
         border-bottom: none;
@@ -364,6 +385,7 @@ a {
 
 .business-card {
     display: flex;
+    position: relative;
 
     padding: 10px 10px 10px 0;
     margin: 10px 0 0 0;
@@ -387,7 +409,7 @@ a {
             border-radius: 60px;
             z-index: -1;
             opacity: 0;
-            transition: opacity .5s;
+            transition: opacity 0.5s;
         }
 
         img {
@@ -400,14 +422,28 @@ a {
     .card-name {
         font-size: 21px;
         grid-area: title;
+
+        a {
+            color: var(--text);
+            text-decoration: none;
+
+            &::after {
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                content: "";
+            }
+        }
     }
+
     .card-text {
         grid-area: desc;
     }
 }
 
 .night .business-card .logo-holder {
-
     opacity: 0.7;
 
     .logo-backer {

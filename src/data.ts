@@ -15,17 +15,19 @@ export interface Category {
     icon?: string;
 }
 
+let linkIndex = 1;
+
 // We can just render the categories and links right away, since the script is at the bottom of the HTML.
 const boxes = document.getElementById("boxes") as HTMLDivElement;
 for (let cat of data) {
     boxes.insertAdjacentHTML("beforeend", html`
         <div class="box">
             <div class="box-title">
-                <div class="box-icon-wrap">
+                <div class="box-icon-wrap" aria-hidden="true">
                 </div>
                 <h2>${cat.title}</h2>
             </div>
-            <div class="cards"></div>
+            <ul class="cards"></ul>
         </div>`);
     const box = boxes.lastElementChild as HTMLDivElement;
     const cards = box.querySelector(".cards") as HTMLDivElement;
@@ -41,18 +43,21 @@ for (let cat of data) {
         if (link.logo) {
             logo = new URL(`./links/${link.logo}`, import.meta.url).href;
         }
+        let i = linkIndex++;
         cards.insertAdjacentHTML("beforeend", html`
-            <a href="${link.url}" class="card-link">
-                <div class="business-card">
+            <li class="card-link">
+                <article class="business-card">
                     <div class="logo-holder">
                         <div class="logo-backer"></div>
                         <img src="${logo}" alt="" />
                     </div>
                     <div class="text-holder">
-                        <div class="card-name">${link.name}</div>
-                        <div class="card-text">${link.subtitle}</div>
+                        <div class="card-name">
+                            <a href="${link.url}" aria-describedby="link-${i}">${link.name}</a>
+                        </div>
+                        <div class="card-text" id="link-${i}">${link.subtitle}</div>
                     </div>
-                </div>
-            </a>`)
+                </article>
+            </li>`)
     }
 }
