@@ -11,12 +11,12 @@
     -webkit-text-size-adjust: 100%;
 
     --background: #eef8f7;
-    --ground-dark: #3a651d;
-    --ground-darkish: #689f2d;
-    --ground-mid: #51bc1c;
-    --ground-midder: #558a28;
-    --ground-light: #45b60c;
-    --ground-lighter: #9ada7a;
+    --ground-dark: #4d8a24;
+    --ground-darkish: #72ba37;
+    --ground-mid: #7ec63b;
+    --ground-midder: #86d334;
+    --ground-light: #9adb29;
+    --ground-lighter: #a5e635;
     --sky: #2ca6a4ff;
     --light-sky: #60dddbff;
     --clouds: #e0f5f3ff;
@@ -82,10 +82,10 @@ a {
     position: relative;
     border-radius: 5px;
     box-shadow:
-        rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
-        rgba(0, 0, 0, 0.3) 0px 8px 16px -8px,
-        rgba(0, 0, 0, 0.16) 0px 3px 6px,
-        rgba(0, 0, 0, 0.23) 0px 3px 6px;
+        rgba(50, 50, 93, 0.25) 0 13px 27px -5px,
+        rgba(0, 0, 0, 0.3) 0 8px 16px -8px,
+        rgba(0, 0, 0, 0.16) 0 3px 6px,
+        rgba(0, 0, 0, 0.23) 0 3px 6px;
 }
 
 .evening {
@@ -151,7 +151,7 @@ a {
     --card-border: #041c42ff;
 
     #header {
-        box-shadow: rgba(164, 164, 196, 0.25) 0px 0px 27px 0;
+        box-shadow: rgba(164, 164, 196, 0.25) 0 0 27px 0;
     }
 }
 
@@ -314,7 +314,7 @@ a {
     border: 1px solid var(--boxes-border);
     border-radius: 10px;
     padding: 5px 10px;
-    box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 8px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0 2px 8px;
     break-inside: avoid;
     margin-bottom: 40px;
 
@@ -449,5 +449,15 @@ ul.cards {
     .logo-backer {
         background: #fff;
         opacity: 1;
+    }
+}
+
+.generate-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+
+    .generated-info {
+        font-size: 0.8em;
+        color: var(--underground-text);
     }
 }

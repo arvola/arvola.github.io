@@ -1,7 +1,8 @@
 import { noise, NoiseParam, octaves } from "./graphics.ts";
 import { img } from "../img.ts";
 import milky from "../img/milkyway.png";
-import { Drawing, grounds, initCanvases, redrawSprites } from "./header.ts";
+import { Drawing, grounds, initCanvases } from "./header.ts";
+import {redrawSprites} from "./kitty.ts";
 
 /**
  * Draw the nighttime yard graphic.
@@ -57,7 +58,7 @@ export function drawNightYard(
 
         redrawSprites();
 
-        grounds(drawing, canvas.ground, ctx.ground, c, 0.4, "multiply");
+        grounds(drawing, canvas.ground, ctx.ground, c);
     });
 }
 

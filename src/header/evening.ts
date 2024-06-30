@@ -1,5 +1,6 @@
-import { clouds, grounds, initCanvases, redrawSprites } from "./header.ts";
+import { clouds, grounds, initCanvases } from "./header.ts";
 import { opacity } from "./graphics.ts";
+import {redrawSprites} from "./kitty.ts";
 
 export function drawEveningYard(
     base: HTMLCanvasElement,
@@ -45,5 +46,5 @@ export function drawEveningYard(
     redrawSprites();
 
     clouds(drawing);
-    grounds(drawing, canvas.ground, ctx.ground, c, 0.4, "multiply");
+    grounds(drawing, canvas.ground, ctx.ground, c);
 }
