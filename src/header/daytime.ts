@@ -1,5 +1,6 @@
-import { clouds, grounds, initCanvases, redrawSprites } from "./header.ts";
+import { clouds, grounds, initCanvases } from "./header.ts";
 import { opacity, zeroOpacity } from "./graphics.ts";
+import {redrawSprites} from "./kitty.ts";
 
 /**
  * Draw the daytime yard graphic onto the given canvases.
@@ -7,8 +8,9 @@ import { opacity, zeroOpacity } from "./graphics.ts";
 export function drawDaytimeYard(
     base: HTMLCanvasElement,
     ground: HTMLCanvasElement,
+    overlay: HTMLCanvasElement,
 ) {
-    const drawing = initCanvases({ base, ground });
+    const drawing = initCanvases({ base, ground, overlay });
     const { ctx, canvas, c } = drawing;
 
     const skyGradient = ctx.base.createLinearGradient(0, 0, 0, 80);
@@ -66,5 +68,11 @@ export function drawDaytimeYard(
     redrawSprites();
 
     clouds(drawing);
-    grounds(canvas.ground, ctx.ground, c, 0.5, "multiply");
+    grounds(drawing, canvas.ground, ctx.ground, c);
+
+    window.addEventListener("grounds", () => {
+        drawing.ctx.overlay.clearRect(0, 0, drawing.canvas.overlay.width, drawing.canvas.overlay.height);
+        drawing.ctx.ground.clearRect(0, 0, drawing.canvas.ground.width, drawing.canvas.ground.height);
+        grounds(drawing, canvas.ground, ctx.ground, c);
+    })
 }

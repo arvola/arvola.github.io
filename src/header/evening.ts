@@ -1,11 +1,13 @@
-import { clouds, grounds, initCanvases, redrawSprites } from "./header.ts";
+import { clouds, grounds, initCanvases } from "./header.ts";
 import { opacity } from "./graphics.ts";
+import {redrawSprites} from "./kitty.ts";
 
 export function drawEveningYard(
     base: HTMLCanvasElement,
     ground: HTMLCanvasElement,
+    overlay: HTMLCanvasElement,
 ) {
-    const drawing = initCanvases({ base, ground });
+    const drawing = initCanvases({ base, ground, overlay });
     const { ctx, canvas, c } = drawing;
 
     const skyGradient = ctx.base.createLinearGradient(0, 0, 0, 220);
@@ -44,5 +46,5 @@ export function drawEveningYard(
     redrawSprites();
 
     clouds(drawing);
-    grounds(canvas.ground, ctx.ground, c, 0.4, "multiply");
+    grounds(drawing, canvas.ground, ctx.ground, c);
 }

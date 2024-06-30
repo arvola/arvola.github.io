@@ -1,10 +1,10 @@
-import { positionAdjust, redrawSprites } from "./header/header.ts";
 import "./style.css";
 import { html } from "./template";
 import "./data";
 import { drawDaytimeYard } from "./header/daytime.ts";
 import { drawEveningYard } from "./header/evening.ts";
 import { drawNightYard } from "./header/night.ts";
+import {positionAdjust, redrawSprites} from "./header/kitty.ts";
 
 type Styles = "daytime" | "evening" | "night";
 const styles: Styles[] = ["daytime", "evening", "night"];
@@ -122,17 +122,20 @@ function draw(time?: Styles) {
     const ground = document.getElementById(
         "ground-canvas",
     ) as HTMLCanvasElement;
+    const overlay = document.getElementById(
+        "overlay-canvas",
+    ) as HTMLCanvasElement;
 
     document.body.classList.value = time || "";
     switch (time) {
         case "evening":
-            drawEveningYard(header, ground);
+            drawEveningYard(header, ground, overlay);
             break;
         case "night":
-            drawNightYard(header, ground);
+            drawNightYard(header, ground, overlay);
             break;
         default:
-            drawDaytimeYard(header, ground);
+            drawDaytimeYard(header, ground, overlay);
     }
 
     (document.getElementById(`time-${time}`) as HTMLInputElement).checked =

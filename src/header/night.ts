@@ -1,7 +1,8 @@
 import { noise, NoiseParam, octaves } from "./graphics.ts";
 import { img } from "../img.ts";
 import milky from "../img/milkyway.png";
-import { Drawing, grounds, initCanvases, redrawSprites } from "./header.ts";
+import { Drawing, grounds, initCanvases } from "./header.ts";
+import {redrawSprites} from "./kitty.ts";
 
 /**
  * Draw the nighttime yard graphic.
@@ -9,8 +10,9 @@ import { Drawing, grounds, initCanvases, redrawSprites } from "./header.ts";
 export function drawNightYard(
     base: HTMLCanvasElement,
     ground: HTMLCanvasElement,
+    overlay: HTMLCanvasElement,
 ) {
-    const drawing = initCanvases({ base, ground });
+    const drawing = initCanvases({ base, ground, overlay });
     const { ctx, canvas, c } = drawing;
 
     const skyGradient = ctx.base.createLinearGradient(0, 0, 0, 220);
@@ -56,7 +58,7 @@ export function drawNightYard(
 
         redrawSprites();
 
-        grounds(canvas.ground, ctx.ground, c, 0.4, "multiply");
+        grounds(drawing, canvas.ground, ctx.ground, c);
     });
 }
 
