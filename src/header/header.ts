@@ -71,13 +71,9 @@ export function clouds({ ctx, c }: Drawing) {
     cloud2(ctx.base, c.clouds, c.cloudsDark, 450, 50, smallClouds[1]);
     cloud2(ctx.base, c.clouds, c.cloudsDark, 650, 80, smallClouds[2]);
     cloud2(ctx.base, c.clouds, c.cloudsDark, 850, 30, mediumClouds[2]);
-
-    if (window.innerWidth > 1000) {
-        cloud2(ctx.base, c.clouds, c.cloudsDark, 1100, 85, mediumClouds[1]);
-
-        cloud2(ctx.base, c.clouds, c.cloudsDark, 1300, 30, smallClouds[3]);
-        cloud2(ctx.base, c.clouds, c.cloudsDark, 1600, 80, smallClouds[4]);
-    }
+    cloud2(ctx.base, c.clouds, c.cloudsDark, 1100, 85, mediumClouds[1]);
+    cloud2(ctx.base, c.clouds, c.cloudsDark, 1300, 30, smallClouds[3]);
+    cloud2(ctx.base, c.clouds, c.cloudsDark, 1600, 80, smallClouds[4]);
 }
 
 let groundses: [number, number][][] = [
@@ -165,8 +161,6 @@ export function grounds(
     ground(drawing, ctx, c.groundMid, c.groundMid, groundses[g++], -10);
     ground(drawing, ctx, c.groundMidder, c.groundMidder, groundses[g++], 20);
     ground(drawing, ctx, c.groundDarkish, c.groundDarkish, groundses[g++], 0);
-
-    // Draw one last ground without any texture
     ground(drawing, ctx, c.groundDark, c.groundDark, groundses[g++], 60);
 
     recordCurve = false;

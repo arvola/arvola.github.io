@@ -1,6 +1,6 @@
-export type CloudSpec = [number, number, number][];
+export type CloudData = [number, number, number][];
 
-export const bigClouds: CloudSpec[] = [
+export const bigClouds: CloudData[] = [
     [
         [0, 34, 16],
         [10, 12, 15],
@@ -76,7 +76,7 @@ export const bigClouds: CloudSpec[] = [
     ],
 ];
 
-export const mediumClouds: CloudSpec[] = [
+export const mediumClouds: CloudData[] = [
     [
         [0, 52, 10],
         [10, 70, 11],
@@ -189,7 +189,7 @@ export const mediumClouds: CloudSpec[] = [
     ],
 ];
 
-export const smallClouds: CloudSpec[] = [
+export const smallClouds: CloudData[] = [
     [
         [20, 68, 13],
         [100, 66, 12],

@@ -1,6 +1,109 @@
 import { clouds, grounds, initCanvases } from "./header.ts";
 import { opacity, zeroOpacity } from "./graphics.ts";
-import {redrawSprites} from "./kitty.ts";
+import { redrawSprites } from "./kitty.ts";
+import { CloudData, mediumClouds, smallClouds } from "./clouds.ts";
+
+export type ColorSpec = string | [string, number];
+
+export interface SkySpec {
+    type: "sky";
+    colors: ColorSpec[];
+}
+
+export interface HaloSpecStop {
+    width: number;
+    color?: ColorSpec;
+}
+
+export interface HaloSpec {
+    type: "halo";
+    x: number;
+    y: number;
+    stops: HaloSpecStop[];
+}
+
+export interface SunSpec {
+    type: "sun";
+    x: number;
+    y: number;
+    radius: number;
+}
+
+export interface CloudSpec {
+    type: "clouds";
+    colors?: ColorSpec[];
+    clouds: [number, number, CloudData][];
+}
+
+export interface GroundSpec {
+    type: "ground";
+    colors: ColorSpec[];
+}
+
+export type AnySpec = SkySpec | HaloSpec | SunSpec | CloudSpec | GroundSpec;
+
+export const daytimeSpec: AnySpec[] = [
+    {
+        type: "sky",
+        colors: ["sky", "lightSky"],
+    },
+    {
+        type: "halo",
+        x: 350,
+        y: 20,
+        stops: [
+            {
+                width: 30,
+            },
+            {
+                width: 30,
+                color: ["sunner", 0.1],
+            },
+            {
+                width: 30,
+                color: ["sun", 0.1],
+            },
+            {
+                width: 30,
+                color: ["#fff", 0.1],
+            },
+            {
+                width: 290,
+                color: ["lightSky", 0.4],
+            },
+        ],
+    },
+    {
+        type: "sun",
+        x: 350,
+        y: 20,
+        radius: 25,
+    },
+    {
+        type: "clouds",
+        colors: ["clouds", "cloudsDark"],
+        clouds: [
+            [100, 45, smallClouds[0]],
+            [450, 50, smallClouds[1]],
+            [650, 80, smallClouds[2]],
+            [850, 30, mediumClouds[2]],
+            [1100, 85, mediumClouds[1]],
+            [1300, 30, smallClouds[3]],
+            [1600, 80, smallClouds[4]],
+        ],
+    },
+    {
+        type: "ground",
+        colors: [
+            "groundLighter",
+            "groundLight",
+            "groundMid",
+            "groundMidder",
+            "groundDarkish",
+            "groundDark",
+        ],
+    },
+];
 
 /**
  * Draw the daytime yard graphic onto the given canvases.
@@ -46,9 +149,9 @@ export function drawDaytimeYard(
     );
     sunGradient.addColorStop(0, opacity(c.sunner, 0.1));
     sunGradient.addColorStop(0.33, opacity(c.sunner, 0.1));
-    sunGradient.addColorStop(0.331,opacity( c.sun, 0.1));
+    sunGradient.addColorStop(0.331, opacity(c.sun, 0.1));
     sunGradient.addColorStop(0.66, opacity(c.sun, 0.1));
-    sunGradient.addColorStop(0.661,opacity( "#fff", 0.1));
+    sunGradient.addColorStop(0.661, opacity("#fff", 0.1));
     sunGradient.addColorStop(1, opacity("#fff", 0.1));
     ctx.base.fillStyle = sunGradient;
     ctx.base.arc(350, 20, 100, 0, 2 * Math.PI);
@@ -71,8 +174,18 @@ export function drawDaytimeYard(
     grounds(drawing, canvas.ground, ctx.ground, c);
 
     window.addEventListener("grounds", () => {
-        drawing.ctx.overlay.clearRect(0, 0, drawing.canvas.overlay.width, drawing.canvas.overlay.height);
-        drawing.ctx.ground.clearRect(0, 0, drawing.canvas.ground.width, drawing.canvas.ground.height);
+        drawing.ctx.overlay.clearRect(
+            0,
+            0,
+            drawing.canvas.overlay.width,
+            drawing.canvas.overlay.height,
+        );
+        drawing.ctx.ground.clearRect(
+            0,
+            0,
+            drawing.canvas.ground.width,
+            drawing.canvas.ground.height,
+        );
         grounds(drawing, canvas.ground, ctx.ground, c);
-    })
+    });
 }
