@@ -1,6 +1,7 @@
-import { clouds, grounds, initCanvases } from "./header.ts";
-import { opacity } from "./graphics.ts";
-import {redrawSprites} from "./kitty.ts";
+import { clouds, grounds } from "./header.ts";
+import {redrawSprites} from "./drawing/kitty.ts";
+import { initCanvases } from "./drawing/canvases.ts";
+import { opacity } from "./drawing/color.ts";
 
 export function drawEveningYard(
     base: HTMLCanvasElement,

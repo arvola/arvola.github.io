@@ -1,67 +1,13 @@
-import { bzCurve, colorsFromCanvas } from "./graphics.ts";
-import { mediumClouds, smallClouds } from "./clouds.ts";
+import { bzCurve } from "./graphics.ts";
 import { cloud2 } from "./cloud.ts";
-import { positionAdjust, redrawSprites } from "./kitty.ts";
-
-export type Canvases = {
-    base: HTMLCanvasElement;
-    ground: HTMLCanvasElement;
-    overlay: HTMLCanvasElement;
-};
-
-export type Contexts = {
-    base: CanvasRenderingContext2D;
-    ground: CanvasRenderingContext2D;
-    overlay: CanvasRenderingContext2D;
-};
-
-export type Drawing = {
-    canvas: Canvases;
-    ctx: Contexts;
-    c: ReturnType<typeof colorsFromCanvas>;
-};
+import { mediumClouds, smallClouds } from "./drawing/elements/clouds.ts";
+import { Drawing } from "./drawing/canvases.ts";
+import { ColorMap } from "./drawing/color.ts";
 
 export const curveDots = false;
 export let recordCurve = true;
 export let curveAdjust: [number, number][] = [];
 export let curveAdjustPosition = 0;
-
-export function initCanvases(canvas: Canvases): Drawing {
-    let ctx: Contexts = {
-        base: canvas.base.getContext("2d")!,
-        ground: canvas.ground.getContext("2d")!,
-        overlay: canvas.overlay.getContext("2d")!,
-    };
-
-    // Enlarge the canvases by the device pixel ratio to improve graphics quality
-    for (let it of Object.values(canvas)) {
-        it.width = 2200 * devicePixelRatio;
-        it.height = 220 * devicePixelRatio;
-    }
-
-    ctx.base.clearRect(0, 0, 2200, 220);
-
-    // Scale the canvases to the right size after enlarging
-    ctx.base.scale(devicePixelRatio, devicePixelRatio);
-    ctx.ground.scale(devicePixelRatio, devicePixelRatio);
-    ctx.overlay.scale(devicePixelRatio, devicePixelRatio);
-
-    const c = colorsFromCanvas(canvas.base);
-
-    // If the kitty has not been positioned yet, do that now
-    if (positionAdjust.offsetX === 1) {
-        const bounds = canvas.base.getBoundingClientRect();
-        positionAdjust.offsetX = bounds.left + 40 + window.scrollX;
-        positionAdjust.offsetY = bounds.top + 69 + window.scrollY;
-        redrawSprites();
-    }
-
-    return {
-        canvas,
-        ctx,
-        c,
-    };
-}
 
 /**
  * Draw the clouds.
@@ -151,7 +97,7 @@ export function grounds(
     drawing: Drawing,
     canvas: HTMLCanvasElement,
     ctx: CanvasRenderingContext2D,
-    c: ReturnType<typeof colorsFromCanvas>
+    c: ColorMap
 ) {
     stuff = [];
     curveAdjustPosition = 0;

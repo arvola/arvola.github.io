@@ -4,7 +4,7 @@ import "./data";
 import { drawDaytimeYard } from "./header/daytime.ts";
 import { drawEveningYard } from "./header/evening.ts";
 import { drawNightYard } from "./header/night.ts";
-import {positionAdjust, redrawSprites} from "./header/kitty.ts";
+import {positionAdjust, redrawSprites} from "./header/drawing/kitty.ts";
 
 type Styles = "daytime" | "evening" | "night";
 const styles: Styles[] = ["daytime", "evening", "night"];
