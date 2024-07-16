@@ -384,17 +384,17 @@ ul.cards {
 }
 
 .business-card {
-    display: flex;
     position: relative;
 
-    padding: 10px 10px 10px 0;
+    padding: 10px 10px 14px 0;
     margin: 10px 0 0 0;
     column-gap: 10px;
 
     .logo-holder {
-        margin: 0 10px;
+        margin: 0 20px 0 10px;
         width: 60px;
         height: 60px;
+        float: left;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -419,9 +419,16 @@ ul.cards {
         }
     }
 
+    .text-holder {
+        /* There is some weirdness with column sizes on larger screens, the text pushing the width of
+         the column doesn't seem to play well with column-width. */
+        @media screen and (min-width: 1200px) {
+            max-width: 320px;
+        }
+    }
+
     .card-name {
         font-size: 21px;
-        grid-area: title;
 
         a {
             color: var(--text);
@@ -436,10 +443,6 @@ ul.cards {
                 content: "";
             }
         }
-    }
-
-    .card-text {
-        grid-area: desc;
     }
 }
 
