@@ -1,14 +1,27 @@
 import { LayerSpec, SpecDrawingFunc } from "./base.ts";
-import { ColorMap, ColorSpec } from "../color.ts";
+import { addColorStops, colorFromSpec, ColorMap, ColorSpec } from "../color.ts";
+import { cloud2 } from "../../cloud.ts";
 
 export interface CloudsSpec extends LayerSpec {
     type: "clouds";
-    colors?: ColorSpec[];
+    colors: ColorSpec[];
     clouds: [number, number, CloudData][];
+    singleGradient?: boolean;
 }
 
-export const drawClouds: SpecDrawingFunc<CloudsSpec> = (spec, ctx, c) => {
+export const drawClouds: SpecDrawingFunc<CloudsSpec> = (spec, {ctx, c, height}) => {
+    let gradient: [string, string] | CanvasGradient;
 
+    if (spec.singleGradient) {
+        gradient = ctx.createLinearGradient(0, 0, 0, height);
+        addColorStops(gradient, spec.colors, c);
+    } else {
+        gradient = [colorFromSpec(spec.colors[0], c), colorFromSpec(spec.colors[1], c)]
+    }
+
+    for (let it of spec.clouds) {
+        cloud2(ctx, gradient, it[0], it[1], it[2]);
+    }
 }
 export type CloudData = [number, number, number][];
 

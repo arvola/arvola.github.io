@@ -98,3 +98,17 @@ export function opacity(color: string, opacity: number | string) {
 export function zeroOpacity(color: string) {
     return opacity(color, 0);
 }
+
+export function addColorStops(gradient: CanvasGradient, colors: ColorSpec[], c: ColorMap) {
+    let offsetAdd = 1 / (colors.length - 1);
+    let offset = 0;
+    let i = 0;
+    for (let it of colors) {
+        ++i;
+        if (i === colors.length) {
+            offset = 1;
+        }
+        gradient.addColorStop(offset, colorFromSpec(it, c));
+        offset += offsetAdd;
+    }
+}

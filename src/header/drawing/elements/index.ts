@@ -4,6 +4,7 @@ import { drawSun } from "./sun.ts";
 import { drawClouds } from "./clouds.ts";
 import { drawGround } from "./ground.ts";
 import { ColorMap } from "../color.ts";
+import { DrawingProps } from "../canvases.ts";
 
 export const DrawingSpec = {
     sky: drawSky,
@@ -15,6 +16,6 @@ export const DrawingSpec = {
 
 export type AnySpec = Parameters<typeof DrawingSpec[keyof typeof DrawingSpec]>[0];
 
-export function drawWithSpec(spec: AnySpec, ctx: CanvasRenderingContext2D, c: ColorMap) {
-    DrawingSpec[spec.type](spec as any, ctx, c);
+export function drawWithSpec(spec: AnySpec, props: DrawingProps) {
+    DrawingSpec[spec.type](spec as any, props);
 }

@@ -1,7 +1,8 @@
-import { curveAdjust, stuff } from "./header/header.ts";
+
 import { html } from "./template.ts";
 import { noise } from "./header/graphics.ts";
 import { cloud2, noiseCloud } from "./header/cloud.ts";
+import { curveAdjust, stuff } from "./header/drawing/elements/ground.ts";
 
 export function generateSamples() {
     const wrapper = document.createElement("div");

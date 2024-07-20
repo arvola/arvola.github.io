@@ -1,9 +1,10 @@
-import { clouds, grounds } from "./header.ts";
+import { clouds } from "./header.ts";
 import { redrawSprites } from "./drawing/kitty.ts";
 import { AnySpec } from "./drawing/elements";
 import { mediumClouds, smallClouds } from "./drawing/elements/clouds.ts";
 import { initCanvases } from "./drawing/canvases.ts";
 import { opacity, zeroOpacity } from "./drawing/color.ts";
+import { grounds } from "./drawing/elements/ground.ts";
 
 export const daytimeSpec: AnySpec[] = [
     {
@@ -41,6 +42,8 @@ export const daytimeSpec: AnySpec[] = [
         x: 350,
         y: 20,
         radius: 25,
+        fill: "sun",
+        stroke: "sunner"
     },
     {
         type: "clouds",
@@ -134,21 +137,5 @@ export function drawDaytimeYard(
     redrawSprites();
 
     clouds(drawing);
-    grounds(drawing, canvas.ground, ctx.ground, c);
-
-    window.addEventListener("grounds", () => {
-        drawing.ctx.overlay.clearRect(
-            0,
-            0,
-            drawing.canvas.overlay.width,
-            drawing.canvas.overlay.height,
-        );
-        drawing.ctx.ground.clearRect(
-            0,
-            0,
-            drawing.canvas.ground.width,
-            drawing.canvas.ground.height,
-        );
-        grounds(drawing, canvas.ground, ctx.ground, c);
-    });
+    grounds(ctx.ground, [c.groundLighter, c.groundLight, c.groundMid, c.groundMidder, c.groundDarkish, c.groundDark]);
 }
