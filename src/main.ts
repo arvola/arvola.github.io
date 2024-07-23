@@ -1,13 +1,11 @@
 import "./style.css";
 import { html } from "./template";
 import "./data";
-import { drawDaytimeYard } from "./header/daytime.ts";
-import { drawEveningYard } from "./header/evening.ts";
-import { drawNightYard } from "./header/night.ts";
-import {positionAdjust, redrawSprites} from "./header/kitty.ts";
+import {positionAdjust, redrawSprites} from "./header/drawing/kitty.ts";
+import {drawScene} from "./header/header.ts";
 
-type Styles = "daytime" | "evening" | "night";
-const styles: Styles[] = ["daytime", "evening", "night"];
+type Styles = "day" | "evening" | "night";
+const styles: Styles[] = ["day", "evening", "night"];
 let styleIndex = 0;
 
 window.addEventListener("load", () => {
@@ -28,21 +26,21 @@ window.addEventListener("load", () => {
 
         input.addEventListener("change", (ev) => {
             let val = (ev.target as HTMLInputElement).value;
-            draw(val as any);
+            drawScene(val as any);
         });
     }
     document.getElementById("header")?.addEventListener("click", () => {
-        draw(styles[styleIndex++ % styles.length]);
+        drawScene(styles[styleIndex++ % styles.length]);
     });
 
     // Draw the art based on Central Standard Time
     const hour = (new Date().getUTCHours() + 18) % 24;
     if (hour >= 9 && hour < 18) {
-        draw("daytime");
+        drawScene("day");
     } else if (hour >= 18 && hour < 21) {
-        draw("evening");
+        drawScene("evening");
     } else {
-        draw("night");
+        drawScene("night");
     }
 });
 
@@ -107,37 +105,11 @@ window.addEventListener("keydown", (ev) => {
     }
 
     if (ev.key === "d") {
-        draw("daytime");
+        //draw("day");
     } else if (ev.key === "e") {
-        draw("evening");
+        //draw("evening");
     } else if (ev.key === "n") {
-        draw("night");
+        //draw("night");
     }
 });
 
-function draw(time?: Styles) {
-    const header = document.getElementById(
-        "header-canvas",
-    ) as HTMLCanvasElement;
-    const ground = document.getElementById(
-        "ground-canvas",
-    ) as HTMLCanvasElement;
-    const overlay = document.getElementById(
-        "overlay-canvas",
-    ) as HTMLCanvasElement;
-
-    document.body.classList.value = time || "";
-    switch (time) {
-        case "evening":
-            drawEveningYard(header, ground, overlay);
-            break;
-        case "night":
-            drawNightYard(header, ground, overlay);
-            break;
-        default:
-            drawDaytimeYard(header, ground, overlay);
-    }
-
-    (document.getElementById(`time-${time}`) as HTMLInputElement).checked =
-        true;
-}

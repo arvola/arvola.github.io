@@ -2,12 +2,11 @@ import { noise } from "./graphics.ts";
 
 export function cloud2(
     ctx: CanvasRenderingContext2D,
-    c1: string,
-    c2: string,
+    color: [string, string] | CanvasGradient,
     x: number,
     y: number,
     points: [number, number, number][],
-    tilt = 0,
+    tilt = 0
 ) {
     ctx.beginPath();
 
@@ -15,11 +14,15 @@ export function cloud2(
         ctx.moveTo(x + p1, y + p2);
         ctx.arc(x + p1, y + p2, size, 0, Math.PI * 2);
     }
-    let grad = ctx.createLinearGradient(tilt, y, 0, y + 70);
-    grad.addColorStop(0, c1);
-    grad.addColorStop(1, c2);
+    if (!Array.isArray(color)) {
+        ctx.fillStyle = color;
+    } else {
+        let grad = ctx.createLinearGradient(tilt, y, 0, y + 70);
+        grad.addColorStop(0, color[0]);
+        grad.addColorStop(1, color[1]);
 
-    ctx.fillStyle = grad;
+        ctx.fillStyle = grad;
+    }
     ctx.fill();
     ctx.closePath();
 }

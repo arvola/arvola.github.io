@@ -18,7 +18,10 @@ export function img(
     const key = src + JSON.stringify(opt);
 
     if (imgCache[key]) {
-        cb(imgCache[key]);
+        // Firefox does some kind of JIT weirdness if this isn't asynchronous
+        setTimeout(() => {
+            cb(imgCache[key]);
+        }, 1);
         return;
     }
 
