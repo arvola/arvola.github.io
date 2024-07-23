@@ -1,10 +1,11 @@
-import { ColorMap, ColorName, colorsFromCanvas } from "./color.ts";
+import { ColorMap } from "./color.ts";
 
 export interface Canvases {
     base: HTMLCanvasElement;
     ground: HTMLCanvasElement;
     overlay: HTMLCanvasElement;
 }
+
 export interface Contexts {
     base: CanvasRenderingContext2D;
     ground: CanvasRenderingContext2D;
@@ -14,7 +15,6 @@ export interface Contexts {
 export interface Drawing {
     canvas: Canvases;
     ctx: Contexts;
-    c: ColorMap;
     width: number;
     height: number;
 }
@@ -30,7 +30,7 @@ export function initCanvases(canvas: Canvases): Drawing {
     let ctx: Contexts = {
         base: canvas.base.getContext("2d")!,
         ground: canvas.ground.getContext("2d")!,
-        overlay: canvas.overlay.getContext("2d")!
+        overlay: canvas.overlay.getContext("2d")!,
     };
 
     // 50% extra to give a little room for resizing the window
@@ -51,13 +51,10 @@ export function initCanvases(canvas: Canvases): Drawing {
     ctx.ground.scale(devicePixelRatio, devicePixelRatio);
     ctx.overlay.scale(devicePixelRatio, devicePixelRatio);
 
-    const c = colorsFromCanvas(canvas.base);
-
     return {
         canvas,
         ctx,
-        c,
         width,
-        height
+        height,
     };
 }

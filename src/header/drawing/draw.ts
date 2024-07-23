@@ -1,14 +1,10 @@
 import { positionAdjust, redrawSprites } from "./kitty.ts";
-import { initCanvases } from "./canvases.ts";
+import { Drawing } from "./canvases.ts";
 import { AnySpec, drawWithSpec } from "./elements";
+import { ColorMap } from "./color.ts";
 
-export function drawSpec(
-    base: HTMLCanvasElement,
-    ground: HTMLCanvasElement,
-    overlay: HTMLCanvasElement,
-    spec: AnySpec[]) {
-    const drawing = initCanvases({ base, ground, overlay });
-    const { ctx, canvas, c } = drawing;
+export async function drawSpec(drawing: Drawing, c: ColorMap, spec: AnySpec[]) {
+    const { ctx, canvas, width, height } = drawing;
 
     // If the kitty has not been positioned yet, do that now
     if (positionAdjust.offsetX === 1) {
@@ -23,6 +19,7 @@ export function drawSpec(
 
     for (let it of spec) {
         let context = ctx.base;
+        context.save();
         if ("layer" in it) {
             switch (it.layer) {
                 case "overlay":
@@ -31,7 +28,7 @@ export function drawSpec(
             }
         }
 
-        drawWithSpec(it, context, c);
+        await drawWithSpec(it, { ctx: context, c, width, height });
         context.restore();
     }
 }

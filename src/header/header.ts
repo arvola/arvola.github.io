@@ -1,17 +1,41 @@
-import { cloud2 } from "./cloud.ts";
-import { mediumClouds, smallClouds } from "./drawing/elements/clouds.ts";
-import { Drawing } from "./drawing/canvases.ts";
+import { Drawing, initCanvases } from "./drawing/canvases.ts";
+import { colorsFromCanvas } from "./drawing/color.ts";
+import { daytimeSpec } from "./daytime.ts";
+import { drawSpec } from "./drawing/draw.ts";
+import { eveningSpec } from "./evening.ts";
+import { nightSpec } from "./night.ts";
 
-/**
- * Draw the clouds.
- */
-export function clouds({ ctx, c }: Drawing) {
-    cloud2(ctx.base, [c.clouds, c.cloudsDark], 100, 45, smallClouds[0]);
-    cloud2(ctx.base, [c.clouds, c.cloudsDark], 450, 50, smallClouds[1]);
-    cloud2(ctx.base, [c.clouds, c.cloudsDark], 650, 80, smallClouds[2]);
-    cloud2(ctx.base, [c.clouds, c.cloudsDark], 850, 30, mediumClouds[2]);
-    cloud2(ctx.base, [c.clouds, c.cloudsDark], 1100, 85, mediumClouds[1]);
-    cloud2(ctx.base, [c.clouds, c.cloudsDark], 1300, 30, smallClouds[3]);
-    cloud2(ctx.base, [c.clouds, c.cloudsDark], 1600, 80, smallClouds[4]);
+const scenes = {
+    day: daytimeSpec,
+    evening: eveningSpec,
+    night: nightSpec,
+};
+
+let drawing: Drawing;
+
+export function drawScene(scene: keyof typeof scenes) {
+    if (!drawing) {
+        const base = document.getElementById(
+            "header-canvas",
+        ) as HTMLCanvasElement;
+        const ground = document.getElementById(
+            "ground-canvas",
+        ) as HTMLCanvasElement;
+        const overlay = document.getElementById(
+            "overlay-canvas",
+        ) as HTMLCanvasElement;
+
+        drawing = initCanvases({ base, ground, overlay });
+    }
+
+    document.body.classList.value = scene || "";
+
+    const c = colorsFromCanvas(drawing.canvas.base);
+
+    if (scenes[scene]) {
+        drawSpec(drawing, c, scenes[scene]);
+    }
+
+    (document.getElementById(`time-${scene}`) as HTMLInputElement).checked =
+        true;
 }
-

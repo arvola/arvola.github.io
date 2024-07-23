@@ -1,15 +1,22 @@
-import { colorFromSpec, ColorMap, ColorSpec } from "../color.ts";
+import { colorFromSpec, ColorSpec } from "../color.ts";
 import { SpecDrawingFunc } from "./base.ts";
-import { Drawing } from "../canvases.ts";
 import { bzCurve } from "../../graphics.ts";
 
 export interface GroundSpec {
     type: "ground";
-    colors: ColorSpec[];
+    colors?: ColorSpec[];
 }
 
 export const drawGround: SpecDrawingFunc<GroundSpec> = (spec, { ctx, c }) => {
-    grounds(ctx, spec.colors.map(it => colorFromSpec(it, c)));
+    let colors = spec.colors || [
+            "groundLighter",
+            "groundLight",
+            "groundMid",
+            "groundMidder",
+            "groundDarkish",
+            "groundDark",
+        ];
+        grounds(ctx, colors.map(it => colorFromSpec(it, c)));
 };
 
 let groundses: [number, number][][] = [

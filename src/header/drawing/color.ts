@@ -1,5 +1,10 @@
 export type ColorSpec = string | [string, number];
 
+export interface GradienStop {
+    color?: ColorSpec;
+    width: number;
+}
+
 /**
  * Get the actual color values from CSS variables for the canvas.
  */
@@ -20,13 +25,13 @@ export function colorsFromCanvas(canvas: HTMLCanvasElement) {
         sun: "--sun",
         sunner: "--sunner",
         underground: "--underground",
-        background: "--background"
+        background: "--background",
     };
 
     return Object.fromEntries(
         Object.entries(colors).map(([key, val]) => {
             return [key, style.getPropertyValue(val)];
-        })
+        }),
     ) as typeof colors;
 }
 
@@ -87,7 +92,8 @@ export function opacity(color: string, opacity: number | string) {
         return ret;
     }
     if (val.length === 3) {
-        let ret = "#" + val[0] + val[0] + val[1] + val[1] + val[2] + val[2] + op;
+        let ret =
+            "#" + val[0] + val[0] + val[1] + val[1] + val[2] + val[2] + op;
         return ret;
     }
 
@@ -99,7 +105,11 @@ export function zeroOpacity(color: string) {
     return opacity(color, 0);
 }
 
-export function addColorStops(gradient: CanvasGradient, colors: ColorSpec[], c: ColorMap) {
+export function addColorStops(
+    gradient: CanvasGradient,
+    colors: ColorSpec[],
+    c: ColorMap,
+) {
     let offsetAdd = 1 / (colors.length - 1);
     let offset = 0;
     let i = 0;
@@ -111,4 +121,27 @@ export function addColorStops(gradient: CanvasGradient, colors: ColorSpec[], c: 
         gradient.addColorStop(offset, colorFromSpec(it, c));
         offset += offsetAdd;
     }
+}
+
+export function widthColorStops(
+    gradient: CanvasGradient,
+    stops: GradienStop[],
+    c: ColorMap,
+) {
+    let radius = stops.reduce((acc, val) => acc + val.width, 0);
+    let offset = 0;
+    let i = 0;
+    for (let it of stops) {
+        ++i;
+        if (i === stops.length) {
+            offset = 1;
+        }
+        gradient.addColorStop(
+            offset,
+            it.color ? colorFromSpec(it.color, c) : "#00000000",
+        );
+        offset += it.width / radius;
+    }
+
+    return radius;
 }
