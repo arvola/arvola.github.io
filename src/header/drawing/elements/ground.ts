@@ -5,6 +5,7 @@ import { bzCurve } from "../../graphics.ts";
 export interface GroundSpec {
     type: "ground";
     colors?: ColorSpec[];
+    darken?: number;
 }
 
 export const drawGround: SpecDrawingFunc<GroundSpec> = (spec, { ctx, c }) => {
