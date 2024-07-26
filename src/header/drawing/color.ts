@@ -146,6 +146,76 @@ export function widthColorStops(
     return radius;
 }
 
+/**
+ * Darken a hex color.
+ *
+ * @param color Hex color, with or without alpha.
+ * @param amount Amount as a range of 0 - 1.
+ */
+export function darken(color: string, amount: number): string {
+    let [r, g, b, a] = hexToRgb(color);
+    let [h, s, l] = rgbToHsl(r, g, b);
+
+    return rgbToHex(...hslToRgb(h, s, (1 - amount) * l), a);
+}
+
+/**
+ * Lighten a hex color.
+ *
+ * @param color Hex color, with or without alpha.
+ * @param amount Amount as a range of 0 - 1.
+ */
+export function lighten(color: string, amount: number): string {
+    let [r, g, b, a] = hexToRgb(color);
+    let [h, s, l] = rgbToHsl(r, g, b);
+
+    return rgbToHex(...hslToRgb(h, s, Math.min(1 + amount * l, 1)), a);
+}
+
+function rgbToHex(r: number, g: number, b: number, a: number): string {
+    let hex = "#";
+    for (let it of [r, g, b, Math.ceil(a * 255)]) {
+        let str = it.toString(16);
+        if (str.length === 1) {
+            hex += "0" + str;
+        } else if (str.length === 2) {
+            hex += str;
+        } else {
+            throw new Error(`Invalid RGB value in ${r} ${g} ${b} ${a}`);
+        }
+    }
+
+    return hex;
+}
+
+function hexToRgb(hex: string): [number, number, number, number] {
+    let val = hex.trim();
+    if (val.startsWith("#")) {
+        val = val.slice(1);
+    }
+
+    let r = 0,
+        g = 0,
+        b = 0,
+        a = 1;
+
+    if (val.length >= 6) {
+        r = parseInt(val.slice(0, 2), 16);
+        g = parseInt(val.slice(2, 4), 16);
+        b = parseInt(val.slice(4, 6), 16);
+
+        if (val.length === 8) {
+            a = parseInt(val.slice(6, 8), 16) / 255;
+        }
+    } else if (val.length === 3) {
+        r = parseInt(val[0], 16) * 17;
+        g = parseInt(val[1], 16) * 17;
+        b = parseInt(val[2], 16) * 17;
+    }
+
+    return [r, g, b, a];
+}
+
 // https://en.wikipedia.org/wiki/HSL_and_HSV
 function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
     r /= 255;

@@ -2,16 +2,14 @@ import "./style.css";
 import { html } from "./template";
 import "./data";
 import {positionAdjust, redrawSprites} from "./header/drawing/kitty.ts";
-import {drawScene} from "./header/header.ts";
+import {drawScene, SceneType, Styles} from "./header/header.ts";
 
-type Styles = "day" | "evening" | "night";
-const styles: Styles[] = ["day", "evening", "night"];
 let styleIndex = 0;
 
 window.addEventListener("load", () => {
     // Add the different time of day options to the page
     const select = document.getElementById("time-select")!;
-    for (let it of styles) {
+    for (let it of Styles) {
         select.insertAdjacentHTML(
             "beforeend",
             html`<div class="time-item-wrap"><input
@@ -20,7 +18,7 @@ window.addEventListener("load", () => {
                     name="times"
                     value="${it}"
                 />
-                <label for="time-${it}">${it}</label></div>`,
+                <label for="time-${it}">${it.replace(/_/g, " ")}</label></div>`,
         );
         let input = document.getElementById(`time-${it}`) as HTMLInputElement;
 
@@ -30,7 +28,7 @@ window.addEventListener("load", () => {
         });
     }
     document.getElementById("header")?.addEventListener("click", () => {
-        drawScene(styles[styleIndex++ % styles.length]);
+        drawScene(Styles[styleIndex++ % Styles.length]);
     });
 
     // Draw the art based on Central Standard Time
@@ -43,7 +41,7 @@ window.addEventListener("load", () => {
     //     drawScene("night");
     // }
 
-    drawScene("day_cloudy");
+    drawScene("rainy_day");
 });
 
 /**
