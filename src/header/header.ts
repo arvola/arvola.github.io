@@ -9,8 +9,8 @@ const scenes = {
     day: daytimeSpec,
     evening: eveningSpec,
     night: nightSpec,
-    overcast_day: overcastDay,
     cloudy_day: cloudyDay,
+    overcast_day: overcastDay,
     rainy_day: rainyDay
 };
 

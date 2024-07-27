@@ -14,6 +14,7 @@ export async function drawSpec(drawing: Drawing, c: ColorMap, spec: AnySpec[]) {
         redrawSprites();
     }
 
+    ctx.overlay.clearRect(0, 0, width, height);
     ctx.base.save();
     ctx.overlay.save();
 
