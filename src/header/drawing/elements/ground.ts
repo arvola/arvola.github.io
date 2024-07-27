@@ -1,22 +1,31 @@
-import { colorFromSpec, ColorSpec } from "../color.ts";
+import {colorFromSpec, ColorSpec, darken} from "../color.ts";
 import { SpecDrawingFunc } from "./base.ts";
 import { bzCurve } from "../../graphics.ts";
 
 export interface GroundSpec {
     type: "ground";
     colors?: ColorSpec[];
+    darken?: number;
 }
 
 export const drawGround: SpecDrawingFunc<GroundSpec> = (spec, { ctx, c }) => {
     let colors = spec.colors || [
-            "groundLighter",
-            "groundLight",
-            "groundMid",
-            "groundMidder",
-            "groundDarkish",
-            "groundDark",
-        ];
-        grounds(ctx, colors.map(it => colorFromSpec(it, c)));
+        "groundLighter",
+        "groundLight",
+        "groundMid",
+        "groundMidder",
+        "groundDarkish",
+        "groundDark",
+    ];
+    grounds(
+        ctx,
+        colors.map((it) => {
+            if (spec.darken) {
+                return darken(colorFromSpec(it, c), spec.darken);
+            }
+            return colorFromSpec(it, c);
+        }),
+    );
 };
 
 let groundses: [number, number][][] = [
@@ -28,14 +37,14 @@ let groundses: [number, number][][] = [
         [541, 193],
         [576, 200],
         [592, 201],
-        [788, 206]
+        [788, 206],
     ],
     [
         [0, 176],
         [171, 129],
         [256, 133],
         [424, 171],
-        [591, 207]
+        [591, 207],
     ],
     [
         [0, 157],
@@ -46,7 +55,7 @@ let groundses: [number, number][][] = [
         [381, 211],
         [450, 204],
         [570, 186],
-        [796, 182]
+        [796, 182],
     ],
     [
         [0, 143],
@@ -60,7 +69,7 @@ let groundses: [number, number][][] = [
         [560, 190],
         [660, 187],
         [782, 185],
-        [919, 188]
+        [919, 188],
     ],
     [
         [0, 145],
@@ -68,19 +77,16 @@ let groundses: [number, number][][] = [
         [84, 145],
         [223, 196],
         [338, 208],
-        [560, 211]
+        [560, 211],
     ],
     [
         [0, 203],
         [200, 210],
-        [350, 215]
-    ]
+        [350, 215],
+    ],
 ];
 
-export function grounds(
-    ctx: CanvasRenderingContext2D,
-    colors: string[]
-) {
+export function grounds(ctx: CanvasRenderingContext2D, colors: string[]) {
     groundses.map((it, index) => {
         ground(ctx, colors[index], it);
     });
@@ -89,7 +95,7 @@ export function grounds(
 function ground(
     ctx: CanvasRenderingContext2D,
     color: string,
-    curve: [number, number][]
+    curve: [number, number][],
 ) {
     ctx.beginPath();
 

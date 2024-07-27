@@ -6,6 +6,7 @@ import { drawGround } from "./ground.ts";
 import { DrawingProps } from "../canvases.ts";
 import { drawImage } from "./image.ts";
 import {drawStars} from "./stars.ts";
+import {drawRain} from "./rain.ts";
 
 export const DrawingSpec = {
     sky: drawSky,
@@ -14,7 +15,8 @@ export const DrawingSpec = {
     clouds: drawClouds,
     ground: drawGround,
     image: drawImage,
-    stars: drawStars
+    stars: drawStars,
+    rain: drawRain
 };
 
 export type AnySpec = Parameters<

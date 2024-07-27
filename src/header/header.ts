@@ -1,6 +1,6 @@
 import { Drawing, initCanvases } from "./drawing/canvases.ts";
 import { colorsFromCanvas } from "./drawing/color.ts";
-import { daytimeSpec } from "./daytime.ts";
+import {overcastDay, daytimeSpec, cloudyDay, rainyDay} from "./daytime.ts";
 import { drawSpec } from "./drawing/draw.ts";
 import { eveningSpec } from "./evening.ts";
 import { nightSpec } from "./night.ts";
@@ -9,7 +9,13 @@ const scenes = {
     day: daytimeSpec,
     evening: eveningSpec,
     night: nightSpec,
+    cloudy_day: cloudyDay,
+    overcast_day: overcastDay,
+    rainy_day: rainyDay
 };
+
+export type SceneType = keyof typeof scenes;
+export const Styles = Object.keys(scenes) as SceneType[];
 
 let drawing: Drawing;
 
@@ -28,7 +34,7 @@ export function drawScene(scene: keyof typeof scenes) {
         drawing = initCanvases({ base, ground, overlay });
     }
 
-    document.body.classList.value = scene || "";
+    document.body.classList.value = scene.split("_").join(" ");
 
     const c = colorsFromCanvas(drawing.canvas.base);
 

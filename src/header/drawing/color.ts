@@ -145,3 +145,111 @@ export function widthColorStops(
 
     return radius;
 }
+
+/**
+ * Darken a hex color.
+ *
+ * @param color Hex color, with or without alpha.
+ * @param amount Amount as a range of 0 - 1.
+ */
+export function darken(color: string, amount: number): string {
+    let [r, g, b, a] = hexToRgb(color);
+    let [h, s, l] = rgbToHsl(r, g, b);
+
+    return rgbToHex(...hslToRgb(h, s, (1 - amount) * l), a);
+}
+
+/**
+ * Lighten a hex color.
+ *
+ * @param color Hex color, with or without alpha.
+ * @param amount Amount as a range of 0 - 1.
+ */
+export function lighten(color: string, amount: number): string {
+    let [r, g, b, a] = hexToRgb(color);
+    let [h, s, l] = rgbToHsl(r, g, b);
+
+    return rgbToHex(...hslToRgb(h, s, Math.min(1 + amount * l, 1)), a);
+}
+
+function rgbToHex(r: number, g: number, b: number, a: number): string {
+    let hex = "#";
+    for (let it of [r, g, b, Math.ceil(a * 255)]) {
+        let str = it.toString(16);
+        if (str.length === 1) {
+            hex += "0" + str;
+        } else if (str.length === 2) {
+            hex += str;
+        } else {
+            throw new Error(`Invalid RGB value in ${r} ${g} ${b} ${a}`);
+        }
+    }
+
+    return hex;
+}
+
+function hexToRgb(hex: string): [number, number, number, number] {
+    let val = hex.trim();
+    if (val.startsWith("#")) {
+        val = val.slice(1);
+    }
+
+    let r = 0,
+        g = 0,
+        b = 0,
+        a = 1;
+
+    if (val.length >= 6) {
+        r = parseInt(val.slice(0, 2), 16);
+        g = parseInt(val.slice(2, 4), 16);
+        b = parseInt(val.slice(4, 6), 16);
+
+        if (val.length === 8) {
+            a = parseInt(val.slice(6, 8), 16) / 255;
+        }
+    } else if (val.length === 3) {
+        r = parseInt(val[0], 16) * 17;
+        g = parseInt(val[1], 16) * 17;
+        b = parseInt(val[2], 16) * 17;
+    }
+
+    return [r, g, b, a];
+}
+
+// https://en.wikipedia.org/wiki/HSL_and_HSV
+function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    let max = Math.max(r, g, b);
+    let min = Math.min(r, g, b);
+    let d = max - min;
+    let h = 0;
+    if (d === 0) h = 0;
+    else if (max === r) h = ((((g - b) / d) % 6) + 6) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else if (max === b) h = (r - g) / d + 4;
+    let l = (min + max) / 2;
+    let s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+    return [h * 60, s, l];
+}
+
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+    let c = (1 - Math.abs(2 * l - 1)) * s;
+    let hp = h / 60.0;
+    let x = c * (1 - Math.abs((hp % 2) - 1));
+    let rgb1: [number, number, number] = [0, 0, 0];
+    if (isNaN(h)) rgb1 = [0, 0, 0];
+    else if (hp <= 1) rgb1 = [c, x, 0];
+    else if (hp <= 2) rgb1 = [x, c, 0];
+    else if (hp <= 3) rgb1 = [0, c, x];
+    else if (hp <= 4) rgb1 = [0, x, c];
+    else if (hp <= 5) rgb1 = [x, 0, c];
+    else if (hp <= 6) rgb1 = [c, 0, x];
+    let m = l - c * 0.5;
+    return [
+        Math.round(255 * (rgb1[0] + m)),
+        Math.round(255 * (rgb1[1] + m)),
+        Math.round(255 * (rgb1[2] + m)),
+    ];
+}
