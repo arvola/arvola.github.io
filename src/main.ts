@@ -31,17 +31,15 @@ window.addEventListener("load", () => {
         drawScene(Styles[styleIndex++ % Styles.length]);
     });
 
-    // Draw the art based on Central Standard Time
-    // const hour = (new Date().getUTCHours() + 18) % 24;
-    // if (hour >= 9 && hour < 18) {
-    //     drawScene("day");
-    // } else if (hour >= 18 && hour < 21) {
-    //     drawScene("evening");
-    // } else {
-    //     drawScene("night");
-    // }
-
-    drawScene("rainy_day");
+    //Draw the art based on Central Standard Time
+    const hour = (new Date().getUTCHours() + 18) % 24;
+    if (hour >= 9 && hour < 18) {
+        drawScene("day");
+    } else if (hour >= 18 && hour < 21) {
+        drawScene("evening");
+    } else {
+        drawScene("night");
+    }
 });
 
 /**
