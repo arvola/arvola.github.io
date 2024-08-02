@@ -26,6 +26,7 @@
     --underground: #160f05;
     --undergrounder: #402a0c;
     --underground-shadow: #160f0555;
+    --underground-select: #4e3410;
 
     --underground-text: #ccbfad;
     --underground-active: #591c00;
@@ -105,6 +106,7 @@ a {
     --underground: #010710;
     --undergrounder: #020712;
     --underground-shadow: #00000088;
+    --underground-select: #0a1a3a;
 
     --underground-text: #98435b;
     --underground-active: #98435b55;
@@ -137,9 +139,10 @@ a {
     --underground: #010710;
     --undergrounder: #020712;
     --underground-shadow: #02071244;
-    --underground-text: #0047b5;
+    --underground-text: #0a61e1;
     --underground-active: #0047b533;
     --underground-active-text: #3d88fc;
+    --underground-select: #0c1c49;
 
     --title: #eeeeee;
     --boxes: #000e24;
@@ -164,13 +167,15 @@ a {
     height: 220px;
 }
 
-#sprites, #overlay-canvas {
+#sprites,
+#overlay-canvas {
     position: absolute;
     left: 0;
     top: 0;
     width: 2200px;
     height: 220px;
 }
+
 #overlay-canvas {
     z-index: 10;
     pointer-events: none;
@@ -190,9 +195,13 @@ a {
     }
 }
 
-.rainy #kitty:before {
+.rain #kitty:before {
     content: "";
-    background: linear-gradient(180deg, rgba(193, 239, 255, 0.19) 0%, rgba(0,212,255,0) 80%);
+    background: linear-gradient(
+        180deg,
+        rgba(193, 239, 255, 0.19) 0%,
+        rgba(0, 212, 255, 0) 80%
+    );
     border-radius: 100px;
     position: absolute;
     left: -20px;
@@ -201,7 +210,16 @@ a {
     height: 120px;
     transform: rotate(-20deg);
 }
-.rainy #kitty:after {
+
+.rain.night #kitty:before {
+    background: linear-gradient(
+        180deg,
+        rgba(104, 128, 136, 0.11) 0%,
+        rgba(0, 212, 255, 0) 80%
+    );
+}
+
+.rain #kitty:after {
     content: "";
     border: 1px solid #b0bebf;
 
@@ -213,6 +231,9 @@ a {
     width: 120px;
     height: 120px;
     transform: rotate(-20deg);
+}
+.rain.night #kitty:after {
+    border: 1px solid #353c3c;
 }
 
 #header-controls {
@@ -494,4 +515,39 @@ ul.cards {
         font-size: 0.8em;
         color: var(--underground-text);
     }
+}
+
+.weather-wrap {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    &::after {
+        content: "▼";
+        font-size: 0.6em;
+        top: 5px;
+        right: 5px;
+        position: absolute;
+        pointer-events: none;
+    }
+}
+
+#weather-label {
+    display: block;
+    margin-right: 10px;
+
+    svg {
+        display: block;
+    }
+}
+
+#weather-select {
+    display: block;
+    appearance: none;
+    padding-right: 40px;
+    background: var(--underground-select);
+    border: 1px solid var(--underground);
+
+    color: var(--underground-text);
+    border-radius: 4px;
 }

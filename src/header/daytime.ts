@@ -290,7 +290,7 @@ export const rainyDay: AnySpec[] = [
     {
         layer: "overlay",
         type: "rain",
-        colors: ["#ffffff22", "#c4d6e166"],
+        colors: ["#c4d6e122", "#c4d6e122", "#c4d6e188"],
         tilt: 20
     },
     {
