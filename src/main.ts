@@ -6,6 +6,13 @@ import {drawScene, SceneType, Styles} from "./header/header.ts";
 
 let styleIndex = 0;
 
+function getSelectedScene(): [SceneType, string] {
+    let weather = document.getElementById("weather-select") as HTMLInputElement;
+    let time = document.querySelector(".time-radio:checked") as HTMLInputElement;
+
+    return [time.value as SceneType, weather.value]
+}
+
 window.addEventListener("load", () => {
     // Add the different time of day options to the page
     const select = document.getElementById("time-select")!;
@@ -17,29 +24,37 @@ window.addEventListener("load", () => {
                     id="time-${it}"
                     name="times"
                     value="${it}"
+                    class="time-radio"
                 />
                 <label for="time-${it}">${it.replace(/_/g, " ")}</label></div>`,
         );
         let input = document.getElementById(`time-${it}`) as HTMLInputElement;
 
-        input.addEventListener("change", (ev) => {
-            let val = (ev.target as HTMLInputElement).value;
-            drawScene(val as any);
+        input.addEventListener("change", () => {
+        let [scene, weather] = getSelectedScene();
+        drawScene(scene, weather);
         });
     }
     document.getElementById("header")?.addEventListener("click", () => {
         drawScene(Styles[styleIndex++ % Styles.length]);
     });
 
+    document.getElementById("weather-select")?.addEventListener("change", () => {
+        let [scene, weather] = getSelectedScene();
+        drawScene(scene, weather);
+    })
+
     //Draw the art based on Central Standard Time
-    const hour = (new Date().getUTCHours() + 18) % 24;
-    if (hour >= 9 && hour < 18) {
-        drawScene("day");
-    } else if (hour >= 18 && hour < 21) {
-        drawScene("evening");
-    } else {
-        drawScene("night");
-    }
+    // const hour = (new Date().getUTCHours() + 18) % 24;
+    // if (hour >= 9 && hour < 18) {
+    //     drawScene("day");
+    // } else if (hour >= 18 && hour < 21) {
+    //     drawScene("evening");
+    // } else {
+    //     drawScene("night");
+    // }
+
+    drawScene("evening", "rain")
 });
 
 /**
