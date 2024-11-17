@@ -1,57 +1,65 @@
 import "./style.css";
-import { html } from "./template";
 import "./data";
-import {positionAdjust, redrawSprites} from "./header/drawing/kitty.ts";
-import {drawScene, SceneType, Styles} from "./header/header.ts";
+import { positionAdjust, redrawSprites } from "./header/drawing/kitty.ts";
+import { drawScene, Scenes, Season, TimeOfDay } from "./header/header.ts";
 
 let styleIndex = 0;
 
-function getSelectedScene(): [SceneType, string] {
+function getSelectedScene(): [keyof Scenes, keyof Season, keyof TimeOfDay] {
+    let season = document.getElementById("season-select") as HTMLInputElement;
     let weather = document.getElementById("weather-select") as HTMLInputElement;
-    let time = document.querySelector(".time-radio:checked") as HTMLInputElement;
+    let time = document.querySelector(
+        "#time-select :checked",
+    ) as HTMLInputElement;
 
-    return [time.value as SceneType, weather.value]
+    return [
+        season.value as keyof Scenes,
+        time.value as keyof Season,
+        weather.value as keyof TimeOfDay,
+    ];
 }
 
 window.addEventListener("load", () => {
-    // Add the different time of day options to the page
-    const select = document.getElementById("time-select")!;
-    for (let it of Styles) {
-        select.insertAdjacentHTML(
-            "beforeend",
-            html`<div class="time-item-wrap"><input
-                    type="radio"
-                    id="time-${it}"
-                    name="times"
-                    value="${it}"
-                    class="time-radio"
-                />
-                <label for="time-${it}">${it.replace(/_/g, " ")}</label></div>`,
-        );
-        let input = document.getElementById(`time-${it}`) as HTMLInputElement;
-
-        input.addEventListener("change", () => {
-        let [scene, weather] = getSelectedScene();
-        drawScene(scene, weather);
+    document.querySelectorAll("#time-select input")?.forEach((element) => {
+        element.addEventListener("change", () => {
+            drawScene(...getSelectedScene());
         });
-    }
-    document.getElementById("header")?.addEventListener("click", () => {
-        drawScene(Styles[styleIndex++ % Styles.length]);
     });
 
-    document.getElementById("weather-select")?.addEventListener("change", () => {
-        let [scene, weather] = getSelectedScene();
-        drawScene(scene, weather);
-    })
+    document
+        .getElementById("weather-select")
+        ?.addEventListener("change", () => {
+            drawScene(...getSelectedScene());
+        });
 
+
+    // Determine current season based on user's locale
+    const getCurrentSeason = (): keyof Scenes => {
+        const month = new Date().getMonth(); // 0-11, 0 is January and 11 is December
+        let season: keyof Scenes;
+
+        if (month >= 2 && month <= 4) {
+            season = "spring";
+        } else if (month >= 5 && month <= 7) {
+            season = "summer";
+        } else if (month >= 8 && month <= 10) {
+            season = "autumn";
+        } else {
+            season = "winter";
+        }
+
+        return season;
+    };
+
+    const season = getCurrentSeason();
     // Draw the art based on Central Standard Time
     const hour = (new Date().getUTCHours() + 18) % 24;
     if (hour >= 9 && hour < 18) {
-        drawScene("day");
+        drawScene(season, "day");
     } else if (hour >= 18 && hour < 21) {
-        drawScene("evening");
+        drawScene(season, "evening");
     } else {
-        drawScene("night");
+        drawScene(season, "night");
     }
 });
 
@@ -123,4 +131,3 @@ window.addEventListener("keydown", (ev) => {
         //draw("night");
     }
 });
-
