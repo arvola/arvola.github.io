@@ -1,30 +1,122 @@
 import { Drawing, initCanvases } from "./drawing/canvases.ts";
 import { colorsFromCanvas } from "./drawing/color.ts";
-import {cloudyDay, daytimeSpec, overcastDay, rainyDay} from "./daytime.ts";
+import { cloudyDay, daytimeSpec, overcastDay, rainyDay } from "./daytime.ts";
 import { drawSpec } from "./drawing/draw.ts";
-import {eveningCloudy, eveningOvercast, eveningRain, eveningSpec} from "./evening.ts";
-import {cloudyNightSpec, nightRain, nightSpec, overcastNight} from "./night.ts";
+import {
+    eveningCloudy,
+    eveningOvercast,
+    eveningRain,
+    eveningSpec,
+} from "./evening.ts";
+import {
+    cloudyNightSpec,
+    nightRain,
+    nightSpec,
+    overcastNight,
+} from "./night.ts";
 import { AnySpec } from "./drawing/elements";
 
-const scenes = {
-    day: {
-        clear: daytimeSpec,
-        cloudy: cloudyDay,
-        overcast: overcastDay,
-        rain: rainyDay
-    } as Record<string, AnySpec[]>,
-    evening: {
-        clear: eveningSpec,
-        cloudy: eveningCloudy,
-        overcast: eveningOvercast,
-        rain: eveningRain
-    } as Record<string, AnySpec[]>,
-    night: {
-        clear: nightSpec,
-        cloudy: cloudyNightSpec,
-        overcast: overcastNight,
-        rain: nightRain
-    } as Record<string, AnySpec[]>,
+export interface TimeOfDay {
+    clear: AnySpec[];
+    cloudy: AnySpec[];
+    overcast: AnySpec[];
+    rain: AnySpec[];
+}
+
+export interface Season {
+    day: TimeOfDay;
+    evening: TimeOfDay;
+    night: TimeOfDay;
+}
+
+export interface Scenes {
+    spring: Season;
+    summer: Season;
+    autumn: Season;
+    winter: Season;
+}
+
+export const scenes: Scenes = {
+    spring: {
+        day: {
+            clear: daytimeSpec,
+            cloudy: cloudyDay,
+            overcast: overcastDay,
+            rain: rainyDay,
+        },
+        evening: {
+            clear: eveningSpec,
+            cloudy: eveningCloudy,
+            overcast: eveningOvercast,
+            rain: eveningRain,
+        },
+        night: {
+            clear: nightSpec,
+            cloudy: cloudyNightSpec,
+            overcast: overcastNight,
+            rain: nightRain,
+        },
+    },
+    summer: {
+        day: {
+            clear: daytimeSpec,
+            cloudy: cloudyDay,
+            overcast: overcastDay,
+            rain: rainyDay,
+        },
+        evening: {
+            clear: eveningSpec,
+            cloudy: eveningCloudy,
+            overcast: eveningOvercast,
+            rain: eveningRain,
+        },
+        night: {
+            clear: nightSpec,
+            cloudy: cloudyNightSpec,
+            overcast: overcastNight,
+            rain: nightRain,
+        },
+    },
+    autumn: {
+        day: {
+            clear: daytimeSpec,
+            cloudy: cloudyDay,
+            overcast: overcastDay,
+            rain: rainyDay,
+        },
+        evening: {
+            clear: eveningSpec,
+            cloudy: eveningCloudy,
+            overcast: eveningOvercast,
+            rain: eveningRain,
+        },
+        night: {
+            clear: nightSpec,
+            cloudy: cloudyNightSpec,
+            overcast: overcastNight,
+            rain: nightRain,
+        },
+    },
+    winter: {
+        day: {
+            clear: daytimeSpec,
+            cloudy: cloudyDay,
+            overcast: overcastDay,
+            rain: rainyDay,
+        },
+        evening: {
+            clear: eveningSpec,
+            cloudy: eveningCloudy,
+            overcast: eveningOvercast,
+            rain: eveningRain,
+        },
+        night: {
+            clear: nightSpec,
+            cloudy: cloudyNightSpec,
+            overcast: overcastNight,
+            rain: nightRain,
+        },
+    },
 };
 
 export type SceneType = keyof typeof scenes;
@@ -32,7 +124,7 @@ export const Styles = Object.keys(scenes) as SceneType[];
 
 let drawing: Drawing;
 
-export function drawScene(scene: keyof typeof scenes, weather = "clear") {
+export function drawScene(season: keyof Scenes, time: keyof Season, weather: keyof TimeOfDay = "clear") {
     if (!drawing) {
         const base = document.getElementById(
             "header-canvas",
@@ -47,18 +139,22 @@ export function drawScene(scene: keyof typeof scenes, weather = "clear") {
         drawing = initCanvases({ base, ground, overlay });
     }
 
-    document.body.classList.value = scene + " " + weather;
+    document.body.classList.value = season + " " + time + " " + weather;
     const c = colorsFromCanvas(drawing.canvas.base);
 
-    let spec = scenes[scene]?.[weather];
+    let spec = scenes[season]?.[time]?.[weather];
     if (!spec) {
-        spec = scenes[scene]?.["clear"];
+        spec = scenes.summer.day.clear;
     }
+
+    console.log(season, time, weather);
+    console.log(spec);
 
     drawSpec(drawing, c, spec);
 
-    (document.getElementById(`time-${scene}`) as HTMLInputElement).checked =
+    (document.getElementById(time) as HTMLInputElement).checked =
         true;
 
-    (document.getElementById("weather-select") as HTMLInputElement).value = weather;
+    (document.getElementById("weather-select") as HTMLInputElement).value =
+        weather;
 }
