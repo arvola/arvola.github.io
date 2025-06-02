@@ -147,6 +147,9 @@ export function drawScene(season: keyof Scenes, time: keyof Season, weather: key
         spec = scenes.summer.day.clear;
     }
 
+    console.log(season, time, weather);
+    console.log(spec);
+
     drawSpec(drawing, c, spec);
 
     (document.getElementById(time) as HTMLInputElement).checked =
