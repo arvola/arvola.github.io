@@ -15,6 +15,7 @@ import {
     overcastNight,
 } from "./night.ts";
 import { AnySpec } from "./drawing/elements";
+import { mergeFlowersIntoScene } from "./seasonal-flowers.ts";
 
 export interface TimeOfDay {
     clear: AnySpec[];
@@ -146,6 +147,10 @@ export function drawScene(season: keyof Scenes, time: keyof Season, weather: key
     if (!spec) {
         spec = scenes.summer.day.clear;
     }
+
+    // Add flowers from the current month's flower spec
+    // The mergeFlowersIntoScene function handles checking for rain
+    spec = mergeFlowersIntoScene(spec, weather, drawing.width);
 
     console.log(season, time, weather);
     console.log(spec);

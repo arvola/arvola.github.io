@@ -33,7 +33,7 @@ window.addEventListener("load", () => {
         });
 
 
-    // Determine current season based on user's locale
+    // Determine current season based on the month
     const getCurrentSeason = (): keyof Scenes => {
         const month = new Date().getMonth(); // 0-11, 0 is January and 11 is December
         let season: keyof Scenes;
@@ -48,6 +48,7 @@ window.addEventListener("load", () => {
             season = "winter";
         }
 
+        console.log(`Current month: ${month+1}, season: ${season}`);
         return season;
     };
 
