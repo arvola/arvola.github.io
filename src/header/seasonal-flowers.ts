@@ -142,7 +142,7 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
                 x: 0.05, y: 180, size: 12, type: "sunflower",
                 cluster: [
                     { offsetX: -10, offsetY: 6 },
-                    { offsetX: 10, offsetY: 4, type: "daisy" }
+                    { offsetX: 10, offsetY: 4}
                 ]
             },
             { x: 0.15, y: 183, size: 8, type: "daisy" },
@@ -151,7 +151,7 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
                 cluster: [
                     { offsetX: -8, offsetY: 5 },
                     { offsetX: 7, offsetY: 3 },
-                    { offsetX: 3, offsetY: -5, type: "daisy" }
+                    { offsetX: 3, offsetY: -5}
                 ]
             },
             { 
@@ -173,7 +173,7 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
             { 
                 x: 0.65, y: 181, size: 14, type: "sunflower",
                 cluster: [
-                    { offsetX: -12, offsetY: 7, type: "daisy" },
+                    { offsetX: -12, offsetY: 7},
                     { offsetX: 12, offsetY: 6 },
                     { offsetX: 5, offsetY: -8 }
                 ]
@@ -190,7 +190,7 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
                 x: 0.95, y: 183, size: 12, type: "sunflower",
                 cluster: [
                     { offsetX: -10, offsetY: 6 },
-                    { offsetX: 11, offsetY: 5, type: "daisy" }
+                    { offsetX: 11, offsetY: 5}
                 ]
             }
         ]
