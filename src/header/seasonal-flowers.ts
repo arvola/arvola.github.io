@@ -1,28 +1,7 @@
 import { AnySpec } from "./drawing/elements";
 import { generateFlowers } from "./drawing/elements/flowers.ts";
+import { FlowerSpec } from "./drawing/elements/flowers/spec.ts";
 
-export interface FlowerPositionSpec {
-        x: number;      // 0-1 representing percentage across canvas width
-        y: number;      // Ground level position (typically around 180-200)
-        size: number;   // Size of the flower
-        type: string;   // Type of flower (required)
-        cluster?: Array<{
-            offsetX: number;  // X offset from the main position
-            offsetY: number;  // Y offset from the main position
-            type?: string;
-            sizeRatio?: number;// Size as a ratio of the main flower's size (0.8-1.2 typical)
-            rotation?: number;// Optional specific rotation in radians
-        }>;
-    }
-
-// Monthly flower specifications with colors and positions
-export interface FlowerSpec {
-    colors: string[];
-    positions: Array<FlowerPositionSpec>;
-    // Deprecated - no longer used as all flowers must be in positions array
-    count?: number;
-    flowerTypes?: string[];
-}
 
 // Define flower specs for each month (0-11, January is 0)
 export const monthlyFlowers: Record<number, FlowerSpec> = {
@@ -139,11 +118,7 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
         colors: ["#FF5733", "#FFFF00", "#E91E63"],
         positions: [
             { 
-                x: 0.05, y: 180, size: 12, type: "sunflower",
-                cluster: [
-                    { offsetX: -10, offsetY: 6 },
-                    { offsetX: 10, offsetY: 4}
-                ]
+                x: 0.05, y: 180, size: 12, type: "sunflower"
             },
             { x: 0.15, y: 183, size: 8, type: "daisy" },
             { 
@@ -155,7 +130,7 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
                 ]
             },
             { 
-                x: 0.35, y: 182, size: 13, type: "sunflower",
+                x: 0.35, y: 182, size: 13, type: "snowdrop",
                 cluster: [
                     { offsetX: -11, offsetY: 7 },
                     { offsetX: 11, offsetY: 5 },
@@ -171,7 +146,7 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
                 ]
             },
             { 
-                x: 0.65, y: 181, size: 14, type: "sunflower",
+                x: 0.65, y: 181, size: 14, type: "snowdrop",
                 cluster: [
                     { offsetX: -12, offsetY: 7},
                     { offsetX: 12, offsetY: 6 },
@@ -187,7 +162,7 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
                 ]
             },
             { 
-                x: 0.95, y: 183, size: 12, type: "sunflower",
+                x: 0.95, y: 183, size: 12, type: "snowdrop",
                 cluster: [
                     { offsetX: -10, offsetY: 6 },
                     { offsetX: 11, offsetY: 5}

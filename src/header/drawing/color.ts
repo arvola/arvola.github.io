@@ -169,7 +169,7 @@ export function lighten(color: string, amount: number): string {
     let [r, g, b, a] = hexToRgb(color);
     let [h, s, l] = rgbToHsl(r, g, b);
 
-    return rgbToHex(...hslToRgb(h, s, Math.min(1 + amount * l, 1)), a);
+    return rgbToHex(...hslToRgb(h, s, Math.min((1 + amount) * l, 1)), a);
 }
 
 function rgbToHex(r: number, g: number, b: number, a: number): string {
