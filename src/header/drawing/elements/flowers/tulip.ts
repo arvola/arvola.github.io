@@ -1,11 +1,61 @@
 import { lighten, darken } from "../../color.ts";
 import { FlowerData } from "./spec.ts";
 import { getNoiseBasedColorVariation } from "./utils";
+import { noise } from "../../../graphics.ts";
+import { LeafParams } from "./leaves.ts";
+import { drawLeaves } from "./leaves.ts";
 
 // Define tulip colors
 const TULIP_COLORS = {
     petals: "#ff6b6b",
+    leaves: "#2e8b57"
 };
+
+/**
+ * Draw tulip-specific leaves
+ * Tulips typically have oval leaves with sharp tips
+ */
+function drawTulipLeaves(
+    ctx: CanvasRenderingContext2D,
+    size: number,
+    stemHeight: number,
+    flower: FlowerData
+) {
+    // Use noise based on flower position to add variety
+    const noiseValue = (1 + noise(flower.x * 0.01, flower.y * 0.01)) / 2;
+
+    // Create leaf parameters based on noise
+    const leafParams: LeafParams[] = [];
+
+    // Tulips have oval leaves with sharp tips
+    leafParams.push(
+        { 
+            shape: "oval", 
+            width: size * (0.4 + noiseValue * 0.1), 
+            length: size * (0.7 + noiseValue * 0.1),
+            tipShape: "sharp"
+        },
+        { 
+            shape: "oval", 
+            width: size * (0.35 + noiseValue * 0.1), 
+            length: size * (0.6 + noiseValue * 0.1),
+            tipShape: "sharp"
+        }
+    );
+
+    // Add a third leaf for larger tulips
+    if (size > 10) {
+        leafParams.push({ 
+            shape: "oval", 
+            width: size * (0.3 + noiseValue * 0.1), 
+            length: size * (0.5 + noiseValue * 0.1),
+            tipShape: "sharp"
+        });
+    }
+
+    // Draw the leaves
+    drawLeaves(ctx, size, stemHeight, flower, leafParams);
+}
 
 export function drawTulip(
     ctx: CanvasRenderingContext2D,
@@ -69,4 +119,15 @@ export function drawTulip(
     );
 
     ctx.fill();
+}
+
+// Export the leaf drawing function for tulips
+export function drawTulipWithLeaves(
+    ctx: CanvasRenderingContext2D,
+    size: number,
+    stemHeight: number,
+    flower: FlowerData
+) {
+    // Draw the leaves
+    drawTulipLeaves(ctx, size, stemHeight, flower);
 }

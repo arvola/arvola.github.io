@@ -55,7 +55,7 @@ window.addEventListener("load", () => {
     const season = getCurrentSeason();
     // Draw the art based on Central Standard Time
     const hour = (new Date().getUTCHours() + 18) % 24;
-    if (hour >= 9 && hour < 18) {
+    if (true) {
         drawScene(season, "day");
     } else if (hour >= 18 && hour < 21) {
         drawScene(season, "evening");

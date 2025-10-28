@@ -7,7 +7,6 @@ import { FlowerSpec } from "./drawing/elements/flowers/spec.ts";
 export const monthlyFlowers: Record<number, FlowerSpec> = {
     // Winter (December - February)
     0: { // January
-        colors: ["#FFFFFF", "#ADD8E6", "#6B8E23"],
         positions: [
             { x: 0.1, y: 180, size: 6, type: "snowdrop" },
             { x: 0.3, y: 182, size: 8, type: "snowdrop" },
@@ -16,7 +15,6 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
         ]
     },
     1: { // February
-        colors: ["#FFFFFF", "#E0FFFF", "#7CFC00"],
         positions: [
             { x: 0.05, y: 180, size: 7, type: "snowdrop" },
             { x: 0.25, y: 182, size: 9, type: "snowdrop" },
@@ -28,7 +26,6 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
 
     // Spring (March - May)
     2: { // March - Early spring
-        colors: ["#FFEB3B", "#FFFFFF", "#8BC34A"],
         positions: [
             { x: 0.05, y: 180, size: 8, type: "tulip" },
             { x: 0.15, y: 182, size: 7, type: "daisy" },
@@ -41,7 +38,6 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
         ]
     },
     3: { // April - Mid spring
-        colors: ["#FF97BB", "#FFFF00", "#FF5733"],
         positions: [
             { x: 0.03, y: 180, size: 9, type: "tulip" },
             { x: 0.12, y: 183, size: 8, type: "daisy" },
@@ -58,7 +54,6 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
         ]
     },
     4: { // May - Late spring
-        colors: ["#E91E63", "#FFEB3B", "#4CAF50"],
         positions: [
             { 
                 x: 0.02, y: 180, size: 10, type: "rose",
@@ -115,29 +110,35 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
 
     // Summer (June - August)
     5: { // June - Early summer
-        colors: ["#FF5733", "#FFFF00", "#E91E63"],
         positions: [
             { 
-                x: 0.05, y: 180, size: 12, type: "sunflower"
+                x: 0.10, y: 180, size: 12, type: "sunflower"
             },
-            { x: 0.15, y: 183, size: 8, type: "daisy" },
+            {
+                x: 0.05, y: 180, size: 17, type: "sunflower"
+            },
+            { 
+                x: 0.15, y: 183, size: 8, type: "daisy"
+            },
             { 
                 x: 0.25, y: 181, size: 10, type: "rose",
                 cluster: [
                     { offsetX: -8, offsetY: 5 },
                     { offsetX: 7, offsetY: 3 },
-                    { offsetX: 3, offsetY: -5}
+                    { offsetX: 3, offsetY: -5 }
                 ]
             },
             { 
-                x: 0.35, y: 182, size: 13, type: "snowdrop",
+                x: 0.35, y: 182, size: 13, type: "tulip",
                 cluster: [
                     { offsetX: -11, offsetY: 7 },
                     { offsetX: 11, offsetY: 5 },
                     { offsetX: 5, offsetY: -6 }
                 ]
             },
-            { x: 0.45, y: 180, size: 9, type: "daisy" },
+            { 
+                x: 0.45, y: 180, size: 9, type: "daisy"
+            },
             { 
                 x: 0.55, y: 183, size: 11, type: "rose",
                 cluster: [
@@ -148,12 +149,14 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
             { 
                 x: 0.65, y: 181, size: 14, type: "snowdrop",
                 cluster: [
-                    { offsetX: -12, offsetY: 7},
+                    { offsetX: -12, offsetY: 7 },
                     { offsetX: 12, offsetY: 6 },
                     { offsetX: 5, offsetY: -8 }
                 ]
             },
-            { x: 0.75, y: 182, size: 8, type: "daisy" },
+            { 
+                x: 0.75, y: 182, size: 8, type: "daisy"
+            },
             { 
                 x: 0.85, y: 180, size: 10, type: "rose",
                 cluster: [
@@ -165,40 +168,67 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
                 x: 0.95, y: 183, size: 12, type: "snowdrop",
                 cluster: [
                     { offsetX: -10, offsetY: 6 },
-                    { offsetX: 11, offsetY: 5}
+                    { offsetX: 11, offsetY: 5 }
                 ]
             }
         ]
     },
     6: { // July - Mid summer
-        colors: ["#FF9800", "#FFEB3B", "#F44336"],
         positions: [
-            { x: 0.08, y: 180, size: 14, type: "sunflower" },
-            { x: 0.2, y: 182, size: 9, type: "daisy" },
-            { x: 0.33, y: 181, size: 11, type: "rose" },
-            { x: 0.47, y: 180, size: 15, type: "sunflower" },
-            { x: 0.6, y: 183, size: 8, type: "daisy" },
-            { x: 0.73, y: 182, size: 12, type: "rose" },
-            { x: 0.88, y: 181, size: 13, type: "sunflower" },
-            { x: 0.97, y: 180, size: 9, type: "daisy" }
+            { 
+                x: 0.08, y: 180, size: 14, type: "sunflower"
+            },
+            { 
+                x: 0.2, y: 182, size: 9, type: "daisy"
+            },
+            { 
+                x: 0.33, y: 181, size: 11, type: "rose"
+            },
+            { 
+                x: 0.47, y: 180, size: 15, type: "sunflower"
+            },
+            { 
+                x: 0.6, y: 183, size: 8, type: "daisy"
+            },
+            { 
+                x: 0.73, y: 182, size: 12, type: "rose"
+            },
+            { 
+                x: 0.88, y: 181, size: 13, type: "sunflower"
+            },
+            { 
+                x: 0.97, y: 180, size: 9, type: "daisy"
+            }
         ]
     },
     7: { // August - Late summer
-        colors: ["#FF9800", "#FFC107", "#FF5722"],
         positions: [
-            { x: 0.07, y: 180, size: 15, type: "sunflower" },
-            { x: 0.22, y: 182, size: 8, type: "daisy" },
-            { x: 0.38, y: 181, size: 10, type: "rose" },
-            { x: 0.54, y: 183, size: 14, type: "sunflower" },
-            { x: 0.67, y: 180, size: 9, type: "daisy" },
-            { x: 0.82, y: 182, size: 11, type: "rose" },
-            { x: 0.94, y: 181, size: 13, type: "sunflower" }
+            { 
+                x: 0.07, y: 180, size: 15, type: "sunflower"
+            },
+            { 
+                x: 0.22, y: 182, size: 8, type: "daisy"
+            },
+            { 
+                x: 0.38, y: 181, size: 10, type: "rose"
+            },
+            { 
+                x: 0.54, y: 183, size: 14, type: "sunflower"
+            },
+            { 
+                x: 0.67, y: 180, size: 9, type: "daisy"
+            },
+            { 
+                x: 0.82, y: 182, size: 11, type: "rose"
+            },
+            { 
+                x: 0.94, y: 181, size: 13, type: "sunflower"
+            }
         ]
     },
 
     // Autumn (September - November)
     8: { // September - Early autumn
-        colors: ["#FFA500", "#FF4500", "#8B4513"],
         positions: [
             { x: 0.1, y: 180, size: 13, type: "sunflower" },
             { x: 0.28, y: 182, size: 14, type: "sunflower" },
@@ -209,17 +239,31 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
         ]
     },
     9: { // October - Mid autumn
-        colors: ["#A0522D", "#8B4513", "#B22222"],
         positions: [
-            { x: 0.15, y: 180, size: 14, type: "sunflower" },
-            { x: 0.35, y: 182, size: 13, type: "sunflower" },
-            { x: 0.55, y: 181, size: 15, type: "sunflower" },
-            { x: 0.75, y: 183, size: 12, type: "sunflower" },
-            { x: 0.9, y: 182, size: 14, type: "sunflower" }
+            {
+                x: 0.07, y: 180, size: 15, type: "sunflower"
+            },
+            {
+                x: 0.22, y: 182, size: 8, type: "daisy"
+            },
+            {
+                x: 0.38, y: 181, size: 10, type: "rose"
+            },
+            {
+                x: 0.54, y: 183, size: 14, type: "sunflower"
+            },
+            {
+                x: 0.67, y: 180, size: 9, type: "daisy"
+            },
+            {
+                x: 0.82, y: 182, size: 11, type: "rose"
+            },
+            {
+                x: 0.94, y: 181, size: 13, type: "sunflower"
+            }
         ]
     },
     10: { // November - Late autumn
-        colors: ["#8B4513", "#A52A2A", "#800000"],
         positions: [
             { x: 0.25, y: 180, size: 12, type: "sunflower" },
             { x: 0.5, y: 182, size: 14, type: "sunflower" },
@@ -229,7 +273,6 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
 
     // Winter (December)
     11: { // December
-        colors: ["#FFFFFF", "#B0C4DE", "#6B8E23"],
         positions: [
             { x: 0.2, y: 180, size: 6, type: "snowdrop" },
             { x: 0.4, y: 182, size: 7, type: "snowdrop" },
@@ -263,8 +306,7 @@ export function getMonthlyFlowerSpec(width: number): AnySpec {
             spec.count || 0,
             spec.flowerTypes as any,
             spec.positions
-        ),
-        colors: spec.colors
+        )
     };
 }
 

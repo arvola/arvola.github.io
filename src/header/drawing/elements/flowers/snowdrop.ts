@@ -1,12 +1,46 @@
 import { lighten, darken } from "../../color.ts";
 import { FlowerData } from "./spec.ts";
 import { getNoiseBasedColorVariation } from "./utils";
+import { noise } from "../../../graphics.ts";
+import { LeafParams } from "./leaves.ts";
+import { drawLeaves } from "./leaves.ts";
 
 // Define snowdrop colors
 const SNOWDROP_COLORS = {
     petals: "#ffffff",
     tips: "#4caf50",
+    leaves: "#2e8b57"
 };
+
+/**
+ * Draw snowdrop-specific leaves
+ * Snowdrops typically have thin, thread-like leaves
+ */
+function drawSnowdropLeaves(
+    ctx: CanvasRenderingContext2D,
+    size: number,
+    stemHeight: number,
+    flower: FlowerData
+) {
+    // Use noise based on flower position to add variety
+    const noiseValue = (1 + noise(flower.x * 0.01, flower.y * 0.01)) / 2;
+
+    // Create leaf parameters based on noise
+    const leafParams: LeafParams[] = [];
+
+    // Snowdrops have thread-like leaves
+    const leafCount = 2 + Math.floor(noiseValue * 2); // 2-3 leaves
+
+    for (let i = 0; i < leafCount; i++) {
+        leafParams.push({ 
+            shape: "thread", 
+            length: size * (0.8 + noiseValue * 0.4 + i * 0.1)
+        });
+    }
+
+    // Draw the leaves
+    drawLeaves(ctx, size, stemHeight, flower, leafParams);
+}
 
 export function drawSnowdrop(
     ctx: CanvasRenderingContext2D,
@@ -146,4 +180,15 @@ export function drawSnowdrop(
     }
 
     ctx.fill();
+}
+
+// Export the leaf drawing function for snowdrops
+export function drawSnowdropWithLeaves(
+    ctx: CanvasRenderingContext2D,
+    size: number,
+    stemHeight: number,
+    flower: FlowerData
+) {
+    // Draw the leaves
+    drawSnowdropLeaves(ctx, size, stemHeight, flower);
 }

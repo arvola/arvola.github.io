@@ -1,11 +1,11 @@
 import { noise } from "../../../graphics.ts";
 
 // Import flower drawing functions
-import { drawDaisy } from "./daisy";
-import { drawTulip } from "./tulip";
-import { drawSunflower } from "./sunflower";
-import { drawRose } from "./rose";
-import { drawSnowdrop } from "./snowdrop";
+import { drawDaisy, drawDaisyWithLeaves } from "./daisy";
+import { drawTulip, drawTulipWithLeaves } from "./tulip";
+import { drawSunflower, drawSunflowerWithLeaves } from "./sunflower";
+import { drawRose, drawRoseWithLeaves } from "./rose";
+import { drawSnowdrop, drawSnowdropWithLeaves } from "./snowdrop";
 import { FlowerData, FlowerPositionSpec, FlowerType } from "./spec.ts";
 
 // Generate flowers based on predefined positions with specific cluster flower locations
@@ -137,7 +137,7 @@ export function drawFlowerWithoutShadow(
     flower: FlowerData,
 ) {
     const size = flower.size;
-    const stemHeight = size * 2;
+    const stemHeight = size * 4;
 
     // First save the context before any transformations
     ctx.save();
@@ -163,6 +163,25 @@ export function drawFlowerWithoutShadow(
     ctx.strokeStyle = "#2e8b57"; // Green stem
     ctx.lineWidth = size / 8;
     ctx.stroke();
+
+    // Draw flower-specific leaves
+    switch (flower.type) {
+        case "daisy":
+            drawDaisyWithLeaves(ctx, size, stemHeight, flower);
+            break;
+        case "tulip":
+            drawTulipWithLeaves(ctx, size, stemHeight, flower);
+            break;
+        case "sunflower":
+            drawSunflowerWithLeaves(ctx, size, stemHeight, flower);
+            break;
+        case "rose":
+            drawRoseWithLeaves(ctx, size, stemHeight, flower);
+            break;
+        case "snowdrop":
+            drawSnowdropWithLeaves(ctx, size, stemHeight, flower);
+            break;
+    }
 
     // 3. Move context to the top of the stem where the flower will be drawn
     ctx.translate(0, -stemHeight);

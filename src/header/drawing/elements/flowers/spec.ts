@@ -1,5 +1,6 @@
 import { LayerSpec } from "../base.ts";
 import { ColorSpec } from "../../color.ts";
+import { LeafParams } from "./leaves.ts";
 
 export type FlowerType = "daisy" | "tulip" | "sunflower" | "rose" | "snowdrop";
 
@@ -7,7 +8,6 @@ export type FlowerType = "daisy" | "tulip" | "sunflower" | "rose" | "snowdrop";
 export interface FlowersSpec extends LayerSpec {
     type: "flowers";
     flowers: FlowerData[];
-    colors: ColorSpec[];
 }
 
 export interface FlowerData {
@@ -45,9 +45,8 @@ export interface FlowerPositionSpec {
         }>;
     }
 
-// Monthly flower specifications with colors and positions
+// Monthly flower specifications with positions
 export interface FlowerSpec {
-    colors: string[];
     positions: Array<FlowerPositionSpec>;
     // Deprecated - no longer used as all flowers must be in positions array
     count?: number;

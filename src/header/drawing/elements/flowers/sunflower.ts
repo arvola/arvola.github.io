@@ -5,13 +5,51 @@ import {
     drawFlowerCenter, 
     drawCircularPetals 
 } from "./utils";
+import { LeafParams } from "./leaves.ts";
+import { drawLeaves } from "./leaves.ts";
 
 // Define sunflower colors
 const SUNFLOWER_COLORS = {
     petals: "#ffd700",
     center: "#704214",
     seeds: "#3a2204",
+    leaves: "#2e8b57"
 };
+
+/**
+ * Draw sunflower-specific leaves
+ * Sunflowers typically have large ovate leaves with stems
+ */
+function drawSunflowerLeaves(
+    ctx: CanvasRenderingContext2D,
+    size: number,
+    stemHeight: number,
+    flower: FlowerData
+) {
+    // Use noise based on flower position to add variety
+    const noiseValue = (1 + noise(flower.x * 0.01, flower.y * 0.01)) / 2;
+
+    // Create leaf parameters based on noise
+    const leafParams: LeafParams[] = [];
+
+    // Sunflowers have large ovate leaves
+    const leafCount = 2 + Math.floor(noiseValue * 2); // 2-3 leaves
+
+    for (let i = 0; i < leafCount; i++) {
+        // Larger leaves for larger sunflowers
+        const sizeMultiplier = 0.5 + (size / 15); // Adjust based on flower size
+
+        leafParams.push({ 
+            shape: "ovate", 
+            width: size * (2 + noiseValue * 0.1) * sizeMultiplier,
+            length: size * (0.8 + noiseValue * 0.2) * sizeMultiplier,
+            stemLength: size * (0.2 + noiseValue * 0.1)
+        });
+    }
+
+    // Draw the leaves
+    drawLeaves(ctx, size, stemHeight, flower, leafParams);
+}
 
 export function drawSunflower(
     ctx: CanvasRenderingContext2D,
@@ -75,4 +113,15 @@ export function drawSunflower(
         ctx.arc(x, y, size / 20, 0, Math.PI * 2);
         ctx.fill();
     }
+}
+
+// Export the leaf drawing function for sunflowers
+export function drawSunflowerWithLeaves(
+    ctx: CanvasRenderingContext2D,
+    size: number,
+    stemHeight: number,
+    flower: FlowerData
+) {
+    // Draw the leaves
+    drawSunflowerLeaves(ctx, size, stemHeight, flower);
 }
