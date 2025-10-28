@@ -2,7 +2,7 @@ import { darken, lighten } from "../../color.ts";
 import { FlowerData } from "./spec.ts";
 
 // Define leaf types
-export type LeafShape = "ovate" | "oval" | "cordate" | "thread";
+export type LeafShape = "ovate" | "oval" | "cordate" | "thread" | "lanceolate";
 
 // Interface for leaf parameters
 export interface LeafParams {
@@ -14,6 +14,9 @@ export interface LeafParams {
     color?: string;      // Optional custom color
     tilt?: number;       // Angle of the leaf stem compared to the flower stem (in radians)
     rotation?: number;   // Rotation around the stem (0-1, where 0 is facing forward, 0.5 is profile)
+    arch?: number;       // Downward bend (0..1) where 0 is straight, 1 is strong arch due to gravity
+    archUp?: number;     // Initial upward lift near the base (0..1), then droop
+    stemPos?: number;    // Optional explicit position along stem (0..1 from base to top); overrides default spacing
 }
 
 // Default leaf color
@@ -42,22 +45,35 @@ export function drawLeaves(
     // Save the current context state
     ctx.save();
 
-    // For each leaf specification
+    // Build drawing queue with computed positions and stable sides based on original order
+    type LeafDrawItem = { params: LeafParams; stemPosition: number; side: number };
+    const items: LeafDrawItem[] = [];
+
+    const clamp01 = (v: number) => Math.max(0, Math.min(1, v));
+
     for (let i = 0; i < leafParams.length; i++) {
         const params = leafParams[i];
+        const side = i % 2 === 0 ? 1 : -1; // keep alternating pattern by declaration order
+        const positionRatio = typeof params.stemPos === "number"
+            ? clamp01(params.stemPos)
+            : (i + 1) / (leafParams.length + 1);
+        const stemPosition = positionRatio * stemHeight;
+        items.push({ params, stemPosition, side });
+    }
+
+    // Draw bottom-to-top for natural layering
+    items.sort((a, b) => a.stemPosition - b.stemPosition);
+
+    for (const item of items) {
+        const params = item.params;
+        const stemPosition = item.stemPosition;
+        const side = item.side;
 
         // Default values if not specified
         const width = params.width || size * 0.5;
         const length = params.length || size * 0.8;
         const stemLength = params.stemLength || size * 0.2;
         const leafColor = params.color || DEFAULT_LEAF_COLOR;
-
-        // Position the leaf along the stem
-        // Distribute leaves evenly along the stem
-        const stemPosition = (i + 1) / (leafParams.length + 1) * stemHeight;
-
-        // Alternate sides for leaves
-        const side = i % 2 === 0 ? 1 : -1;
 
         // Get tilt and rotation parameters (default to 0 if not specified)
         const tilt = params.tilt || 0;
@@ -76,6 +92,9 @@ export function drawLeaves(
                 break;
             case "thread":
                 drawThreadLeaf(ctx, stemPosition, side, length, leafColor, tilt, rotation);
+                break;
+            case "lanceolate":
+                drawLanceolateLeaf(ctx, stemPosition, side, width, length, stemLength, leafColor, tilt, rotation, params.arch || 0, params.archUp);
                 break;
         }
     }
@@ -111,7 +130,8 @@ function drawOvateLeaf(
     // Apply tilt to the leaf stem - tilt is now applied in 3D space
     // When leaf is rotated to profile view, tilt should affect the apparent height
     // When leaf is facing forward, tilt should affect the apparent angle
-    const effectiveTilt = tilt * (1 - Math.abs(rotation - 0.5) * 2);
+    // Normalize sign so positive tilt is upward regardless of which side the leaf is on
+    const effectiveTilt = tilt * side * (1 - Math.abs(rotation - 0.5) * 2);
     ctx.rotate(effectiveTilt);
 
     // Apply rotation around the stem
@@ -150,7 +170,8 @@ function drawOvateLeaf(
     ctx.transform(1, 0, skewFactor, 1, 0, 0); // Apply horizontal skew
 
     // Apply vertical skew based on tilt when rotated
-    const verticalSkew = tilt * rotationFactor * 0.3;
+    // Normalize sign so positive tilt is upward regardless of side
+    const verticalSkew = tilt * side * rotationFactor * 0.3;
     ctx.transform(1, verticalSkew, 0, 1, 0, 0);
 
     // Draw the ovate leaf shape
@@ -224,7 +245,8 @@ function drawOvalLeaf(
     // Apply tilt to the leaf stem - tilt is now applied in 3D space
     // When leaf is rotated to profile view, tilt should affect the apparent height
     // When leaf is facing forward, tilt should affect the apparent angle
-    const effectiveTilt = tilt * (1 - Math.abs(rotation - 0.5) * 2);
+    // Normalize sign so positive tilt is upward regardless of which side the leaf is on
+    const effectiveTilt = tilt * side * (1 - Math.abs(rotation - 0.5) * 2);
     ctx.rotate(effectiveTilt);
 
     // Apply rotation around the stem
@@ -263,7 +285,8 @@ function drawOvalLeaf(
     ctx.transform(1, 0, skewFactor, 1, 0, 0); // Apply horizontal skew
 
     // Apply vertical skew based on tilt when rotated
-    const verticalSkew = tilt * rotationFactor * 0.3;
+    // Normalize sign so positive tilt is upward regardless of side
+    const verticalSkew = tilt * side * rotationFactor * 0.3;
     ctx.transform(1, verticalSkew, 0, 1, 0, 0);
 
     // Use a smooth transition between profile and front view instead of abrupt change
@@ -407,7 +430,8 @@ function drawCordateLeaf(
     // Apply tilt to the leaf stem - tilt is now applied in 3D space
     // When leaf is rotated to profile view, tilt should affect the apparent height
     // When leaf is facing forward, tilt should affect the apparent angle
-    const effectiveTilt = tilt * (1 - Math.abs(rotation - 0.5) * 2);
+    // Normalize sign so positive tilt is upward regardless of which side the leaf is on
+    const effectiveTilt = tilt * side * (1 - Math.abs(rotation - 0.5) * 2);
     ctx.rotate(effectiveTilt);
 
     // Apply rotation around the stem
@@ -432,7 +456,8 @@ function drawCordateLeaf(
     ctx.transform(1, 0, skewFactor, 1, 0, 0); // Apply horizontal skew
 
     // Apply vertical skew based on tilt when rotated
-    const verticalSkew = tilt * rotationFactor * 0.3;
+    // Normalize sign so positive tilt is upward regardless of side
+    const verticalSkew = tilt * side * rotationFactor * 0.3;
     ctx.transform(1, verticalSkew, 0, 1, 0, 0);
 
     // Use a smooth transition between profile and front view instead of abrupt change
@@ -611,6 +636,137 @@ function drawCordateLeaf(
 }
 
 /**
+ * Draws a lanceolate (spear-shaped) leaf — narrow, tapered with subtle serrations
+ */
+function drawLanceolateLeaf(
+    ctx: CanvasRenderingContext2D,
+    stemPosition: number,
+    side: number,
+    width: number,
+    length: number,
+    stemLength: number,
+    color: string,
+    tilt: number = 0,
+    rotation: number = 0,
+    arch: number = 0,
+    archUp?: number
+): void {
+    ctx.save();
+
+    // Move to the position on the stem
+    ctx.translate(0, -stemPosition);
+
+    // Rotation around stem and tilt handling consistent with other leaves
+    const rotationAngle = side * Math.PI * (rotation - 0.5);
+    // Normalize sign so positive tilt is upward regardless of which side the leaf is on
+    const effectiveTilt = tilt * side * (1 - Math.abs(rotation - 0.5) * 2);
+    ctx.rotate(effectiveTilt);
+    ctx.rotate(rotationAngle);
+
+    // Gradient along the leaf direction
+    const gradient = ctx.createLinearGradient(0, 0, side * (stemLength + length), 0);
+    gradient.addColorStop(0, color);
+    gradient.addColorStop(1, lighten(color, 0.1));
+    ctx.fillStyle = gradient;
+
+    // Draw the small petiole (leaf stem)
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(side * stemLength, 0);
+    ctx.strokeStyle = darken(color, 0.1);
+    ctx.lineWidth = Math.max(1, width * 0.08);
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(side * stemLength, 0);
+    // Ensure the blade extends outward on its assigned side even in broadside view
+    // Mirror horizontally for left-side leaves so the silhouette points away from the stem
+    ctx.scale(side, 1);
+
+    const rotationFactor = Math.sin(Math.abs(rotationAngle));
+    const adjustedWidth = width * (1 - rotationFactor * 0.9);
+
+    // Subtle perspective skew
+    const skewFactor = rotationFactor * 0.18 * Math.sign(rotation - 0.5);
+    ctx.transform(1, 0, skewFactor, 1, 0, 0);
+    // Normalize sign so positive tilt is upward regardless of side
+    const verticalSkew = tilt * side * rotationFactor * 0.25;
+    ctx.transform(1, verticalSkew, 0, 1, 0, 0);
+
+    // Main lanceolate silhouette — start with slight upward lift, then droop (S-curve)
+    // Make the arch clearly visible even on smaller leaves and add base upturn control
+    const a = Math.max(0, Math.min(1, arch));
+    const up = Math.max(0, Math.min(1, archUp ?? a * 0.45));
+    const sagRaw = Math.pow(a, 0.7) * length * 0.55; // up to ~55% of length at full arch
+    const sag = a > 0 ? Math.max(sagRaw, Math.min(length * 0.12, 3)) : 0; // at least ~3px on small leaves
+    const upLift = up * length * 0.14; // upward lift near base
+
+    // Helper: S-shaped vertical offset along blade centerline
+    const archCurve = (t: number) => {
+        // Ease from up at base to sag at tip; stronger downward bias after mid
+        const ease = t * t * (3 - 2 * t); // smoothstep 0..1
+        return -(1 - ease) * upLift + ease * sag;
+    };
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    // Upper edge to tip: begin slightly above stem, then descend
+    ctx.bezierCurveTo(
+        length * 0.18, -adjustedWidth * 0.45 - upLift * 0.6,
+        length * 0.62, -adjustedWidth * 0.28 + archCurve(0.65) * 0.9,
+        length, archCurve(1)
+    );
+    // Lower edge back to base: fuller belly, follows the S profile
+    ctx.bezierCurveTo(
+        length * 0.68, adjustedWidth * 0.34 + archCurve(0.7) * 1.0,
+        length * 0.22, adjustedWidth * 0.48 + archCurve(0.3) * 0.5,
+        0, 0
+    );
+    ctx.fill();
+
+    // Central vein following the S-curve (cubic Bezier)
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(
+        length * 0.15, -upLift * 0.95,
+        length * 0.55, archCurve(0.7) * 0.95,
+        length, archCurve(1)
+    );
+    ctx.strokeStyle = darken(color, 0.18);
+    ctx.lineWidth = Math.max(0.5, width * 0.02);
+    ctx.stroke();
+
+    // A couple of faint lateral veins curving with the S profile
+    ctx.beginPath();
+    const yBase = archCurve(0.25);
+    ctx.moveTo(length * 0.24, yBase);
+    ctx.quadraticCurveTo(length * 0.34, -adjustedWidth * 0.25 + archCurve(0.45), length * 0.55, -adjustedWidth * 0.12 + archCurve(0.65));
+    ctx.moveTo(length * 0.24, yBase);
+    ctx.quadraticCurveTo(length * 0.34, adjustedWidth * 0.25 + archCurve(0.45), length * 0.55, adjustedWidth * 0.12 + archCurve(0.65));
+    ctx.strokeStyle = darken(color, 0.12);
+    ctx.lineWidth = Math.max(0.4, width * 0.015);
+    ctx.stroke();
+
+    // Subtle serration impression along the upper margin using a thin highlight; follow the S arch
+    const rgb = color.startsWith('#') ? hexToRgb(color) : { r: 46, g: 139, b: 87 };
+    ctx.beginPath();
+    let steps = 8;
+    for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const x = t * length;
+        const archOffset = archCurve(t);
+        const y = -adjustedWidth * 0.02 - Math.sin(t * Math.PI * 6) * adjustedWidth * 0.06 + archOffset;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25)`;
+    ctx.lineWidth = Math.max(0.4, width * 0.02);
+    ctx.stroke();
+
+    ctx.restore();
+    ctx.restore();
+}
+
+/**
  * Draws a very thin thread-like leaf
  */
 function drawThreadLeaf(
@@ -635,7 +791,8 @@ function drawThreadLeaf(
     // Apply tilt to the leaf stem - tilt is now applied in 3D space
     // When leaf is rotated to profile view, tilt should affect the apparent height
     // When leaf is facing forward, tilt should affect the apparent angle
-    const effectiveTilt = tilt * (1 - Math.abs(rotation - 0.5) * 2);
+    // Normalize sign so positive tilt is upward regardless of which side the leaf is on
+    const effectiveTilt = tilt * side * (1 - Math.abs(rotation - 0.5) * 2);
     ctx.rotate(effectiveTilt);
 
     // Apply rotation around the stem
@@ -650,7 +807,8 @@ function drawThreadLeaf(
     ctx.transform(1, 0, skewFactor, 1, 0, 0); // Apply horizontal skew
 
     // Apply vertical skew based on tilt when rotated
-    const verticalSkew = tilt * rotationFactor * 0.2; // Less vertical skew for thread leaves
+    // Normalize sign so positive tilt is upward regardless of side
+    const verticalSkew = tilt * side * rotationFactor * 0.2; // Less vertical skew for thread leaves
     ctx.transform(1, verticalSkew, 0, 1, 0, 0);
 
     // Use a smooth transition between profile and front view
