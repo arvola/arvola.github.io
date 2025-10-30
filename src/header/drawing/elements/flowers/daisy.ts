@@ -5,7 +5,8 @@ import {
     getNoiseBasedColorVariation,
 } from "./utils";
 import { noise } from "../../../graphics.ts";
-import { drawLeaves, LeafParams } from "./leaves.ts"; // Define daisy colors
+import { drawLeaves, LeafParams } from "./leaves.ts";
+import { generateLeaves } from "./leaf-layout.ts"; // Define daisy colors
 
 // Define daisy colors
 const DAISY_COLORS = {
@@ -24,12 +25,6 @@ function drawDaisyLeaves(
     stemHeight: number,
     flower: FlowerData,
 ) {
-    // Use noise based on flower position to add variety
-    const noiseValue = (1 + noise(flower.x * 0.01, flower.y * 0.01)) / 2;
-
-    // Create leaf parameters based on noise
-    const leafParams: LeafParams[] = [];
-
     // Decide how many main leaves with noise + size bias
     const countNoise = (1 + noise(flower.x * 0.021 + 13.1, flower.y * 0.019 - 7.7)) / 2;
     let mainLeafCount = 3;
@@ -41,83 +36,47 @@ function drawDaisyLeaves(
         mainLeafCount = countNoise > 0.82 ? 4 : 3;
     }
 
-    // Helper to get a per-leaf noise value in [0,1]
-    const perLeafNoise = (i: number, ox: number = 0, oy: number = 0) => (
-        1 + noise(flower.x * 0.02 + i * 7.13 + ox, flower.y * 0.02 - i * 3.17 + oy)
-    ) / 2;
-
-    // Precompute candidate stem positions using multi-octave noise and keep leaves low on the stem
-    const lowBand = 0.12; // 12% up from base
-    const bandSpan = 0.40; // up to ~52%
-    const hardCap = 0.60; // never above 60%
-    const minGap = 0.12; // minimum spacing between leaf attachments in stem fraction
-
-    type PosWithIdx = { idx: number; pos: number; nMix: number; nVar: number };
-    const candidates: PosWithIdx[] = [];
-
-    for (let i = 0; i < mainLeafCount; i++) {
-        // Two different noise scales + offsets for richer variety
-        const n1 = perLeafNoise(i, 0.0, 0.0);
-        const n2 = perLeafNoise(i, 5.23, -4.11);
-        const nMix = Math.min(1, Math.max(0, n1 * 0.65 + n2 * 0.35));
-        // Ease to bias lower positions
-        const eased = Math.pow(nMix, 1.4);
-        let pos = lowBand + eased * bandSpan; // now 0.12..0.52 typical
-        // Soft pushdown near the upper band and clamp to hard cap
-        if (pos > 0.5) pos = 0.5 + (pos - 0.5) * 0.4;
-        pos = Math.min(pos, hardCap);
-        candidates.push({ idx: i, pos, nMix, nVar: perLeafNoise(i, -3.7, 2.9) });
-    }
-
-    // Enforce monotone spacing (bottom -> top) to avoid clustering
-    candidates.sort((a, b) => a.pos - b.pos);
-    let last = lowBand - minGap;
-    for (const c of candidates) {
-        c.pos = Math.min(Math.max(c.pos, last + minGap), hardCap);
-        last = c.pos;
-    }
-    // Restore original declaration order but carry computed positions/variability
-    candidates.sort((a, b) => a.idx - b.idx);
-
-    // Generate main lanceolate leaves with stronger per-leaf variability
-    for (let i = 0; i < candidates.length; i++) {
-        const { pos: stemPos, nMix: n, nVar } = candidates[i];
-
-        // Derive multiple attributes from independent noise channels
-        const sideBias = (i % 2 === 0 ? -1 : 1);
-        const w = size * (0.30 + 0.10 * n + 0.04 * (i % 2 === 0 ? noiseValue : 1 - noiseValue));
-        const len = size * (1.9 + 0.8 * n);
-        const petiole = size * (0.30 + 0.18 * (0.25 + n * 0.75));
-        const rot = 0.49 + sideBias * (0.01 + (nVar - 0.5) * 0.02); // keep near broadside with tiny side-specific offset
-        const tilt = -0.85 + (nVar - 0.5) * 0.25; // mostly downward, with slight variation
-        const arch = 0.50 + 0.45 * n; // stronger droop toward tip
-        const archUp = Math.max(0, 0.12 + 0.25 * (1 - n) + (0.1 * (0.5 - Math.abs(nVar - 0.5))));
-
-        leafParams.push({
-            shape: "lanceolate",
-            width: w,
-            length: len,
-            stemLength: petiole,
-            rotation: rot,
-            tilt,
-            arch,
-            archUp,
-            stemPos,
-        });
-    }
-
-    // Occasionally add a tiny young thread leaf very low on the stem
-    if (size > 9 && noiseValue > 0.45) {
-        const nT = perLeafNoise(99, 3.3, -5.5);
-        leafParams.push({
-            shape: "thread",
-            length: size * (0.9 + nT * 0.4),
-            stemLength: size * 0.16,
-            rotation: 0.10,
-            tilt: 0.02,
-            stemPos: 0.08 + nT * 0.10, // 8%–18% of the stem
-        });
-    }
+    const leafParams: LeafParams[] = generateLeaves(size, flower, {
+        count: mainLeafCount,
+        shape: "lanceolate",
+        position: {
+            lowBand: 0.12,
+            bandSpan: 0.40,
+            hardCap: 0.60,
+            minGap: 0.12,
+            easePower: 1.4,
+            pushDownAbove: 0.5,
+            pushDownFactor: 0.4,
+        },
+        noise: {
+            scale1X: 0.02, scale1Y: 0.02,
+            scale2X: 0.02, scale2Y: 0.02,
+            offset2X: 5.23, offset2Y: -4.11,
+            varOffsetX: -3.7, varOffsetY: 2.9,
+            mixW1: 0.65, mixW2: 0.35,
+        },
+        geometry: {
+            widthBase: 0.30,
+            widthVar: 0.12,
+            lengthBase: 1.90,
+            lengthVar: 0.80,
+            stemBase: 0.345,
+            stemVar: 0.135,
+        },
+        orientation: {
+            rotationBase: 0.49,
+            rotationSideBias: 0.01,
+            rotationJitter: 0.02,
+            tiltBase: -0.85,
+            tiltJitter: 0.25,
+        },
+        curvature: {
+            archBase: 0.50,
+            archVar: 0.45,
+            archUpBase: 0.12,
+            archUpVar: 0.25,
+        },
+    });
 
     // Draw the leaves
     drawLeaves(ctx, size, stemHeight, flower, leafParams);

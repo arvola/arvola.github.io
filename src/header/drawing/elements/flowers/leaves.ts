@@ -6,17 +6,51 @@ export type LeafShape = "ovate" | "oval" | "cordate" | "thread" | "lanceolate";
 
 // Interface for leaf parameters
 export interface LeafParams {
+    /**
+     * Leaf shape variant to render.
+     */
     shape: LeafShape;
-    width?: number;      // Width of the leaf
-    length?: number;     // Length of the leaf
-    stemLength?: number; // Length of the leaf stem
-    tipShape?: "rounded" | "sharp"; // For oval leaves
-    color?: string;      // Optional custom color
-    tilt?: number;       // Angle of the leaf stem compared to the flower stem (in radians)
-    rotation?: number;   // Rotation around the stem (0-1, where 0 is facing forward, 0.5 is profile)
-    arch?: number;       // Downward bend (0..1) where 0 is straight, 1 is strong arch due to gravity
-    archUp?: number;     // Initial upward lift near the base (0..1), then droop
-    stemPos?: number;    // Optional explicit position along stem (0..1 from base to top); overrides default spacing
+    /**
+     * Width of the leaf (canvas units), typically derived from flower `size`.
+     */
+    width?: number;
+    /**
+     * Length of the leaf (canvas units), typically derived from flower `size`.
+     */
+    length?: number;
+    /**
+     * Length of the leaf stem (petiole) in canvas units.
+     */
+    stemLength?: number;
+    /**
+     * Tip shape used when `shape` is `"oval"`.
+     */
+    tipShape?: "rounded" | "sharp";
+    /**
+     * Optional custom fill color for the leaf.
+     */
+    color?: string;
+    /**
+     * Angle of the leaf stem relative to the flower stem, in radians.
+     */
+    tilt?: number;
+    /**
+     * Rotation around the stem, as a fraction 0..1 (0 = facing forward, 0.5 = profile).
+     */
+    rotation?: number;
+    /**
+     * Downward bend due to gravity. Range: 0..1 (0 = straight, 1 = strong arch).
+     */
+    arch?: number;
+    /**
+     * Initial upward lift near the base before drooping. Range: 0..1.
+     */
+    archUp?: number;
+    /**
+     * Explicit position along the stem as a fraction 0..1 (base to top).
+     * If provided, overrides default spacing.
+     */
+    stemPos?: number;
 }
 
 // Default leaf color

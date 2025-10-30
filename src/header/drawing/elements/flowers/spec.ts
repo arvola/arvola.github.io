@@ -20,35 +20,82 @@ export interface FlowerData {
 
 // For defining flower positions in the spec
 export interface FlowerPosition {
-    x: number;           // 0-1 representing percentage across canvas width
-    y: number;           // Ground level position (typically around 180-200)
-    size: number;        // Base size of the flower
-    type: FlowerType;    // Type of flower
+    /**
+     * Horizontal position as a fraction 0..1 across the canvas width.
+     */
+    x: number;
+    /**
+     * Ground level Y position in canvas units (typically around 180–200).
+     */
+    y: number;
+    /**
+     * Base size of the flower.
+     */
+    size: number;
+    /**
+     * Type of flower.
+     */
+    type: FlowerType;
+    /**
+     * Optional cluster of additional flowers placed relative to this position.
+     */
     cluster?: Array<{
-        offsetX: number;  // X offset from the main position
-        offsetY: number;  // Y offset from the main position
-        sizeRatio?: number;// Size as a ratio of the main flower's size (0.8-1.2 typical)
-        type?: FlowerType;// Optional specific flower type (defaults to main flower type)
+        /** X offset from the main position, in canvas units. */
+        offsetX: number;
+        /** Y offset from the main position, in canvas units. */
+        offsetY: number;
+        /** Size as a ratio of the main flower's size (typical range 0.8–1.2). */
+        sizeRatio?: number;
+        /** Optional specific flower type (defaults to the main flower type). */
+        type?: FlowerType;
     }>;
 }
 export interface FlowerPositionSpec {
-        x: number;      // 0-1 representing percentage across canvas width
-        y: number;      // Ground level position (typically around 180-200)
-        size: number;   // Size of the flower
-        type: string;   // Type of flower (required)
-        cluster?: Array<{
-            offsetX: number;  // X offset from the main position
-            offsetY: number;  // Y offset from the main position
-            type?: string;
-            sizeRatio?: number;// Size as a ratio of the main flower's size (0.8-1.2 typical)
-            rotation?: number;// Optional specific rotation in radians
-        }>;
-    }
+    /**
+     * Horizontal position as a fraction 0..1 across the canvas width.
+     */
+    x: number;
+    /**
+     * Ground level Y position in canvas units (typically around 180–200).
+     */
+    y: number;
+    /**
+     * Size of the flower (base size units for rendering).
+     */
+    size: number;
+    /**
+     * Type of flower (required).
+     */
+    type: string;
+    /**
+     * Optional cluster of additional flowers placed relative to this position.
+     */
+    cluster?: Array<{
+        /** X offset from the main position, in canvas units. */
+        offsetX: number;
+        /** Y offset from the main position, in canvas units. */
+        offsetY: number;
+        /** Optional specific flower type for this cluster item. */
+        type?: string;
+        /** Size as a ratio of the main flower's size (typical range 0.8–1.2). */
+        sizeRatio?: number;
+        /** Optional specific rotation in radians. */
+        rotation?: number;
+    }>;
+}
 
 // Monthly flower specifications with positions
 export interface FlowerSpec {
+    /**
+     * List of flower positions for this period.
+     */
     positions: Array<FlowerPositionSpec>;
-    // Deprecated - no longer used as all flowers must be in positions array
+    /**
+     * @deprecated No longer used; all flowers must be specified in `positions`.
+     */
     count?: number;
+    /**
+     * @deprecated No longer used; specify types per position in `positions`.
+     */
     flowerTypes?: string[];
 }
