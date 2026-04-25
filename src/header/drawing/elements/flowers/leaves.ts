@@ -47,14 +47,70 @@ export interface LeafParams {
      */
     archUp?: number;
     /**
-     * Explicit position along the stem as a fraction 0..1 (base to top).
-     * If provided, overrides default spacing.
+     * Whether the leaf has serrated edges (jagged teeth)
      */
-    stemPos?: number;
+    serrated?: boolean;
 }
 
 // Default leaf color
 const DEFAULT_LEAF_COLOR = "#2e8b57"; // Same as stem color
+
+/**
+ * Helper to draw a bezier curve with serrated edges (teeth)
+ */
+function drawSerratedBezier(
+    ctx: CanvasRenderingContext2D,
+    x0: number, y0: number,
+    cp1x: number, cp1y: number,
+    cp2x: number, cp2y: number,
+    x3: number, y3: number,
+    teethCount: number = 10,
+    toothDepth: number = 5
+) {
+    // Cubic Bezier formula components
+    const bx = (t: number) => Math.pow(1-t, 3)*x0 + 3*Math.pow(1-t, 2)*t*cp1x + 3*(1-t)*Math.pow(t, 2)*cp2x + Math.pow(t, 3)*x3;
+    const by = (t: number) => Math.pow(1-t, 3)*y0 + 3*Math.pow(1-t, 2)*t*cp1y + 3*(1-t)*Math.pow(t, 2)*cp2y + Math.pow(t, 3)*y3;
+    
+    // Tangent components for normal vector
+    const tx = (t: number) => 3*Math.pow(1-t, 2)*(cp1x-x0) + 6*(1-t)*t*(cp2x-cp1x) + 3*Math.pow(t, 2)*(x3-cp2x);
+    const ty = (t: number) => 3*Math.pow(1-t, 2)*(cp1y-y0) + 6*(1-t)*t*(cp2y-cp1y) + 3*Math.pow(t, 2)*(y3-cp2y);
+
+    let prevX = x0;
+    let prevY = y0;
+
+    for (let i = 1; i <= teethCount; i++) {
+        const t = i / teethCount;
+        const txVal = tx(t);
+        const tyVal = ty(t);
+        
+        // Calculate normal vector (normalized)
+        const len = Math.sqrt(txVal*txVal + tyVal*tyVal);
+        const nx = -tyVal / len;
+        const ny = txVal / len;
+        
+        const x = bx(t);
+        const y = by(t);
+        
+        // Draw tooth
+        // Move out along normal
+        if (i < teethCount) {
+             // Midpoint for tooth peak
+             const tMid = (i - 0.5) / teethCount;
+             const mx = bx(tMid);
+             const my = by(tMid);
+             const mTx = tx(tMid);
+             const mTy = ty(tMid);
+             const mLen = Math.sqrt(mTx*mTx + mTy*mTy);
+             const mNx = -mTy / mLen;
+             const mNy = mTx / mLen;
+             
+             // Outward tooth
+             ctx.lineTo(mx + mNx * toothDepth, my + mNy * toothDepth);
+        }
+        
+        ctx.lineTo(x, y);
+    }
+}
 
 /**
  * Draws leaves on a flower stem
@@ -116,13 +172,13 @@ export function drawLeaves(
         // Draw the leaf based on its shape
         switch (params.shape) {
             case "ovate":
-                drawOvateLeaf(ctx, stemPosition, side, width, length, stemLength, leafColor, tilt, rotation);
+                drawOvateLeaf(ctx, stemPosition, side, width, length, stemLength, leafColor, tilt, rotation, params.serrated);
                 break;
             case "oval":
                 drawOvalLeaf(ctx, stemPosition, side, width, length, stemLength, leafColor, params.tipShape || "rounded", tilt, rotation);
                 break;
             case "cordate":
-                drawCordateLeaf(ctx, stemPosition, side, width, length, leafColor, tilt, rotation);
+                drawCordateLeaf(ctx, stemPosition, side, width, length, leafColor, tilt, rotation, params.serrated);
                 break;
             case "thread":
                 drawThreadLeaf(ctx, stemPosition, side, length, leafColor, tilt, rotation);
@@ -149,7 +205,8 @@ function drawOvateLeaf(
     stemLength: number,
     color: string,
     tilt: number = 0,
-    rotation: number = 0
+    rotation: number = 0,
+    serrated: boolean = false
 ): void {
     // Save context for this leaf
     ctx.save();
@@ -215,21 +272,48 @@ function drawOvateLeaf(
     ctx.moveTo(0, 0);
 
     // Draw the top curve of the leaf (wider at the base, narrower at the tip)
-    // Use bezier curve for more natural shape
-    ctx.bezierCurveTo(
-        length * 0.3, -adjustedWidth * 0.1,
-        length * 0.7, -adjustedWidth * 0.4,
-        length, 0
-    );
+    if (serrated) {
+        // Top curve with serrations
+        drawSerratedBezier(
+            ctx,
+            0, 0,
+            length * 0.3, -adjustedWidth * 0.1,
+            length * 0.7, -adjustedWidth * 0.4,
+            length, 0,
+            12, -width * 0.08 // Pointing out (up)
+        );
+        
+        // Bottom curve with serrations
+        drawSerratedBezier(
+            ctx,
+            length, 0,
+            length * 0.7, adjustedWidth * 0.4,
+            length * 0.3, adjustedWidth * 0.1,
+            0, 0,
+            12, -width * 0.08 // Pointing out (down)
+        );
+    } else {
+        // Use bezier curve for more natural shape
+        ctx.bezierCurveTo(
+            length * 0.3, -adjustedWidth * 0.1,
+            length * 0.7, -adjustedWidth * 0.4,
+            length, 0
+        );
 
-    // Draw the bottom curve back to the stem
-    ctx.bezierCurveTo(
-        length * 0.7, adjustedWidth * 0.4,
-        length * 0.3, adjustedWidth * 0.1,
-        0, 0
-    );
+        // Draw the bottom curve back to the stem
+        ctx.bezierCurveTo(
+            length * 0.7, adjustedWidth * 0.4,
+            length * 0.3, adjustedWidth * 0.1,
+            0, 0
+        );
+    }
 
     ctx.fill();
+
+    // Add outline
+    ctx.strokeStyle = darken(color, 0.3);
+    ctx.lineWidth = width * 0.05;
+    ctx.stroke();
 
     // Draw a simple vein down the middle
     ctx.beginPath();
@@ -449,7 +533,8 @@ function drawCordateLeaf(
     length: number,
     color: string,
     tilt: number = 0,
-    rotation: number = 0
+    rotation: number = 0,
+    serrated: boolean = false
 ): void {
     // Save context for this leaf
     ctx.save();
@@ -555,29 +640,66 @@ function drawCordateLeaf(
         }
     } else {
         // Normal view with rotation
-        // Draw the left lobe of the heart
-        ctx.bezierCurveTo(
-            side * width * 0.1, -length * 0.3,  // First control point closer to stem
-            side * width * 0.3, -length * 0.8,  // Second control point higher up
-            side * width * 0.5, -length * 0.5   // End point at the cleft of the heart
-        );
+        if (serrated) {
+            // Draw the left lobe of the heart
+            drawSerratedBezier(
+                ctx,
+                0, 0,
+                side * width * 0.1, -length * 0.3,
+                side * width * 0.3, -length * 0.8,
+                side * width * 0.5, -length * 0.5,
+                10, -width * 0.08 // Experiment with sign
+            );
 
-        // Draw the right lobe of the heart
-        ctx.bezierCurveTo(
-            side * width * 0.7, -length * 0.8,  // First control point higher up
-            side * width * 0.9, -length * 0.3,  // Second control point closer to edge
-            side * width, 0                     // End point at the right edge
-        );
+            // Draw the right lobe of the heart
+            drawSerratedBezier(
+                ctx,
+                side * width * 0.5, -length * 0.5,
+                side * width * 0.7, -length * 0.8,
+                side * width * 0.9, -length * 0.3,
+                side * width, 0,
+                10, -width * 0.08
+            );
 
-        // Draw the bottom curve back to the stem
-        ctx.bezierCurveTo(
-            side * width * 0.8, length * 0.2,   // First control point
-            side * width * 0.2, length * 0.2,   // Second control point
-            0, 0                               // Back to the start
-        );
+            // Draw the bottom curve back to the stem
+            drawSerratedBezier(
+                ctx,
+                side * width, 0,
+                side * width * 0.8, length * 0.2,
+                side * width * 0.2, length * 0.2,
+                0, 0,
+                10, -width * 0.08
+            );
+        } else {
+            // Draw the left lobe of the heart
+            ctx.bezierCurveTo(
+                side * width * 0.1, -length * 0.3,  // First control point closer to stem
+                side * width * 0.3, -length * 0.8,  // Second control point higher up
+                side * width * 0.5, -length * 0.5   // End point at the cleft of the heart
+            );
+
+            // Draw the right lobe of the heart
+            ctx.bezierCurveTo(
+                side * width * 0.7, -length * 0.8,  // First control point higher up
+                side * width * 0.9, -length * 0.3,  // Second control point closer to edge
+                side * width, 0                     // End point at the right edge
+            );
+
+            // Draw the bottom curve back to the stem
+            ctx.bezierCurveTo(
+                side * width * 0.8, length * 0.2,   // First control point
+                side * width * 0.2, length * 0.2,   // Second control point
+                0, 0                               // Back to the start
+            );
+        }
     }
 
     ctx.fill();
+
+    // Add outline
+    ctx.strokeStyle = darken(color, 0.3);
+    ctx.lineWidth = width * 0.05;
+    ctx.stroke();
 
     // Draw veins
     ctx.beginPath();

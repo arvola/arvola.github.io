@@ -6,6 +6,7 @@ import { drawTulip, drawTulipWithLeaves } from "./tulip";
 import { drawSunflower, drawSunflowerWithLeaves } from "./sunflower";
 import { drawRose, drawRoseWithLeaves } from "./rose";
 import { drawSnowdrop, drawSnowdropWithLeaves } from "./snowdrop";
+import { drawConeflower, drawConeflowerWithLeaves } from "./coneflower";
 import { FlowerData, FlowerPositionSpec, FlowerType } from "./spec.ts";
 
 // Generate flowers based on predefined positions with specific cluster flower locations
@@ -181,6 +182,9 @@ export function drawFlowerWithoutShadow(
         case "snowdrop":
             drawSnowdropWithLeaves(ctx, size, stemHeight, flower);
             break;
+        case "coneflower":
+            drawConeflowerWithLeaves(ctx, size, stemHeight, flower);
+            break;
     }
 
     // 3. Move context to the top of the stem where the flower will be drawn
@@ -203,6 +207,9 @@ export function drawFlowerWithoutShadow(
             break;
         case "snowdrop":
             drawSnowdrop(ctx, size, flower);
+            break;
+        case "coneflower":
+            drawConeflower(ctx, size, flower);
             break;
     }
 

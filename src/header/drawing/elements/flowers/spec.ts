@@ -2,7 +2,7 @@ import { LayerSpec } from "../base.ts";
 import { ColorSpec } from "../../color.ts";
 import { LeafParams } from "./leaves.ts";
 
-export type FlowerType = "daisy" | "tulip" | "sunflower" | "rose" | "snowdrop";
+export type FlowerType = "daisy" | "tulip" | "sunflower" | "rose" | "snowdrop" | "coneflower";
 
 
 export interface FlowersSpec extends LayerSpec {
@@ -66,7 +66,7 @@ export interface FlowerPositionSpec {
     /**
      * Type of flower (required).
      */
-    type: string;
+    type: FlowerType;
     /**
      * Optional cluster of additional flowers placed relative to this position.
      */
@@ -76,7 +76,7 @@ export interface FlowerPositionSpec {
         /** Y offset from the main position, in canvas units. */
         offsetY: number;
         /** Optional specific flower type for this cluster item. */
-        type?: string;
+        type?: FlowerType;
         /** Size as a ratio of the main flower's size (typical range 0.8–1.2). */
         sizeRatio?: number;
         /** Optional specific rotation in radians. */

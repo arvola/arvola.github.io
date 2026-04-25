@@ -7,6 +7,7 @@ export * from './tulip';
 export * from './sunflower';
 export * from './rose';
 export * from './snowdrop';
+export * from './coneflower';
 
 // Export the main drawFlowers function
 import { drawFlowerShadow, drawFlowerWithoutShadow } from "./common";
