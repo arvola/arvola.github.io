@@ -67,13 +67,28 @@ export function generateFlowers(
                             : 0.8 + noiseValue * 0.4; // Size between 0.8-1.2 of main flower
 
                     // Generate a unique rotation for each cluster flower
-                    const clusterRotation = Math.random() * 0.4 - 0.2;
+                    const clusterRotation =
+                        clusterItem.rotation !== undefined
+                            ? clusterItem.rotation
+                            : Math.random() * 0.4 - 0.2;
+
+                    const heightRatio = clusterItem.heightRatio ?? 1;
+                    const clusterSize = pos.size * sizeRatio;
+                    const baseStemHeight = pos.size * 4;
+                    const clusterStemHeight = clusterSize * 4 * heightRatio;
+                    const stemHeightDelta = clusterStemHeight - baseStemHeight;
+                    const anchorCompensationX =
+                        Math.sin(clusterRotation) * stemHeightDelta;
 
                     // Add the cluster flower
                     result.push({
-                        x: actualX + clusterItem.offsetX,
-                        y: pos.y + clusterItem.offsetY,
-                        size: pos.size * sizeRatio,
+                        x:
+                            actualX +
+                            clusterItem.offsetX -
+                            anchorCompensationX,
+                        y: pos.y + clusterItem.offsetY - stemHeightDelta,
+                        size: clusterSize,
+                        stemHeightRatio: heightRatio,
                         rotation: clusterRotation,
                         type: (clusterItem.type as FlowerType) || type,
                     });
@@ -109,7 +124,7 @@ export function drawFlowerShadow(
     flower: FlowerData,
 ) {
     const size = flower.size;
-    const stemHeight = size * 2;
+    const stemHeight = size * 2 * (flower.stemHeightRatio ?? 1);
 
     // Save the context before any transformations
     ctx.save();
@@ -138,7 +153,7 @@ export function drawFlowerWithoutShadow(
     flower: FlowerData,
 ) {
     const size = flower.size;
-    const stemHeight = size * 4;
+    const stemHeight = size * 4 * (flower.stemHeightRatio ?? 1);
 
     // First save the context before any transformations
     ctx.save();

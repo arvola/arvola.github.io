@@ -14,6 +14,7 @@ export interface FlowerData {
     x: number;
     y: number;
     size: number;
+    stemHeightRatio?: number;
     rotation: number;
     type: FlowerType;
 }
@@ -46,6 +47,8 @@ export interface FlowerPosition {
         offsetY: number;
         /** Size as a ratio of the main flower's size (typical range 0.8–1.2). */
         sizeRatio?: number;
+        /** Stem height as a ratio of the size-derived stem height. */
+        heightRatio?: number;
         /** Optional specific flower type (defaults to the main flower type). */
         type?: FlowerType;
     }>;
@@ -79,6 +82,8 @@ export interface FlowerPositionSpec {
         type?: FlowerType;
         /** Size as a ratio of the main flower's size (typical range 0.8–1.2). */
         sizeRatio?: number;
+        /** Stem height as a ratio of the size-derived stem height. */
+        heightRatio?: number;
         /** Optional specific rotation in radians. */
         rotation?: number;
     }>;

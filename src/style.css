@@ -56,6 +56,58 @@ body {
         color 0.5s;
 }
 
+#flower-playground {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+body.flowers-test-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 24px 0 48px;
+}
+
+body.flowers-test-page #flower-playground {
+    max-width: 680px;
+    padding: 0;
+}
+
+.flower-playground-copy {
+    margin: 0 0 16px;
+}
+
+.flower-playground-copy h1 {
+    margin: 0 0 4px;
+    font-size: 1.1rem;
+}
+
+.flower-playground-copy p {
+    margin: 0;
+    color: rgb(22 15 5 / 70%);
+    font-size: 0.95rem;
+}
+
+.flower-controls {
+    margin-bottom: 12px;
+}
+
+#flower-canvas {
+    display: block;
+    border-radius: 8px;
+    background: var(--background);
+    box-shadow:
+        rgba(50, 50, 93, 0.2) 0 10px 24px -8px,
+        rgba(0, 0, 0, 0.2) 0 6px 12px -6px;
+}
+
+body.flowers-test-page #flower-canvas {
+    width: 340px;
+    max-width: calc(100vw - 32px);
+}
+
 h1,
 h2,
 h3,

@@ -7,6 +7,15 @@ export type LeafShape = "ovate" | "oval" | "cordate" | "thread" | "lanceolate";
 // Interface for leaf parameters
 export interface LeafParams {
     /**
+     * Relative position on stem from 0..1 (0 = base, 1 = near flower head).
+     */
+    stemPos?: number;
+    /**
+     * Optional fixed side for the leaf: `1` for right, `-1` for left.
+     * If omitted, leaves alternate by declaration order.
+     */
+    side?: 1 | -1;
+    /**
      * Leaf shape variant to render.
      */
     shape: LeafShape;
@@ -50,6 +59,11 @@ export interface LeafParams {
      * Whether the leaf has serrated edges (jagged teeth)
      */
     serrated?: boolean;
+
+    /**
+     * Optional subtle roughness along the blade edge. Range: 0..1.
+     */
+    roughness?: number;
 }
 
 // Default leaf color
@@ -143,7 +157,7 @@ export function drawLeaves(
 
     for (let i = 0; i < leafParams.length; i++) {
         const params = leafParams[i];
-        const side = i % 2 === 0 ? 1 : -1; // keep alternating pattern by declaration order
+        const side = params.side ?? (i % 2 === 0 ? 1 : -1); // keep alternating pattern unless explicitly overridden
         const positionRatio = typeof params.stemPos === "number"
             ? clamp01(params.stemPos)
             : (i + 1) / (leafParams.length + 1);
@@ -184,7 +198,7 @@ export function drawLeaves(
                 drawThreadLeaf(ctx, stemPosition, side, length, leafColor, tilt, rotation);
                 break;
             case "lanceolate":
-                drawLanceolateLeaf(ctx, stemPosition, side, width, length, stemLength, leafColor, tilt, rotation, params.arch || 0, params.archUp);
+                drawLanceolateLeaf(ctx, stemPosition, side, width, length, stemLength, leafColor, tilt, rotation, params.arch || 0, params.archUp, params.serrated, params.roughness);
                 break;
         }
     }
@@ -805,7 +819,9 @@ function drawLanceolateLeaf(
     tilt: number = 0,
     rotation: number = 0,
     arch: number = 0,
-    archUp?: number
+    archUp?: number,
+    serrated: boolean = false,
+    roughness: number = 0,
 ): void {
     ctx.save();
 
@@ -819,28 +835,33 @@ function drawLanceolateLeaf(
     ctx.rotate(effectiveTilt);
     ctx.rotate(rotationAngle);
 
+    const rough = Math.max(0, Math.min(1, roughness || (serrated ? 0.22 : 0)));
+    const rotationFactor = Math.sin(Math.abs(rotationAngle));
+    const adjustedWidth = Math.max(width * (1 - rotationFactor * 0.86), 0.8);
+    const smallLeafFactor = Math.max(0, Math.min(1, (adjustedWidth - 0.8) / 2.6));
+    const petioleHalfWidth = adjustedWidth * (0.12 + smallLeafFactor * 0.08);
+    const bladeStart = Math.max(stemLength * 0.08, adjustedWidth * 0.14);
+    const attachmentOverlap = Math.max(stemLength * 0.62, adjustedWidth * 0.28);
+    const attachmentHalfWidth = Math.max(petioleHalfWidth * 0.88, adjustedWidth * (0.12 + smallLeafFactor * 0.06));
+    const overlapNeckHalfWidth = Math.max(petioleHalfWidth * 0.72, adjustedWidth * (0.09 + smallLeafFactor * 0.045));
+    const bladeBaseHalfWidth = Math.max(petioleHalfWidth * 0.52, adjustedWidth * (0.07 + smallLeafFactor * 0.035));
+    const upperOverlapNeckHalfWidth = overlapNeckHalfWidth * 0.5;
+    const upperBladeBaseHalfWidth = bladeBaseHalfWidth * 0.44;
+    const maxLeafWidth = Math.max(adjustedWidth, petioleHalfWidth * 1.8);
+    const bodyLength = Math.max(length - bladeStart, length * 0.72);
+    const petioleVisibleLength = stemLength + attachmentOverlap + bladeStart * 0.4;
+
     // Gradient along the leaf direction
     const gradient = ctx.createLinearGradient(0, 0, side * (stemLength + length), 0);
     gradient.addColorStop(0, color);
     gradient.addColorStop(1, lighten(color, 0.1));
     ctx.fillStyle = gradient;
 
-    // Draw the small petiole (leaf stem)
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(side * stemLength, 0);
-    ctx.strokeStyle = darken(color, 0.1);
-    ctx.lineWidth = Math.max(1, width * 0.08);
-    ctx.stroke();
-
     ctx.save();
     ctx.translate(side * stemLength, 0);
     // Ensure the blade extends outward on its assigned side even in broadside view
     // Mirror horizontally for left-side leaves so the silhouette points away from the stem
     ctx.scale(side, 1);
-
-    const rotationFactor = Math.sin(Math.abs(rotationAngle));
-    const adjustedWidth = width * (1 - rotationFactor * 0.9);
 
     // Subtle perspective skew
     const skewFactor = rotationFactor * 0.18 * Math.sign(rotation - 0.5);
@@ -852,10 +873,9 @@ function drawLanceolateLeaf(
     // Main lanceolate silhouette — start with slight upward lift, then droop (S-curve)
     // Make the arch clearly visible even on smaller leaves and add base upturn control
     const a = Math.max(0, Math.min(1, arch));
-    const up = Math.max(0, Math.min(1, archUp ?? a * 0.45));
-    const sagRaw = Math.pow(a, 0.7) * length * 0.55; // up to ~55% of length at full arch
-    const sag = a > 0 ? Math.max(sagRaw, Math.min(length * 0.12, 3)) : 0; // at least ~3px on small leaves
-    const upLift = up * length * 0.14; // upward lift near base
+    const up = Math.max(0, Math.min(1, archUp ?? a * 0.35));
+    const sag = a * length * 0.24;
+    const upLift = up * length * 0.09;
 
     // Helper: S-shaped vertical offset along blade centerline
     const archCurve = (t: number) => {
@@ -864,28 +884,75 @@ function drawLanceolateLeaf(
         return -(1 - ease) * upLift + ease * sag;
     };
 
+    const baseTaper = (t: number) => {
+        const eased = Math.max(0, Math.min(1, t / 0.42));
+        return eased * eased * (3 - 2 * eased);
+    };
+    const widthProfile = (t: number) => {
+        const bodyT = Math.max(0, Math.min(1, (t - bladeStart / length) / Math.max(1e-4, bodyLength / length)));
+        const widen = Math.sin(Math.PI * Math.pow(bodyT, 0.82));
+        const tipFade = 1 - Math.pow(bodyT, 1.55) * 0.2;
+        const targetWidth = maxLeafWidth * widen * tipFade;
+        const baseBlend = Math.max(0, Math.min(1, t / Math.max(1e-4, bladeStart / length)));
+        const baseWidth = bladeBaseHalfWidth + (petioleHalfWidth - bladeBaseHalfWidth) * baseBlend;
+        return baseWidth + (targetWidth - baseWidth) * baseTaper(t);
+    };
+    const upperY = (t: number) => {
+        const halfWidth = widthProfile(t);
+        const ripple = rough > 0
+            ? Math.sin(t * Math.PI * 3.1) * maxLeafWidth * rough * 0.07 * Math.max(0, Math.min(1, (t - 0.18) / 0.2))
+            : 0;
+        return archCurve(t) - halfWidth + ripple;
+    };
+    const lowerY = (t: number) => {
+        const halfWidth = widthProfile(t) * (0.94 - t * 0.05);
+        const ripple = rough > 0
+            ? Math.sin(t * Math.PI * 3.4 + 0.9) * maxLeafWidth * rough * 0.06 * Math.max(0, Math.min(1, (t - 0.18) / 0.2))
+            : 0;
+        return archCurve(t) + halfWidth + ripple;
+    };
+
+    // Draw a petiole/leaf stem that continues into the blade so the join reads as overlap,
+    // not as two separate shapes meeting at a point.
     ctx.beginPath();
-    ctx.moveTo(0, 0);
-    // Upper edge to tip: begin slightly above stem, then descend
+    ctx.moveTo(-attachmentOverlap, 0);
     ctx.bezierCurveTo(
-        length * 0.18, -adjustedWidth * 0.45 - upLift * 0.6,
-        length * 0.62, -adjustedWidth * 0.28 + archCurve(0.65) * 0.9,
-        length, archCurve(1)
+        -attachmentOverlap * 0.28, -upLift * 0.1,
+        bladeStart * 0.14, -upLift * 0.26,
+        petioleVisibleLength, archCurve(Math.min(1, petioleVisibleLength / length))
     );
-    // Lower edge back to base: fuller belly, follows the S profile
-    ctx.bezierCurveTo(
-        length * 0.68, adjustedWidth * 0.34 + archCurve(0.7) * 1.0,
-        length * 0.22, adjustedWidth * 0.48 + archCurve(0.3) * 0.5,
-        0, 0
-    );
+    ctx.strokeStyle = darken(color, 0.12);
+    ctx.lineWidth = Math.max(adjustedWidth * (0.2 + smallLeafFactor * 0.08), petioleHalfWidth * 2.1);
+    ctx.lineCap = "round";
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-attachmentOverlap, -attachmentHalfWidth);
+    ctx.quadraticCurveTo(-attachmentOverlap * 0.04, -attachmentHalfWidth * 0.8, 0, -upperOverlapNeckHalfWidth);
+    ctx.quadraticCurveTo(bladeStart * 0.12, -upperBladeBaseHalfWidth * 0.82, bladeStart, upperY(bladeStart / length));
+    const edgeSegments = serrated ? 6 : 5;
+    for (let i = 1; i <= edgeSegments; i++) {
+        const t = i / edgeSegments;
+        ctx.lineTo(length * t, upperY(t));
+    }
+    for (let i = edgeSegments - 1; i >= 0; i--) {
+        const t = i / edgeSegments;
+        ctx.lineTo(length * t, lowerY(t));
+    }
+    ctx.quadraticCurveTo(bladeStart * 0.22, bladeBaseHalfWidth * 0.94, 0, overlapNeckHalfWidth);
+    ctx.quadraticCurveTo(-attachmentOverlap * 0.18, attachmentHalfWidth * 0.92, -attachmentOverlap, attachmentHalfWidth);
+    ctx.closePath();
     ctx.fill();
+
+    ctx.save();
+    ctx.clip();
 
     // Central vein following the S-curve (cubic Bezier)
     ctx.beginPath();
-    ctx.moveTo(0, 0);
+    ctx.moveTo(-attachmentOverlap * 0.82, 0);
     ctx.bezierCurveTo(
-        length * 0.15, -upLift * 0.95,
-        length * 0.55, archCurve(0.7) * 0.95,
+        -attachmentOverlap * 0.12, -upLift * 0.12,
+        bladeStart * 0.24, -upLift * 0.42,
         length, archCurve(1)
     );
     ctx.strokeStyle = darken(color, 0.18);
@@ -894,29 +961,38 @@ function drawLanceolateLeaf(
 
     // A couple of faint lateral veins curving with the S profile
     ctx.beginPath();
-    const yBase = archCurve(0.25);
-    ctx.moveTo(length * 0.24, yBase);
-    ctx.quadraticCurveTo(length * 0.34, -adjustedWidth * 0.25 + archCurve(0.45), length * 0.55, -adjustedWidth * 0.12 + archCurve(0.65));
-    ctx.moveTo(length * 0.24, yBase);
-    ctx.quadraticCurveTo(length * 0.34, adjustedWidth * 0.25 + archCurve(0.45), length * 0.55, adjustedWidth * 0.12 + archCurve(0.65));
+    const yBase = archCurve(0.36);
+    const veinStart = Math.max(length * 0.34, bladeStart + bodyLength * 0.1);
+    ctx.moveTo(veinStart, yBase);
+    ctx.quadraticCurveTo(length * 0.44, -maxLeafWidth * 0.22 + archCurve(0.5), length * 0.6, -maxLeafWidth * 0.08 + archCurve(0.68));
+    ctx.moveTo(veinStart, yBase);
+    ctx.quadraticCurveTo(length * 0.44, maxLeafWidth * 0.2 + archCurve(0.5), length * 0.6, maxLeafWidth * 0.08 + archCurve(0.68));
     ctx.strokeStyle = darken(color, 0.12);
     ctx.lineWidth = Math.max(0.4, width * 0.015);
     ctx.stroke();
 
-    // Subtle serration impression along the upper margin using a thin highlight; follow the S arch
-    const rgb = color.startsWith('#') ? hexToRgb(color) : { r: 46, g: 139, b: 87 };
-    ctx.beginPath();
-    let steps = 8;
-    for (let i = 0; i <= steps; i++) {
-        const t = i / steps;
-        const x = t * length;
-        const archOffset = archCurve(t);
-        const y = -adjustedWidth * 0.02 - Math.sin(t * Math.PI * 6) * adjustedWidth * 0.06 + archOffset;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    if (rough > 0.18) {
+        // Subtle upper-edge highlight that stays tucked just inside the blade silhouette
+        const rgb = color.startsWith('#') ? hexToRgb(color) : { r: 46, g: 139, b: 87 };
+        ctx.beginPath();
+        const steps = 10;
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const x = t * length;
+            const inset = Math.max(adjustedWidth * 0.14, 0.6);
+            const y = upperY(t) + inset;
+            if (i === 0) {
+                ctx.moveTo(x, y);
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.18)`;
+        ctx.lineWidth = Math.max(0.35, width * 0.016);
+        ctx.stroke();
     }
-    ctx.strokeStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25)`;
-    ctx.lineWidth = Math.max(0.4, width * 0.02);
-    ctx.stroke();
+
+    ctx.restore();
 
     ctx.restore();
     ctx.restore();

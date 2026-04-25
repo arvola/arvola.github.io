@@ -43,18 +43,21 @@ export const monthlyFlowers: Record<number, FlowerSpec> = {
     3: {
         // April - Mid spring
         positions: [
-            { x: 0.03, y: 180, size: 9, type: "daisy" },
-            { x: 0.12, y: 183, size: 8, type: "daisy" },
-            { x: 0.2, y: 182, size: 10, type: "daisy" },
-            { x: 0.27, y: 180, size: 9, type: "daisy" },
-            { x: 0.35, y: 183, size: 11, type: "daisy" },
-            { x: 0.45, y: 181, size: 8, type: "daisy" },
-            { x: 0.55, y: 184, size: 10, type: "daisy" },
-            { x: 0.65, y: 182, size: 9, type: "daisy" },
-            { x: 0.75, y: 180, size: 8, type: "daisy" },
-            { x: 0.83, y: 183, size: 11, type: "daisy" },
-            { x: 0.92, y: 181, size: 9, type: "daisy" },
-            { x: 0.98, y: 182, size: 10, type: "daisy" },
+            { x: 0.09, y: 140, size: 10, type: "coneflower",
+                cluster: [
+                    { offsetX: -12, offsetY: 0, sizeRatio: 0.7, rotation: -0.2 },
+                    { offsetX: 4, offsetY: -2, sizeRatio: 0.6, rotation: 0.2 },
+                    { offsetX: -10, offsetY: -2, sizeRatio: 1.3, heightRatio: 1.2, rotation:-0.3 },
+                ]
+            },
+            { x: 0.35, y: 183, size: 11, type: "coneflower" },
+            { x: 0.45, y: 181, size: 8, type: "coneflower" },
+            { x: 0.55, y: 184, size: 10, type: "coneflower" },
+            { x: 0.65, y: 182, size: 9, type: "coneflower" },
+            { x: 0.75, y: 180, size: 8, type: "coneflower" },
+            { x: 0.83, y: 183, size: 11, type: "coneflower" },
+            { x: 0.92, y: 181, size: 9, type: "coneflower" },
+            { x: 0.98, y: 182, size: 10, type: "coneflower" },
         ],
     },
     4: {
