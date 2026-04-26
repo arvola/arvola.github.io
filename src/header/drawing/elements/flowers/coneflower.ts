@@ -244,18 +244,40 @@ export function drawConeflower(
     ctx.fillStyle = coneGradient;
     ctx.fill();
     
-    // Add texture to cone (dots/spikes)
-    ctx.fillStyle = darken(centerColor, 0.6);
-    const dotCount = 15;
-    for (let i = 0; i < dotCount; i++) {
-        // Random positions inside the cone area roughly
-        const dx = (Math.random() - 0.5) * coneWidth * 0.8;
-        const dy = -Math.random() * coneHeight * 0.9;
-        const dotSize = size * 0.05;
+    // Noise blending layer: clip to cone shape and paint small noise-driven patches
+    // to break up the smooth gradient with a grainy, organic texture
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(-coneWidth / 2, 0);
+    ctx.quadraticCurveTo(0, -coneHeight * 1.5, coneWidth / 2, 0);
+    ctx.closePath();
+    ctx.clip();
+
+    const patchCount = 80;
+    for (let i = 0; i < patchCount; i++) {
+        const nx = (1 + noise(flower.x * 7 + i * 0.53, flower.y * 6 + i * 0.37)) / 2;
+        const ny = (1 + noise(flower.x * 6 + i * 0.41, flower.y * 7 + i * 0.61)) / 2;
+        const nShade = (1 + noise(flower.x * 5 + i * 0.29, flower.y * 5 + i * 0.47)) / 2;
+        const nAlpha = (1 + noise(flower.x * 9 + i * 0.67, flower.y * 8 + i * 0.23)) / 2;
+
+        const px = (nx - 0.5) * coneWidth * 0.9;
+        const py = -ny * coneHeight * 1.3;
+        const r = size * (0.04 + nAlpha * 0.06);
+
+        const shade = (nShade - 0.5) * 0.45;
+        const patchColor = shade >= 0
+            ? lighten(centerColor, shade)
+            : darken(centerColor, -shade);
+
+        ctx.globalAlpha = 0.18 + nAlpha * 0.14;
+        ctx.fillStyle = patchColor;
         ctx.beginPath();
-        ctx.arc(dx, dy, dotSize, 0, Math.PI * 2);
+        ctx.ellipse(px, py, r, r * 0.7, nx * Math.PI, 0, Math.PI * 2);
         ctx.fill();
     }
+
+    ctx.globalAlpha = 1;
+    ctx.restore();
 
     ctx.restore();
 }
