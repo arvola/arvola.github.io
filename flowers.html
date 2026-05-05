@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Flower Test Page</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #e8f4ee;
+            font-family: system-ui, sans-serif;
+        }
+
+        #wrap {
+            max-width: 720px;
+            margin: 24px auto;
+            padding: 16px;
+        }
+
+        h1 {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0 0 12px;
+            color: #345;
+        }
+
+        canvas {
+            display: block;
+            background: #e8f4ee;
+            border: 1px solid #cfd8d2;
+            border-radius: 8px;
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+<div id="wrap">
+    <h1>Flower renderer test</h1>
+    <canvas id="flower-canvas" width="640" height="680"></canvas>
+</div>
+<script type="module" src="/src/flowers-test.ts"></script>
+</body>
+</html>
