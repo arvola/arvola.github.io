@@ -132,6 +132,28 @@ function drawTeardrop(ctx: CanvasRenderingContext2D, len: number, w: number): vo
     ctx.closePath();
 }
 
+function drawArrowLeaf(
+    ctx: CanvasRenderingContext2D,
+    len: number,
+    w: number,
+): void {
+    const halfW = w / 2;
+    const sideInset = len * 0.22;
+    const baseInset = len * 0.15;
+    const tipX = len;
+
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    // Upper side: curved inward to a sharp tip.
+    ctx.quadraticCurveTo(sideInset, -halfW, tipX, 0);
+    // Lower side: mirror curve to keep a pointed arrow-head profile.
+    ctx.quadraticCurveTo(sideInset, halfW, 0, 0);
+    // Base edge: slight inward notch (concave third edge).
+    ctx.quadraticCurveTo(baseInset, 0, 0, 0);
+
+    ctx.closePath();
+}
+
 function drawEllipsePetal(ctx: CanvasRenderingContext2D, len: number, w: number): void {
     ctx.beginPath();
     ctx.ellipse(len / 2, 0, len / 2, w / 2, 0, 0, Math.PI * 2);
@@ -186,7 +208,7 @@ export function drawLeaves(ctx: CanvasRenderingContext2D, stem: StemCurve, param
         const cx = L / 2;
 
         ctx.fillStyle = createLinearGradientFromSpec(ctx, cx + r * s, r * c, cx - r * s, -r * c, leaf.color);
-        drawTeardrop(ctx, L, W);
+        drawArrowLeaf(ctx, L, W);
         ctx.fill();
         ctx.restore();
     });
