@@ -19,6 +19,7 @@ export interface StemParams {
     baseAngle: number;
     curveStrength: number;
     color: FlowerColorSpec;
+    outlineColor?: string;
 }
 
 export interface LeafInstance {
@@ -31,6 +32,7 @@ export interface LeafInstance {
     serrationCount?: number;
     serrationDepth?: number;
     color: FlowerColorSpec;
+    outlineColor?: string;
     shape?: "arrow" | "teardrop";
 }
 
@@ -44,6 +46,7 @@ export interface PetalParams {
     petalWidth: number;
     petalDroop: number;
     petalColor: FlowerColorSpec;
+    petalOutlineColor?: string;
     petalAngleOffsets: number[];
     petalLengthMultipliers: number[];
     petalShape?: "pointed" | "elliptical";
@@ -53,6 +56,7 @@ export interface FlowerHeadParams extends PetalParams {
     discRadius: number;
     discDomeHeight: number;
     discColor: FlowerColorSpec;
+    discOutlineColor?: string;
     backPetals?: PetalParams;
 }
 
@@ -177,12 +181,17 @@ export function computeStemCurve(startX: number, startY: number, p: StemParams):
 
 export function drawStemCurve(ctx: CanvasRenderingContext2D, stem: StemCurve, p: StemParams): void {
     ctx.save();
-    ctx.strokeStyle = createLinearGradientFromSpec(ctx, stem.p0.x, stem.p0.y, stem.p2.x, stem.p2.y, p.color);
-    ctx.lineWidth = p.thickness;
     ctx.lineCap = "round";
     ctx.beginPath();
     ctx.moveTo(stem.p0.x, stem.p0.y);
     ctx.quadraticCurveTo(stem.p1.x, stem.p1.y, stem.p2.x, stem.p2.y);
+    
+    ctx.lineWidth = p.thickness + 1;
+    ctx.strokeStyle = p.outlineColor ?? "rgba(0, 0, 0, 0.5)";
+    ctx.stroke();
+
+    ctx.strokeStyle = createLinearGradientFromSpec(ctx, stem.p0.x, stem.p0.y, stem.p2.x, stem.p2.y, p.color);
+    ctx.lineWidth = p.thickness;
     ctx.stroke();
     ctx.restore();
 }
@@ -215,6 +224,9 @@ export function drawLeaves(ctx: CanvasRenderingContext2D, stem: StemCurve, param
             drawTeardrop(ctx, L, W);
         }
         ctx.fill();
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = leaf.outlineColor ?? "rgba(0, 0, 0, 0.5)";
+        ctx.stroke();
         ctx.restore();
     });
 }
@@ -222,6 +234,23 @@ export function drawLeaves(ctx: CanvasRenderingContext2D, stem: StemCurve, param
 function drawPetalRing(ctx: CanvasRenderingContext2D, p: PetalParams): void {
     const step = (2 * Math.PI) / p.petalCount;
     const shape = p.petalShape ?? "elliptical";
+
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = p.petalOutlineColor ?? "rgba(0, 0, 0, 0.5)";
+    for (let i = 0; i < p.petalCount; i++) {
+        const len = p.petalLength * (p.petalLengthMultipliers[i] ?? 1);
+        ctx.save();
+        ctx.rotate(i * step + (p.petalAngleOffsets[i] ?? 0));
+        applyDroop(ctx, p.petalDroop);
+        if (shape === "pointed") {
+            drawTeardrop(ctx, len, p.petalWidth);
+        } else {
+            drawEllipsePetal(ctx, len, p.petalWidth);
+        }
+        ctx.stroke();
+        ctx.restore();
+    }
+
     for (let i = 0; i < p.petalCount; i++) {
         const len = p.petalLength * (p.petalLengthMultipliers[i] ?? 1);
         ctx.save();
@@ -248,6 +277,9 @@ export function drawFlowerHead(ctx: CanvasRenderingContext2D, x: number, y: numb
     if (p.discDomeHeight > 0) ctx.ellipse(0, 0, p.discRadius, p.discRadius + p.discDomeHeight, 0, Math.PI, 0);
     else ctx.arc(0, 0, p.discRadius, 0, Math.PI * 2);
     ctx.fill();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = p.discOutlineColor ?? "rgba(0, 0, 0, 0.5)";
+    ctx.stroke();
     ctx.restore();
 }
 

@@ -36,17 +36,18 @@ const purplePetal: FlowerColorSpec = {
 const yellowDisc: FlowerColorSpec = {
     type: "multi",
     stops: [
-        { offset: 0.0, hex: "#edc83e" },
-        { offset: 0.7, hex: "#dcb833" },
-        { offset: 1.0, hex: "#c89a1a" },
+        { offset: 0.0, hex: "#f8d463" },
+        { offset: 0.7, hex: "#efc351" },
+        { offset: 1.0, hex: "#e6bb4c" },
     ],
 };
 
 const stemGreen: FlowerColorSpec = {
     type: "multi",
     stops: [
-        { offset: 0.0, hex: "#6b8a46" },
-        { offset: 1.0, hex: "#7ea659" },
+        { offset: 0.0, hex: "#6f9465" },
+        { offset: 0.7, hex: "#829a57" },
+        { offset: 1.0, hex: "#94aa56" },
     ],
 };
 
@@ -54,9 +55,15 @@ const leafGreen: FlowerColorSpec = {
     type: "multi",
     stops: [
         { offset: 0.0, hex: "#3f5a2c" },
-        { offset: 1.0, hex: "#7fa55a" },
+        { offset: 0.5, hex: "#7fa55a" },
+        { offset: 1.0, hex: "#b0b95e" },
     ],
 };
+
+const petalOutline = "#593b93";
+const discOutline = "#655116";
+const stemOutline = "#3d5238";
+const leafOutline = "#5a7c3f";
 
 // --- Deterministic per-flower variation ---------------------------------
 
@@ -96,6 +103,7 @@ function makeDaisy(opts: {
             baseAngle: opts.baseAngle,
             curveStrength: opts.curveStrength,
             color: stemGreen,
+            outlineColor: stemOutline,
         },
         leaf: {
             instances: [
@@ -103,32 +111,35 @@ function makeDaisy(opts: {
                     t: 0.15,
                     side: -1,
                     angleOffset: -0.9,
-                    size: 150,
+                    size: 15,
                     widthRatio: 0.35,
                     serrationCount: 4,
                     serrationDepth: 1.25,
                     color: leafGreen,
+                    outlineColor: leafOutline,
                     shape: "arrow"
                 },                {
                     t: 0.35,
                     side: 1,
                     angleOffset: -0.9,
-                    size: 150,
+                    size: 15,
                     widthRatio: 0.35,
                     serrationCount: 4,
                     serrationDepth: 1.25,
                     color: leafGreen,
+                    outlineColor: leafOutline,
                     shape: "arrow"
                 },
                 {
                     t: 0.55,
                     side: -1,
                     angleOffset: -0.8 - Math.sin(opts.leafSeed) * 0.05,
-                    size: 130,
+                    size: 15,
                     widthRatio: 0.35,
                     serrationCount: 4,
                     serrationDepth: 1.2,
                     color: leafGreen,
+                    outlineColor: leafOutline,
                     shape: "arrow"
                 },
             ],
@@ -137,11 +148,13 @@ function makeDaisy(opts: {
             discRadius: opts.discRadius,
             discDomeHeight: 0,
             discColor: yellowDisc,
+            discOutlineColor: discOutline,
             petalCount: opts.petalCount,
             petalLength: opts.petalLength,
             petalWidth: opts.petalWidth,
             petalDroop: 0,
             petalColor: purplePetal,
+            petalOutlineColor: petalOutline,
             petalAngleOffsets: petals.angleOffsets,
             petalLengthMultipliers: petals.lengthMultipliers,
             petalShape: opts.petalShape,
@@ -153,14 +166,14 @@ function makeDaisy(opts: {
 
 // Tall center flower.
 const center = makeDaisy({
-    stemLength: 360,
-    stemThickness: 15,
+    stemLength: 56,
+    stemThickness: 2,
     baseAngle: -Math.PI / 2 + 0.02,
     curveStrength: 0.02,
     petalCount: 22,
-    petalLength: 80,
-    petalWidth: 28,
-    discRadius: 23,
+    petalLength: 8,
+    petalWidth: 2,
+    discRadius: 2,
     leafSeed: 1.1,
     petalSeed: 0.3,
     petalShape: "pointed",
@@ -168,14 +181,14 @@ const center = makeDaisy({
 
 // Left smaller flower.
 const left = makeDaisy({
-    stemLength: 240,
-    stemThickness: 14,
-    baseAngle: -Math.PI / 2 - 0.18,
+    stemLength: 34,
+    stemThickness: 2,
+    baseAngle: -Math.PI / 2 - 0.28,
     curveStrength: -0.06,
     petalCount: 24,
-    petalLength: 70,
-    petalWidth: 24,
-    discRadius: 20,
+    petalLength: 7,
+    petalWidth: 2,
+    discRadius: 2,
     leafSeed: 2.4,
     petalSeed: 1.7,
     petalShape: "pointed",
@@ -183,14 +196,14 @@ const left = makeDaisy({
 
 // Right smaller flower.
 const right = makeDaisy({
-    stemLength: 270,
-    stemThickness: 14,
-    baseAngle: -Math.PI / 2 + 0.16,
+    stemLength: 37,
+    stemThickness: 2,
+    baseAngle: -Math.PI / 2 + 0.26,
     curveStrength: 0.05,
     petalCount: 23,
-    petalLength: 72,
-    petalWidth: 24,
-    discRadius: 22,
+    petalLength: 7,
+    petalWidth: 2,
+    discRadius: 2,
     leafSeed: 3.7,
     petalSeed: 2.2,
     petalShape: "pointed",
@@ -200,6 +213,6 @@ const right = makeDaisy({
 const groundY = canvas.height - 30;
 
 // Render order: back-most first so layering reads correctly.
-generateFlower(ctx, 320, groundY, center);
-generateFlower(ctx, 290, groundY, left);
-generateFlower(ctx, 360, groundY, right);
+generateFlower(ctx, 315, groundY, center);
+generateFlower(ctx, 310, groundY, left);
+generateFlower(ctx, 322, groundY, right);
