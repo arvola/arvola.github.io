@@ -31,6 +31,7 @@ export interface LeafInstance {
     serrationCount?: number;
     serrationDepth?: number;
     color: FlowerColorSpec;
+    shape?: "arrow" | "teardrop";
 }
 
 export interface LeafParams {
@@ -208,7 +209,11 @@ export function drawLeaves(ctx: CanvasRenderingContext2D, stem: StemCurve, param
         const cx = L / 2;
 
         ctx.fillStyle = createLinearGradientFromSpec(ctx, cx + r * s, r * c, cx - r * s, -r * c, leaf.color);
-        drawArrowLeaf(ctx, L, W);
+        if (leaf.shape === "arrow") {
+            drawArrowLeaf(ctx, L, W);
+        } else {
+            drawTeardrop(ctx, L, W);
+        }
         ctx.fill();
         ctx.restore();
     });
