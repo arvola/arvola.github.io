@@ -36,8 +36,8 @@ const purplePetal: FlowerColorSpec = {
 const yellowDisc: FlowerColorSpec = {
     type: "multi",
     stops: [
-        { offset: 0.0, hex: "#fff39a" },
-        { offset: 0.7, hex: "#f0c93a" },
+        { offset: 0.0, hex: "#edc83e" },
+        { offset: 0.7, hex: "#dcb833" },
         { offset: 1.0, hex: "#c89a1a" },
     ],
 };
@@ -105,7 +105,6 @@ function makeDaisy(opts: {
                     angleOffset: -0.9,
                     size: 90,
                     widthRatio: 0.35,
-                    isSerrated: true,
                     serrationCount: 4,
                     serrationDepth: 1.25,
                     color: leafGreen,
@@ -116,7 +115,6 @@ function makeDaisy(opts: {
                     angleOffset: -0.8 - Math.sin(opts.leafSeed) * 0.05,
                     size: 80,
                     widthRatio: 0.55,
-                    isSerrated: true,
                     serrationCount: 4,
                     serrationDepth: 1.2,
                     color: leafGreen,
@@ -164,7 +162,7 @@ const left = makeDaisy({
     petalCount: 24,
     petalLength: 70,
     petalWidth: 24,
-    discRadius: 26,
+    discRadius: 20,
     leafSeed: 2.4,
     petalSeed: 1.7,
     petalShape: "pointed",

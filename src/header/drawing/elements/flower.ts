@@ -27,7 +27,7 @@ export interface LeafInstance {
     angleOffset: number;
     size: number;
     widthRatio: number;
-    isSerrated: boolean;
+    isSerrated?: boolean;
     serrationCount?: number;
     serrationDepth?: number;
     color: FlowerColorSpec;

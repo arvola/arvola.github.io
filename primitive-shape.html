@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Primitive Shape Test</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #4f4f4f;
+            font-family: system-ui, sans-serif;
+            color: #ebebeb;
+        }
+
+        #wrap {
+            max-width: 920px;
+            margin: 24px auto;
+            padding: 16px;
+        }
+
+        h1 {
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0 0 12px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 16px;
+        }
+
+        canvas {
+            display: block;
+            background: #595959;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 8px;
+            width: 100%;
+            height: auto;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .shape-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .shape-controls button,
+        .shape-controls select,
+        .actions button {
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(255, 255, 255, 0.12);
+            color: #f0f0f0;
+            padding: 6px 8px;
+            font-size: 12px;
+        }
+
+        #shapeSelect {
+            width: 100%;
+            margin-bottom: 10px;
+            min-height: 84px;
+        }
+
+        .actions {
+            margin-top: 12px;
+        }
+
+        #exportOutput {
+            margin-top: 10px;
+            width: 100%;
+            min-height: 140px;
+            box-sizing: border-box;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            background: rgba(0, 0, 0, 0.16);
+            color: #f0f0f0;
+            padding: 8px;
+            font-size: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            resize: vertical;
+        }
+
+        .control {
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .control:last-child {
+            margin-bottom: 0;
+        }
+
+        .control label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+            gap: 8px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="wrap">
+    <h1>Swept triangle primitive test</h1>
+    <div class="layout">
+        <canvas id="primitive-canvas" width="640" height="640"></canvas>
+        <div class="controls">
+            <div class="shape-controls">
+                <button id="addShape" type="button">Add shape</button>
+                <button id="removeShape" type="button">Remove selected</button>
+            </div>
+            <select id="shapeSelect" size="4"></select>
+            <div class="control">
+                <label for="sideSweep"><span>Side sweep</span><span id="sideSweepValue"></span></label>
+                <input id="sideSweep" type="range" min="0" max="1" step="0.01" value="0.45"/>
+            </div>
+            <div class="control">
+                <label for="topConcavity"><span>Top concavity</span><span id="topConcavityValue"></span></label>
+                <input id="topConcavity" type="range" min="0" max="0.22" step="0.005" value="0.08"/>
+            </div>
+            <div class="control">
+                <label for="tipInset"><span>Tip inset</span><span id="tipInsetValue"></span></label>
+                <input id="tipInset" type="range" min="0" max="0.08" step="0.002" value="0.02"/>
+            </div>
+            <div class="control">
+                <label for="width"><span>Width</span><span id="widthValue"></span></label>
+                <input id="width" type="range" min="20" max="640" step="1" value="420"/>
+            </div>
+            <div class="control">
+                <label for="height"><span>Height</span><span id="heightValue"></span></label>
+                <input id="height" type="range" min="20" max="640" step="1" value="480"/>
+            </div>
+            <div class="control">
+                <label for="x"><span>X</span><span id="xValue"></span></label>
+                <input id="x" type="range" min="-320" max="960" step="1" value="320"/>
+            </div>
+            <div class="control">
+                <label for="y"><span>Y</span><span id="yValue"></span></label>
+                <input id="y" type="range" min="-320" max="960" step="1" value="70"/>
+            </div>
+            <div class="control">
+                <label for="flipVertical"><span>Flip vertically</span><span id="flipVerticalValue"></span></label>
+                <input id="flipVertical" type="checkbox"/>
+            </div>
+            <div class="actions">
+                <button id="exportShapes" type="button">Export shapes</button>
+                <textarea id="exportOutput" readonly placeholder="Exported shapes JSON will appear here"></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="module" src="/src/primitive-shape-test.ts"></script>
+</body>
+</html>
