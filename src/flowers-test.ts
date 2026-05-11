@@ -1,249 +1,100 @@
 /**
  * Standalone test page entry for the procedural flower renderer.
  *
- * Renders purple New England Asters (one tall center, shorter side flowers)
- * matching the reference image. All variation is pre-computed here and
- * passed to the deterministic renderer in `header/drawing/elements/flower.ts`.
+ * Renders golden alexanders using the procedural flower renderer.
  */
 
-import {
-    generateFlower,
-    FlowerColorSpec,
-    SpeciesProfile,
-} from "./header/drawing/elements/flower.ts";
-import { makeNewEnglandAster } from "./header/drawing/elements/new-england-aster.ts";
+import { generateFlower } from "./header/drawing/elements/flower.ts";
+import { makeGoldenAlexander } from "./header/drawing/elements/golden-alexander.ts";
 
 const canvas = document.getElementById("flower-canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
 
+const scale = 2;
+const visualScale = 1.5;
+const totalScale = scale * visualScale;
+ctx.scale(totalScale, totalScale);
+
 // Background fill (subtle gradient like the reference).
-const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
+const bg = ctx.createLinearGradient(0, 0, 0, canvas.height / totalScale);
 bg.addColorStop(0, "#eef7f1");
 bg.addColorStop(1, "#dcebe1");
 ctx.fillStyle = bg;
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+ctx.fillRect(0, 0, canvas.width / totalScale, canvas.height / totalScale);
 
-// --- Color palette (from the reference image) ---------------------------
-
-const purplePetal: FlowerColorSpec = {
-    type: "multi",
-    stops: [
-        { offset: 0.0, hex: "#3a1d6e" }, // deep purple at base
-        { offset: 0.55, hex: "#6b3fbf" },
-        { offset: 1.0, hex: "#a987e6" }, // light lilac at tip
-    ],
-};
-
-const yellowDisc: FlowerColorSpec = {
-    type: "multi",
-    stops: [
-        { offset: 0.0, hex: "#f8d463" },
-        { offset: 0.7, hex: "#efc351" },
-        { offset: 1.0, hex: "#e6bb4c" },
-    ],
-};
-
-const stemGreen: FlowerColorSpec = {
-    type: "multi",
-    stops: [
-        { offset: 0.0, hex: "#6f9465" },
-        { offset: 0.7, hex: "#829a57" },
-        { offset: 1.0, hex: "#94aa56" },
-    ],
-};
-
-const leafGreen: FlowerColorSpec = {
-    type: "multi",
-    stops: [
-        { offset: 0.0, hex: "#3f5a2c" },
-        { offset: 0.5, hex: "#7fa55a" },
-        { offset: 1.0, hex: "#b0b95e" },
-    ],
-};
-
-const petalOutline = "#593b93";
-const discOutline = "#655116";
-const stemOutline = "#3d5238";
-const leafOutline = "#5a7c3f";
-
-// --- Deterministic per-flower variation ---------------------------------
-
-/** Build petal angle/length arrays with subtle but explicit fuzz. */
-function buildPetalArrays(count: number, seed: number) {
-    const angleOffsets: number[] = [];
-    const lengthMultipliers: number[] = [];
-    for (let i = 0; i < count; i++) {
-        // Small deterministic trig-based fuzz, no Math.random.
-        const a = Math.sin((i + 1) * 1.3 + seed) * 0.04;
-        const l = 1 + Math.cos((i + 1) * 0.9 + seed * 1.7) * 0.06;
-        angleOffsets.push(a);
-        lengthMultipliers.push(l);
-    }
-    return { angleOffsets, lengthMultipliers };
-}
-
-function makeNewEnglandAster(opts: {
-    stemLength: number;
-    stemThickness: number;
-    baseAngle: number;
-    curveStrength: number;
-    petalCount: number;
-    petalLength: number;
-    petalWidth: number;
-    discRadius: number;
-    leafSeed: number;
-    petalSeed: number;
-    petalShape?: "pointed" | "elliptical";
-}): SpeciesProfile {
-    const petals = buildPetalArrays(opts.petalCount, opts.petalSeed);
-
-    return {
-        stem: {
-            length: opts.stemLength,
-            thickness: opts.stemThickness,
-            baseAngle: opts.baseAngle,
-            curveStrength: opts.curveStrength,
-            color: stemGreen,
-            outlineColor: stemOutline,
-        },
-        leaf: {
-            instances: [
-                {
-                    t: 0.15,
-                    side: -1,
-                    angleOffset: -0.9,
-                    size: 15,
-                    widthRatio: 0.35,
-                    serrationCount: 4,
-                    serrationDepth: 1.25,
-                    color: leafGreen,
-                    outlineColor: leafOutline,
-                    shape: "arrow"
-                },                {
-                    t: 0.35,
-                    side: 1,
-                    angleOffset: -0.9,
-                    size: 15,
-                    widthRatio: 0.35,
-                    serrationCount: 4,
-                    serrationDepth: 1.25,
-                    color: leafGreen,
-                    outlineColor: leafOutline,
-                    shape: "arrow"
-                },
-                {
-                    t: 0.55,
-                    side: -1,
-                    angleOffset: -0.8 - Math.sin(opts.leafSeed) * 0.05,
-                    size: 15,
-                    widthRatio: 0.35,
-                    serrationCount: 4,
-                    serrationDepth: 1.2,
-                    color: leafGreen,
-                    outlineColor: leafOutline,
-                    shape: "arrow"
-                },
-            ],
-        },
-        head: {
-            discRadius: opts.discRadius,
-            discDomeHeight: 0,
-            discColor: yellowDisc,
-            discOutlineColor: discOutline,
-            petalCount: opts.petalCount,
-            petalLength: opts.petalLength,
-            petalWidth: opts.petalWidth,
-            petalDroop: 0,
-            petalColor: purplePetal,
-            petalOutlineColor: petalOutline,
-            petalAngleOffsets: petals.angleOffsets,
-            petalLengthMultipliers: petals.lengthMultipliers,
-            petalShape: opts.petalShape,
-        },
-    };
-}
-
-// --- Three flowers matching the attachment ------------------------------
-
-// Tall center flower.
-const center = makeNewEnglandAster({
-    stemLength: 56,
-    stemThickness: 2,
+const center = makeGoldenAlexander({
+    stemLength: 104,
+    stemThickness: 3,
     baseAngle: -Math.PI / 2 + 0.02,
-    curveStrength: 0.02,
-    petalCount: 22,
-    petalLength: 8,
-    petalWidth: 2,
-    discRadius: 2,
-    leafSeed: 1.1,
-    petalSeed: 0.3,
-    petalShape: "pointed",
+    curveStrength: 0.04,
+    splitStemCount: 12,
+    splitStemLength: 45,
+    fanAngle: 1.18,
+    clusterCircleCount: 16,
+    clusterRadius: 2.5,
+    clusterSpread: 8,
 });
 
-// Left smaller flower.
-const left = makeNewEnglandAster({
-    stemLength: 34,
-    stemThickness: 2,
-    baseAngle: -Math.PI / 2 - 0.28,
+const left = makeGoldenAlexander({
+    stemLength: 74,
+    stemThickness: 2.4,
+    baseAngle: -Math.PI / 2 - 0.2,
     curveStrength: -0.06,
-    petalCount: 24,
-    petalLength: 7,
-    petalWidth: 2,
-    discRadius: 2,
-    leafSeed: 2.4,
-    petalSeed: 1.7,
-    petalShape: "pointed",
+    splitStemCount: 7,
+    splitStemLength: 34,
+    fanAngle: 1.02,
+    clusterCircleCount: 13,
+    clusterRadius: 2.2,
+    clusterSpread: 7,
 });
 
-// Right smaller flower.
-const right = makeNewEnglandAster({
-    stemLength: 37,
+const right = makeGoldenAlexander({
+    stemLength: 82,
+    stemThickness: 2.5,
+    baseAngle: -Math.PI / 2 + 0.24,
+    curveStrength: 0.07,
+    splitStemCount: 8,
+    splitStemLength: 38,
+    fanAngle: 1.08,
+    clusterCircleCount: 14,
+    clusterRadius: 2.25,
+    clusterSpread: 7.4,
+});
+
+const leftOuter = makeGoldenAlexander({
+    stemLength: 58,
     stemThickness: 2,
-    baseAngle: -Math.PI / 2 + 0.26,
-    curveStrength: 0.05,
-    petalCount: 23,
-    petalLength: 7,
-    petalWidth: 2,
-    discRadius: 2,
-    leafSeed: 3.7,
-    petalSeed: 2.2,
-    petalShape: "pointed",
+    baseAngle: -Math.PI / 2 - 0.48,
+    curveStrength: -0.12,
+    splitStemCount: 6,
+    splitStemLength: 28,
+    fanAngle: 0.92,
+    clusterCircleCount: 11,
+    clusterRadius: 1.9,
+    clusterSpread: 6.2,
 });
 
-const leftOuter = makeNewEnglandAster({
-    stemLength: 28,
-    stemThickness: 1.8,
-    baseAngle: -Math.PI / 2 - 0.5,
-    curveStrength: -0.1,
-    petalCount: 20,
-    petalLength: 6,
-    petalWidth: 1.8,
-    discRadius: 1.8,
-    leafSeed: 4.2,
-    petalSeed: 3.1,
-    petalShape: "pointed",
-});
-
-const rightOuter = makeNewEnglandAster({
-    stemLength: 30,
-    stemThickness: 1.8,
-    baseAngle: -Math.PI / 2 + 0.45,
-    curveStrength: 0.08,
-    petalCount: 21,
-    petalLength: 6,
-    petalWidth: 1.8,
-    discRadius: 1.8,
-    leafSeed: 5.5,
-    petalSeed: 4.4,
-    petalShape: "pointed",
+const rightOuter = makeGoldenAlexander({
+    stemLength: 62,
+    stemThickness: 2,
+    baseAngle: -Math.PI / 2 + 0.48,
+    curveStrength: 0.1,
+    splitStemCount: 6,
+    splitStemLength: 30,
+    fanAngle: 0.95,
+    clusterCircleCount: 12,
+    clusterRadius: 2,
+    clusterSpread: 6.4,
 });
 
 // Ground line for stem bases.
-const groundY = canvas.height - 30;
+const groundY = (canvas.height / totalScale) - 30;
 
 // Render order: back-most first so layering reads correctly.
-generateFlower(ctx, 315, groundY, center);
-generateFlower(ctx, 310, groundY, left);
-generateFlower(ctx, 322, groundY, right);
-generateFlower(ctx, 305, groundY, leftOuter);
-generateFlower(ctx, 328, groundY, rightOuter);
+const centerX = (canvas.width / totalScale) / 2;
+
+generateFlower(ctx, centerX + (315 - 320), groundY, center);
+generateFlower(ctx, centerX + (286 - 320), groundY, left);
+generateFlower(ctx, centerX + (342 - 320), groundY, right);
+generateFlower(ctx, centerX + (254 - 320), groundY, leftOuter);
+generateFlower(ctx, centerX + (378 - 320), groundY, rightOuter);

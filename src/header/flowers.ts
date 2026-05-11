@@ -1,7 +1,8 @@
 import { FlowerSpec } from "./drawing/elements/flower.ts";
 import { makeNewEnglandAster } from "./drawing/elements/new-england-aster.ts";
+import { makeGoldenAlexander } from "./drawing/elements/golden-alexander.ts";
 
-const center = makeNewEnglandAster({
+const asterCenter = makeNewEnglandAster({
     stemLength: 50,
     stemThickness: 2,
     baseAngle: -Math.PI / 2 + 0.02,
@@ -15,7 +16,7 @@ const center = makeNewEnglandAster({
     petalShape: "pointed",
 });
 
-const left = makeNewEnglandAster({
+const asterLeft = makeNewEnglandAster({
     stemLength: 34,
     stemThickness: 2,
     baseAngle: -Math.PI / 2 - 0.28,
@@ -29,7 +30,7 @@ const left = makeNewEnglandAster({
     petalShape: "pointed",
 });
 
-const right = makeNewEnglandAster({
+const asterRight = makeNewEnglandAster({
     stemLength: 37,
     stemThickness: 2,
     baseAngle: -Math.PI / 2 + 0.26,
@@ -43,7 +44,7 @@ const right = makeNewEnglandAster({
     petalShape: "pointed",
 });
 
-const leftOuter = makeNewEnglandAster({
+const asterLeftOuter = makeNewEnglandAster({
     stemLength: 28,
     stemThickness: 1.8,
     baseAngle: -Math.PI / 2 - 0.1,
@@ -57,7 +58,7 @@ const leftOuter = makeNewEnglandAster({
     petalShape: "pointed",
 });
 
-const rightOuter = makeNewEnglandAster({
+const asterRightOuter = makeNewEnglandAster({
     stemLength: 30,
     stemThickness: 1.8,
     baseAngle: -Math.PI / 2 + 0.45,
@@ -71,10 +72,71 @@ const rightOuter = makeNewEnglandAster({
     petalShape: "pointed",
 });
 
+const gaCenter = makeGoldenAlexander({
+    stemLength: 15,
+    stemThickness: 1.0,
+    baseAngle: -Math.PI / 2 + 0.02,
+    curveStrength: 0.04,
+    splitStemCount: 12,
+    splitStemLength: 15,
+    fanAngle: 1.18,
+    clusterCircleCount: 16,
+    clusterRadius: 0.83,
+    clusterSpread: 2.67,
+    leafScale: 0.33,
+});
+
+const gaRight = makeGoldenAlexander({
+    stemLength: 9,
+    stemThickness: 0.83,
+    baseAngle: -Math.PI / 2 + 0.24,
+    curveStrength: 0.07,
+    splitStemCount: 8,
+    splitStemLength: 12.7,
+    fanAngle: 1.08,
+    clusterCircleCount: 14,
+    clusterRadius: 0.75,
+    clusterSpread: 2.47,
+    leafScale: 0.33,
+});
+
+const gaLeftOuter = makeGoldenAlexander({
+    stemLength: 12,
+    stemThickness: 0.67,
+    baseAngle: -Math.PI / 2 - 0.38,
+    curveStrength: -0.12,
+    splitStemCount: 6,
+    splitStemLength: 9.3,
+    fanAngle: 0.92,
+    clusterCircleCount: 11,
+    clusterRadius: 0.63,
+    clusterSpread: 2.07,
+    leafScale: 0.33,
+});
+
+const gaRightOuter = makeGoldenAlexander({
+    stemLength: 17,
+    stemThickness: 0.67,
+    baseAngle: -Math.PI / 2 + 0.48,
+    curveStrength: 0.1,
+    splitStemCount: 6,
+    splitStemLength: 10,
+    fanAngle: 0.95,
+    clusterCircleCount: 12,
+    clusterRadius: 0.67,
+    clusterSpread: 2.13,
+    leafScale: 0.33,
+});
+
 export const flowers: FlowerSpec[] = [
-    { type: "flower", x: 220, y: 190, species: center },
-    { type: "flower", x: 214, y: 190, species: left },
-    { type: "flower", x: 222, y: 190, species: right },
-    { type: "flower", x: 220, y: 190, species: leftOuter },
-    { type: "flower", x: 228, y: 190, species: rightOuter },
+    { type: "flower", x: 220, y: 190, species: asterCenter },
+    { type: "flower", x: 214, y: 190, species: asterLeft },
+    { type: "flower", x: 222, y: 190, species: asterRight },
+    { type: "flower", x: 220, y: 190, species: asterLeftOuter },
+    { type: "flower", x: 228, y: 190, species: asterRightOuter },
+
+    { type: "flower", x: 270, y: 202, species: gaCenter },
+    { type: "flower", x: 275, y: 202, species: gaRight },
+    { type: "flower", x: 268, y: 202, species: gaLeftOuter },
+    { type: "flower", x: 280, y: 202, species: gaRightOuter },
 ];
