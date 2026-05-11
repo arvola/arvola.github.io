@@ -1,7 +1,7 @@
 /**
  * Standalone test page entry for the procedural flower renderer.
  *
- * Renders three purple daisies (one tall center, two shorter side flowers)
+ * Renders purple New England Asters (one tall center, shorter side flowers)
  * matching the reference image. All variation is pre-computed here and
  * passed to the deterministic renderer in `header/drawing/elements/flower.ts`.
  */
@@ -11,6 +11,7 @@ import {
     FlowerColorSpec,
     SpeciesProfile,
 } from "./header/drawing/elements/flower.ts";
+import { makeNewEnglandAster } from "./header/drawing/elements/new-england-aster.ts";
 
 const canvas = document.getElementById("flower-canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
@@ -27,18 +28,18 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 const purplePetal: FlowerColorSpec = {
     type: "multi",
     stops: [
-        { offset: 0.0, hex: "#3f5a2c" },
-        { offset: 0.5, hex: "#7fa55a" },
-        { offset: 1.0, hex: "#b0b95e" },
+        { offset: 0.0, hex: "#3a1d6e" }, // deep purple at base
+        { offset: 0.55, hex: "#6b3fbf" },
+        { offset: 1.0, hex: "#a987e6" }, // light lilac at tip
     ],
 };
 
 const yellowDisc: FlowerColorSpec = {
     type: "multi",
     stops: [
-        { offset: 0.0, hex: "#3f5a2c" },
-        { offset: 0.5, hex: "#7fa55a" },
-        { offset: 1.0, hex: "#b0b95e" },
+        { offset: 0.0, hex: "#f8d463" },
+        { offset: 0.7, hex: "#efc351" },
+        { offset: 1.0, hex: "#e6bb4c" },
     ],
 };
 
@@ -60,8 +61,8 @@ const leafGreen: FlowerColorSpec = {
     ],
 };
 
-const petalOutline = "#5a7c3f";
-const discOutline = "#5a7c3f";
+const petalOutline = "#593b93";
+const discOutline = "#655116";
 const stemOutline = "#3d5238";
 const leafOutline = "#5a7c3f";
 
@@ -81,7 +82,7 @@ function buildPetalArrays(count: number, seed: number) {
     return { angleOffsets, lengthMultipliers };
 }
 
-function makeDaisy(opts: {
+function makeNewEnglandAster(opts: {
     stemLength: number;
     stemThickness: number;
     baseAngle: number;
@@ -142,30 +143,6 @@ function makeDaisy(opts: {
                     outlineColor: leafOutline,
                     shape: "arrow"
                 },
-                {
-                    t: 0.75,
-                    side: 1,
-                    angleOffset: -0.8 - Math.sin(opts.leafSeed) * 0.05,
-                    size: 15,
-                    widthRatio: 0.35,
-                    serrationCount: 4,
-                    serrationDepth: 1.2,
-                    color: leafGreen,
-                    outlineColor: leafOutline,
-                    shape: "arrow"
-                },
-                {
-                    t: 0.85,
-                    side: -1,
-                    angleOffset: -0.8 - Math.sin(opts.leafSeed) * 0.05,
-                    size: 15,
-                    widthRatio: 0.35,
-                    serrationCount: 4,
-                    serrationDepth: 1.2,
-                    color: leafGreen,
-                    outlineColor: leafOutline,
-                    shape: "arrow"
-                },
             ],
         },
         head: {
@@ -189,13 +166,13 @@ function makeDaisy(opts: {
 // --- Three flowers matching the attachment ------------------------------
 
 // Tall center flower.
-const center = makeDaisy({
+const center = makeNewEnglandAster({
     stemLength: 56,
     stemThickness: 2,
     baseAngle: -Math.PI / 2 + 0.02,
     curveStrength: 0.02,
-    petalCount: 5,
-    petalLength: 4,
+    petalCount: 22,
+    petalLength: 8,
     petalWidth: 2,
     discRadius: 2,
     leafSeed: 1.1,
@@ -204,13 +181,13 @@ const center = makeDaisy({
 });
 
 // Left smaller flower.
-const left = makeDaisy({
+const left = makeNewEnglandAster({
     stemLength: 34,
     stemThickness: 2,
     baseAngle: -Math.PI / 2 - 0.28,
     curveStrength: -0.06,
-    petalCount: 5,
-    petalLength: 4,
+    petalCount: 24,
+    petalLength: 7,
     petalWidth: 2,
     discRadius: 2,
     leafSeed: 2.4,
@@ -219,17 +196,45 @@ const left = makeDaisy({
 });
 
 // Right smaller flower.
-const right = makeDaisy({
+const right = makeNewEnglandAster({
     stemLength: 37,
     stemThickness: 2,
     baseAngle: -Math.PI / 2 + 0.26,
     curveStrength: 0.05,
-    petalCount: 5,
-    petalLength: 4,
+    petalCount: 23,
+    petalLength: 7,
     petalWidth: 2,
     discRadius: 2,
     leafSeed: 3.7,
     petalSeed: 2.2,
+    petalShape: "pointed",
+});
+
+const leftOuter = makeNewEnglandAster({
+    stemLength: 28,
+    stemThickness: 1.8,
+    baseAngle: -Math.PI / 2 - 0.5,
+    curveStrength: -0.1,
+    petalCount: 20,
+    petalLength: 6,
+    petalWidth: 1.8,
+    discRadius: 1.8,
+    leafSeed: 4.2,
+    petalSeed: 3.1,
+    petalShape: "pointed",
+});
+
+const rightOuter = makeNewEnglandAster({
+    stemLength: 30,
+    stemThickness: 1.8,
+    baseAngle: -Math.PI / 2 + 0.45,
+    curveStrength: 0.08,
+    petalCount: 21,
+    petalLength: 6,
+    petalWidth: 1.8,
+    discRadius: 1.8,
+    leafSeed: 5.5,
+    petalSeed: 4.4,
     petalShape: "pointed",
 });
 
@@ -240,3 +245,5 @@ const groundY = canvas.height - 30;
 generateFlower(ctx, 315, groundY, center);
 generateFlower(ctx, 310, groundY, left);
 generateFlower(ctx, 322, groundY, right);
+generateFlower(ctx, 305, groundY, leftOuter);
+generateFlower(ctx, 328, groundY, rightOuter);

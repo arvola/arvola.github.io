@@ -186,7 +186,7 @@ export function drawStemCurve(ctx: CanvasRenderingContext2D, stem: StemCurve, p:
     ctx.moveTo(stem.p0.x, stem.p0.y);
     ctx.quadraticCurveTo(stem.p1.x, stem.p1.y, stem.p2.x, stem.p2.y);
     
-    ctx.lineWidth = p.thickness + 1;
+    ctx.lineWidth = p.thickness + 0.3;
     ctx.strokeStyle = p.outlineColor ?? "rgba(0, 0, 0, 0.5)";
     ctx.stroke();
 
@@ -224,7 +224,7 @@ export function drawLeaves(ctx: CanvasRenderingContext2D, stem: StemCurve, param
             drawTeardrop(ctx, L, W);
         }
         ctx.fill();
-        ctx.lineWidth = 1;
+        ctx.lineWidth = 0.5;
         ctx.strokeStyle = leaf.outlineColor ?? "rgba(0, 0, 0, 0.5)";
         ctx.stroke();
         ctx.restore();
@@ -235,7 +235,7 @@ function drawPetalRing(ctx: CanvasRenderingContext2D, p: PetalParams): void {
     const step = (2 * Math.PI) / p.petalCount;
     const shape = p.petalShape ?? "elliptical";
 
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 0.8;
     ctx.strokeStyle = p.petalOutlineColor ?? "rgba(0, 0, 0, 0.5)";
     for (let i = 0; i < p.petalCount; i++) {
         const len = p.petalLength * (p.petalLengthMultipliers[i] ?? 1);
@@ -277,7 +277,7 @@ export function drawFlowerHead(ctx: CanvasRenderingContext2D, x: number, y: numb
     if (p.discDomeHeight > 0) ctx.ellipse(0, 0, p.discRadius, p.discRadius + p.discDomeHeight, 0, Math.PI, 0);
     else ctx.arc(0, 0, p.discRadius, 0, Math.PI * 2);
     ctx.fill();
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 0.3;
     ctx.strokeStyle = p.discOutlineColor ?? "rgba(0, 0, 0, 0.5)";
     ctx.stroke();
     ctx.restore();
