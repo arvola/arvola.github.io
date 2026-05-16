@@ -159,6 +159,76 @@ export function darken(color: string, amount: number): string {
     return rgbToHex(...hslToRgb(h, s, (1 - amount) * l), a);
 }
 
+export interface ColorPalette {
+    /** Reduce lightness. 0..1, applied as l *= (1 - darken). */
+    darken?: number;
+    /** Increase lightness. 0..1, applied as l += (1 - l) * lighten. */
+    lighten?: number;
+    /** Reduce saturation. 0..1, applied as s *= (1 - desaturate). */
+    desaturate?: number;
+    /** Rotate hue in degrees. */
+    hueShift?: number;
+    /** Atmospheric tint: lerp each RGB component toward this color by `amount`. */
+    tint?: { color: string; amount: number };
+}
+
+function isIdentityPalette(p: ColorPalette): boolean {
+    return !p.darken && !p.lighten && !p.desaturate && !p.hueShift && !(p.tint && p.tint.amount);
+}
+
+function parseColor(color: string): { r: number; g: number; b: number; a: number; isHex: boolean } | null {
+    const trimmed = color.trim();
+    if (trimmed.startsWith("#")) {
+        const [r, g, b, a] = hexToRgb(trimmed);
+        return { r, g, b, a, isHex: true };
+    }
+    const m = trimmed.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)$/i);
+    if (m) {
+        return {
+            r: parseInt(m[1]!, 10),
+            g: parseInt(m[2]!, 10),
+            b: parseInt(m[3]!, 10),
+            a: m[4] ? parseFloat(m[4]!) : 1,
+            isHex: false,
+        };
+    }
+    return null;
+}
+
+export function applyPalette(color: string, palette: ColorPalette | undefined): string {
+    if (!palette || isIdentityPalette(palette)) {
+        return color;
+    }
+    const parsed = parseColor(color);
+    if (!parsed) {
+        return color;
+    }
+    let { r, g, b, a, isHex } = parsed;
+    let [h, s, l] = rgbToHsl(r, g, b);
+
+    if (palette.hueShift) h = (((h + palette.hueShift) % 360) + 360) % 360;
+    if (palette.desaturate) s = Math.max(0, s * (1 - palette.desaturate));
+    if (palette.darken) l = l * (1 - palette.darken);
+    if (palette.lighten) l = Math.min(1, l + (1 - l) * palette.lighten);
+
+    [r, g, b] = hslToRgb(h, s, l);
+
+    if (palette.tint && palette.tint.amount) {
+        const tinted = parseColor(palette.tint.color);
+        if (tinted) {
+            const t = palette.tint.amount;
+            r = Math.round(r + (tinted.r - r) * t);
+            g = Math.round(g + (tinted.g - g) * t);
+            b = Math.round(b + (tinted.b - b) * t);
+        }
+    }
+
+    if (isHex) {
+        return rgbToHex(r, g, b, a);
+    }
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
 /**
  * Lighten a hex color.
  *

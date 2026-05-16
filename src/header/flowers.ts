@@ -1,6 +1,7 @@
 import { FlowerSpec } from "./drawing/elements/flower.ts";
 import { makeNewEnglandAster } from "./drawing/elements/new-england-aster.ts";
 import { makeGoldenAlexander } from "./drawing/elements/golden-alexander.ts";
+import { ColorPalette } from "./drawing/color.ts";
 
 const asterCenter = makeNewEnglandAster({
     stemLength: 50,
@@ -129,14 +130,18 @@ const gaRightOuter = makeGoldenAlexander({
 });
 
 export const flowers: FlowerSpec[] = [
-    { type: "flower", x: 220, y: 190, species: asterCenter },
-    { type: "flower", x: 214, y: 190, species: asterLeft },
-    { type: "flower", x: 222, y: 190, species: asterRight },
-    { type: "flower", x: 220, y: 190, species: asterLeftOuter },
-    { type: "flower", x: 228, y: 190, species: asterRightOuter },
+    { type: "flower", x: 220, y: 150, species: asterCenter },
+    { type: "flower", x: 214, y: 150, species: asterLeft },
+    { type: "flower", x: 222, y: 150, species: asterRight },
+    { type: "flower", x: 220, y: 150, species: asterLeftOuter },
+    { type: "flower", x: 228, y: 150, species: asterRightOuter },
 
     { type: "flower", x: 270, y: 202, species: gaCenter },
     { type: "flower", x: 275, y: 202, species: gaRight },
     { type: "flower", x: 268, y: 202, species: gaLeftOuter },
     { type: "flower", x: 280, y: 202, species: gaRightOuter },
 ];
+
+export function tintedFlowers(palette: ColorPalette): FlowerSpec[] {
+    return flowers.map(f => ({ ...f, palette }));
+}

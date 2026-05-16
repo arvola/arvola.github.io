@@ -1,7 +1,7 @@
 import milky from "../img/milkyway.png";
 import {AnySpec} from "./drawing/elements";
 import {bigClouds, mediumClouds, smallClouds} from "./drawing/elements/clouds.ts";
-import {flowers} from "./flowers.ts";
+import {tintedFlowers} from "./flowers.ts";
 
 export const overcastNight: AnySpec[] = [
             {
@@ -67,7 +67,7 @@ export const overcastNight: AnySpec[] = [
     {
         type: "ground"
     },
-    ...flowers,
+    ...tintedFlowers({ tint: { color: "#000", amount: 1 } }),
 ]
 
 export const nightRain: AnySpec[] = [
@@ -139,7 +139,7 @@ export const nightRain: AnySpec[] = [
     {
         type: "ground"
     },
-    ...flowers,
+    ...tintedFlowers({ tint: { color: "#000", amount: 1 } }),
 ]
 
 export const nightSpec: AnySpec[] = [
@@ -181,7 +181,7 @@ export const nightSpec: AnySpec[] = [
     {
         type: "ground"
     },
-    ...flowers,
+    ...tintedFlowers({ tint: { color: "#000", amount: 1 } }),
 ];
 export const cloudyNightSpec: AnySpec[] = [
         {
@@ -249,5 +249,5 @@ export const cloudyNightSpec: AnySpec[] = [
     {
         type: "ground"
     },
-    ...flowers,
+    ...tintedFlowers({ tint: { color: "#000", amount: 1 } }),
 ]

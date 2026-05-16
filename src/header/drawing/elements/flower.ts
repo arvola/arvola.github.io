@@ -1,5 +1,5 @@
 import { SpecDrawingFunc } from "./base.ts";
-import { darken, lighten } from "../color.ts";
+import { applyPalette, ColorPalette, darken, lighten } from "../color.ts";
 
 export interface Point { x: number; y: number; }
 export interface StemCurve { p0: Point; p1: Point; p2: Point; }
@@ -95,10 +95,65 @@ export interface FlowerSpec {
     x: number;
     y: number;
     species: SpeciesProfile;
+    palette?: ColorPalette;
+}
+
+function tintColorSpec(spec: FlowerColorSpec, palette: ColorPalette): FlowerColorSpec {
+    if (spec.type === "single") {
+        return { type: "single", baseHex: applyPalette(spec.baseHex, palette) };
+    }
+    return {
+        type: "multi",
+        stops: spec.stops.map(s => ({ offset: s.offset, hex: applyPalette(s.hex, palette) })),
+    };
+}
+
+function tintSpecies(species: SpeciesProfile, palette: ColorPalette | undefined): SpeciesProfile {
+    if (!palette) return species;
+    const stem: StemParams = {
+        ...species.stem,
+        color: tintColorSpec(species.stem.color, palette),
+        outlineColor: species.stem.outlineColor && applyPalette(species.stem.outlineColor, palette),
+    };
+    const leaf: LeafParams = {
+        instances: species.leaf.instances.map(l => ({
+            ...l,
+            color: tintColorSpec(l.color, palette),
+            outlineColor: l.outlineColor && applyPalette(l.outlineColor, palette),
+        })),
+    };
+    let head: FlowerHeadSpec;
+    if (species.head.type === "golden-alexander") {
+        head = {
+            ...species.head,
+            splitStemColor: tintColorSpec(species.head.splitStemColor, palette),
+            splitStemOutlineColor: species.head.splitStemOutlineColor && applyPalette(species.head.splitStemOutlineColor, palette),
+            cluster: {
+                ...species.head.cluster,
+                color: tintColorSpec(species.head.cluster.color, palette),
+                speckleColor: applyPalette(species.head.cluster.speckleColor, palette),
+                outlineColor: species.head.cluster.outlineColor && applyPalette(species.head.cluster.outlineColor, palette),
+            },
+        };
+    } else {
+        head = {
+            ...species.head,
+            discColor: tintColorSpec(species.head.discColor, palette),
+            discOutlineColor: species.head.discOutlineColor && applyPalette(species.head.discOutlineColor, palette),
+            petalColor: tintColorSpec(species.head.petalColor, palette),
+            petalOutlineColor: species.head.petalOutlineColor && applyPalette(species.head.petalOutlineColor, palette),
+            backPetals: species.head.backPetals && {
+                ...species.head.backPetals,
+                petalColor: tintColorSpec(species.head.backPetals.petalColor, palette),
+                petalOutlineColor: species.head.backPetals.petalOutlineColor && applyPalette(species.head.backPetals.petalOutlineColor, palette),
+            },
+        };
+    }
+    return { stem, leaf, head };
 }
 
 export const drawFlower: SpecDrawingFunc<FlowerSpec> = (spec, { ctx }) => {
-    generateFlower(ctx, spec.x, spec.y, spec.species);
+    generateFlower(ctx, spec.x, spec.y, tintSpecies(spec.species, spec.palette));
 };
 
 export function getBezierPoint(t: number, p0: Point, p1: Point, p2: Point): Point {

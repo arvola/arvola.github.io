@@ -1,6 +1,6 @@
 import { AnySpec } from "./drawing/elements";
 import {bigClouds, mediumClouds, smallClouds} from "./drawing/elements/clouds.ts";
-import {flowers} from "./flowers.ts";
+import {flowers, tintedFlowers} from "./flowers.ts";
 
 export const daytimeSpec: AnySpec[] = [
     {
@@ -166,7 +166,7 @@ export const cloudyDay: AnySpec[] = [
         type: "ground",
         darken: 0.1
     },
-    ...flowers,
+    ...tintedFlowers({ darken: 0.04, desaturate: 0.12 }),
 ];
 
 export const overcastDay: AnySpec[] = [
@@ -235,7 +235,7 @@ export const overcastDay: AnySpec[] = [
         type: "ground",
         darken: 0.4
     },
-    ...flowers,
+    ...tintedFlowers({ darken: 0.15, desaturate: 0.2 }),
 ];
 
 export const rainyDay: AnySpec[] = [
@@ -331,5 +331,5 @@ export const rainyDay: AnySpec[] = [
         type: "ground",
         darken: 0.5
     },
-    ...flowers,
+    ...tintedFlowers({ darken: 0.38, desaturate: 0.25, tint: { color: "#5a6c7c", amount: 0.12 } }),
 ];

@@ -1,6 +1,6 @@
 import { AnySpec } from "./drawing/elements";
 import {bigClouds, mediumClouds, smallClouds} from "./drawing/elements/clouds.ts";
-import {flowers} from "./flowers.ts";
+import {tintedFlowers} from "./flowers.ts";
 
 export const eveningSpec: AnySpec[] = [
     {
@@ -63,7 +63,7 @@ export const eveningSpec: AnySpec[] = [
     {
         type: "ground",
     },
-    ...flowers,
+    ...tintedFlowers({ darken: 0.22, desaturate: 0.05, tint: { color: "#ff7733", amount: 0.18 } }),
 ];
 
 export const eveningCloudy: AnySpec[] = [
@@ -134,7 +134,7 @@ export const eveningCloudy: AnySpec[] = [
     {
         type: "ground",
     },
-    ...flowers,
+    ...tintedFlowers({ darken: 0.3, desaturate: 0.18, tint: { color: "#c45533", amount: 0.16 } }),
 ];
 
 export const eveningOvercast: AnySpec[] = [
@@ -207,7 +207,7 @@ export const eveningOvercast: AnySpec[] = [
         type: "ground",
         darken: 0.5
     },
-    ...flowers,
+    ...tintedFlowers({ darken: 0.55, desaturate: 0.5, tint: { color: "#3a2e4a", amount: 0.22 } }),
 ];
 
 export const eveningRain: AnySpec[] = [
@@ -277,5 +277,5 @@ export const eveningRain: AnySpec[] = [
         type: "ground",
         darken: 0.7
     },
-    ...flowers,
+    ...tintedFlowers({ darken: 0.65, desaturate: 0.6, tint: { color: "#2e2538", amount: 0.28 } }),
 ];
