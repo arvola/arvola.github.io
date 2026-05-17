@@ -26,3 +26,4 @@ dist-ssr
 
 .junie/memory/
 .playwright-cli/
+.claude/worktrees/
