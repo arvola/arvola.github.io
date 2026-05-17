@@ -2,7 +2,10 @@ import { FlowerSpec } from "./drawing/elements/flower.ts";
 import { makeNewEnglandAster } from "./drawing/elements/new-england-aster.ts";
 import { makeGoldenAlexander } from "./drawing/elements/golden-alexander.ts";
 import { makePalePurpleConeflower } from "./drawing/elements/pale-purple-coneflower.ts";
+import { MoundSpec } from "./drawing/elements/mound.ts";
 import { ColorPalette } from "./drawing/color.ts";
+
+export type FlowerSceneSpec = FlowerSpec | MoundSpec;
 
 const asterCenter = makeNewEnglandAster({
     stemLength: 50,
@@ -190,23 +193,27 @@ const coneflowerRight = makePalePurpleConeflower({
     leafScale: 0.2,
 });
 
-export const flowers: FlowerSpec[] = [
+export const flowers: FlowerSceneSpec[] = [
+    { type: "mound", x: 221, y: 151, width: 11, height: 4, tilt: -0.05 },
     { type: "flower", x: 220, y: 150, species: asterCenter },
     { type: "flower", x: 214, y: 150, species: asterLeft },
     { type: "flower", x: 222, y: 150, species: asterRight },
     { type: "flower", x: 220, y: 150, species: asterLeftOuter },
     { type: "flower", x: 228, y: 150, species: asterRightOuter },
+    { type: "mound", x: 221, y: 151, width: 11, height: 4, tilt: -0.05, half: "bottom" },
 
     { type: "flower", x: 283, y: 145, species: coneflowerLeft },
     { type: "flower", x: 289, y: 145, species: coneflowerCenter },
     { type: "flower", x: 294, y: 145, species: coneflowerRight },
 
+    { type: "mound", x: 274, y: 203, width: 9, height: 3.5, tilt: 0.04 },
     { type: "flower", x: 270, y: 202, species: gaCenter },
     { type: "flower", x: 275, y: 202, species: gaRight },
     { type: "flower", x: 268, y: 202, species: gaLeftOuter },
     { type: "flower", x: 280, y: 202, species: gaRightOuter },
+    { type: "mound", x: 274, y: 203, width: 9, height: 3.5, tilt: 0.04, half: "bottom" },
 ];
 
-export function tintedFlowers(palette: ColorPalette): FlowerSpec[] {
+export function tintedFlowers(palette: ColorPalette): FlowerSceneSpec[] {
     return flowers.map(f => ({ ...f, palette }));
 }

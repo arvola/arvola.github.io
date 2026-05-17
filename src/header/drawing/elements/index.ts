@@ -8,6 +8,7 @@ import { drawImage } from "./image.ts";
 import {drawStars} from "./stars.ts";
 import {drawRain} from "./rain.ts";
 import {drawFlower} from "./flower.ts";
+import {drawMound} from "./mound.ts";
 
 export const DrawingSpec = {
     sky: drawSky,
@@ -18,7 +19,8 @@ export const DrawingSpec = {
     image: drawImage,
     stars: drawStars,
     rain: drawRain,
-    flower: drawFlower
+    flower: drawFlower,
+    mound: drawMound
 };
 
 export type AnySpec = Parameters<
