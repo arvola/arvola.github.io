@@ -287,14 +287,15 @@ function drawEllipsePetal(ctx: CanvasRenderingContext2D, len: number, w: number)
 }
 
 function drawNotchedPetal(ctx: CanvasRenderingContext2D, len: number, w: number): void {
-    // Coreopsis-style wedge: narrow base, widest at tip, tip divided into three small rounded teeth.
+    // Coreopsis-style wedge: narrow base, widest at tip, tip divided into three rounded teeth
+    // with pronounced notches between them.
     const halfW = w / 2;
     const baseHalfW = halfW * 0.18;
-    const shoulderX = len * 0.9;
-    const notchDepth = len * 0.08;
-    const sideToothInnerY = halfW * 0.62;
-    const middleToothInnerY = halfW * 0.22;
-    const middleToothBulge = notchDepth * 0.25;
+    const shoulderX = len * 0.88;
+    const notchDepth = len * 0.16;
+    const sideToothInnerY = halfW * 0.68;
+    const middleToothInnerY = halfW * 0.24;
+    const middleToothBulge = notchDepth * 0.15;
 
     ctx.beginPath();
     ctx.moveTo(0, -baseHalfW);
