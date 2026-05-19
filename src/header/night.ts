@@ -67,7 +67,7 @@ export const overcastNight: AnySpec[] = [
     {
         type: "ground"
     },
-    ...tintedFlowers({ tint: { color: "#000", amount: 1 } }),
+    ...tintedFlowers({ darken: 1, tint: { color: "#000", amount: 1 } }),
 ]
 
 export const nightRain: AnySpec[] = [

@@ -21,7 +21,8 @@ const yellowDisc: FlowerColorSpec = {
 const stemGreen: FlowerColorSpec = {
     type: "multi",
     stops: [
-        { offset: 0.0, hex: "#6f9465" },
+        { offset: 0.0, hex: "#534629" },
+        { offset: 0.2, hex: "#6f9465" },
         { offset: 0.7, hex: "#829a57" },
         { offset: 1.0, hex: "#94aa56" },
     ],
@@ -36,7 +37,7 @@ const leafGreen: FlowerColorSpec = {
     ],
 };
 
-const petalOutline = "#593b93";
+const petalOutline = "#8566c6";
 const discOutline = "#655116";
 const stemOutline = "#3d5238";
 const leafOutline = "#5a7c3f";

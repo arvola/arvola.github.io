@@ -14,7 +14,7 @@ const palePurplePetal: FlowerColorSpec = {
 const coneColor: FlowerColorSpec = {
     type: "multi",
     stops: [
-        { offset: 0.0, hex: "#c9712a" }, // golden-orange highlight on top of dome
+        { offset: 0.0, hex: "#aa6126" }, // golden-orange highlight on top of dome
         { offset: 0.45, hex: "#a04f1c" },
         { offset: 1.0, hex: "#5a280e" }, // dark reddish-brown around rim shadow
     ],
@@ -38,7 +38,7 @@ const leafGreen: FlowerColorSpec = {
     ],
 };
 
-const petalOutline = "#b388c5";
+const petalOutline = "#a152bf";
 const coneOutline = "#391704";
 const stemOutline = "#3b5028";
 const leafOutline = "#4c6a2c";

@@ -59,6 +59,7 @@ export interface FlowerHeadParams extends PetalParams {
     discColor: FlowerColorSpec;
     discOutlineColor?: string;
     backPetals?: PetalParams;
+    palette?: ColorPalette;
 }
 
 export interface GoldenAlexanderClusterParams {
@@ -68,6 +69,7 @@ export interface GoldenAlexanderClusterParams {
     color: FlowerColorSpec;
     speckleColor: string;
     outlineColor?: string;
+    palette?: ColorPalette;
 }
 
 export interface GoldenAlexanderHeadParams {
@@ -80,6 +82,7 @@ export interface GoldenAlexanderHeadParams {
     splitStemColor: FlowerColorSpec;
     splitStemOutlineColor?: string;
     cluster: GoldenAlexanderClusterParams;
+    palette?: ColorPalette;
 }
 
 export interface ConeflowerHeadParams {
@@ -105,6 +108,7 @@ export interface ConeflowerHeadParams {
     petalCenterVeinColor?: string;
     petalAngleOffsets: number[];
     petalLengthMultipliers: number[];
+    palette?: ColorPalette;
 }
 
 export type FlowerHeadSpec = FlowerHeadParams | GoldenAlexanderHeadParams | ConeflowerHeadParams;
@@ -158,7 +162,9 @@ function tintSpecies(species: SpeciesProfile, palette: ColorPalette | undefined)
                 color: tintColorSpec(species.head.cluster.color, palette),
                 speckleColor: applyPalette(species.head.cluster.speckleColor, palette),
                 outlineColor: species.head.cluster.outlineColor && applyPalette(species.head.cluster.outlineColor, palette),
+                palette,
             },
+            palette,
         };
     } else if (species.head.type === "coneflower") {
         head = {
@@ -168,6 +174,7 @@ function tintSpecies(species: SpeciesProfile, palette: ColorPalette | undefined)
             petalColor: tintColorSpec(species.head.petalColor, palette),
             petalOutlineColor: species.head.petalOutlineColor && applyPalette(species.head.petalOutlineColor, palette),
             petalCenterVeinColor: species.head.petalCenterVeinColor && applyPalette(species.head.petalCenterVeinColor, palette),
+            palette,
         };
     } else {
         head = {
@@ -181,6 +188,7 @@ function tintSpecies(species: SpeciesProfile, palette: ColorPalette | undefined)
                 petalColor: tintColorSpec(species.head.backPetals.petalColor, palette),
                 petalOutlineColor: species.head.backPetals.petalOutlineColor && applyPalette(species.head.backPetals.petalOutlineColor, palette),
             },
+            palette,
         };
     }
     return { stem, leaf, head };
@@ -430,7 +438,7 @@ export function drawFlowerHead(ctx: CanvasRenderingContext2D, x: number, y: numb
 function drawGoldenAlexanderCluster(ctx: CanvasRenderingContext2D, p: GoldenAlexanderClusterParams): void {
     ctx.save();
     ctx.lineWidth = 0.25;
-    ctx.strokeStyle = p.outlineColor ?? "rgba(124, 95, 0, 0.45)";
+    ctx.strokeStyle = p.outlineColor ?? applyPalette("rgba(124, 95, 0, 0.45)", p.palette);
     for (let i = 0; i < p.circleCount; i++) {
         const angle = i * Math.PI * (3 - Math.sqrt(5));
         const distance = p.spread * Math.sqrt(i / Math.max(1, p.circleCount - 1));
@@ -686,7 +694,7 @@ function drawConeDome(ctx: CanvasRenderingContext2D, p: ConeflowerHeadParams): v
 
     drawConeDomePath(ctx, p);
     ctx.lineWidth = 0.6;
-    ctx.strokeStyle = p.coneOutlineColor ?? "rgba(60, 25, 8, 0.7)";
+    ctx.strokeStyle = p.coneOutlineColor ?? applyPalette("rgba(60, 25, 8, 0.7)", p.palette);
     ctx.stroke();
 
     const highlight = ctx.createRadialGradient(
@@ -697,8 +705,8 @@ function drawConeDome(ctx: CanvasRenderingContext2D, p: ConeflowerHeadParams): v
         -p.coneHeight * 0.55,
         p.coneWidth * 0.6,
     );
-    highlight.addColorStop(0, "rgba(255, 220, 170, 0.35)");
-    highlight.addColorStop(1, "rgba(255, 220, 170, 0)");
+    highlight.addColorStop(0, applyPalette("rgba(255, 220, 170, 0.35)", p.palette));
+    highlight.addColorStop(1, applyPalette("rgba(255, 220, 170, 0)", p.palette));
     ctx.save();
     drawConeDomePath(ctx, p);
     ctx.clip();
