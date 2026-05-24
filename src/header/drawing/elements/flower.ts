@@ -111,7 +111,33 @@ export interface ConeflowerHeadParams {
     palette?: ColorPalette;
 }
 
-export type FlowerHeadSpec = FlowerHeadParams | GoldenAlexanderHeadParams | ConeflowerHeadParams;
+export interface BeardtongueHeadParams {
+    type: "beardtongue";
+    /** Length of the oval corolla tube along the stem axis. */
+    tubeLength: number;
+    /** Width of the oval corolla tube. */
+    tubeWidth: number;
+    tubeColor: FlowerColorSpec;
+    tubeOutlineColor?: string;
+    /** Tip distance of the two upper-lip lobes from the mouth center. */
+    upperLobeReach: number;
+    /** Tip distance of the three lower-lip lobes from the mouth center. */
+    lowerLobeReach: number;
+    lobeColor: FlowerColorSpec;
+    lobeOutlineColor?: string;
+    /** Dark oval throat opening drawn above the mouth center. */
+    throatColor: FlowerColorSpec;
+    throatOutlineColor?: string;
+    /** Spots scattered across the tube (calico = spotted). */
+    speckleColor?: string;
+    speckleCount?: number;
+    speckleSeed?: number;
+    /** Nod direction in radians: 0 = hangs straight down, positive leans left, negative right. */
+    nodAngle?: number;
+    palette?: ColorPalette;
+}
+
+export type FlowerHeadSpec = FlowerHeadParams | GoldenAlexanderHeadParams | ConeflowerHeadParams | BeardtongueHeadParams;
 
 export interface SpeciesProfile {
     stem: StemParams;
@@ -174,6 +200,18 @@ function tintSpecies(species: SpeciesProfile, palette: ColorPalette | undefined)
             petalColor: tintColorSpec(species.head.petalColor, palette),
             petalOutlineColor: species.head.petalOutlineColor && applyPalette(species.head.petalOutlineColor, palette),
             petalCenterVeinColor: species.head.petalCenterVeinColor && applyPalette(species.head.petalCenterVeinColor, palette),
+            palette,
+        };
+    } else if (species.head.type === "beardtongue") {
+        head = {
+            ...species.head,
+            tubeColor: tintColorSpec(species.head.tubeColor, palette),
+            tubeOutlineColor: species.head.tubeOutlineColor && applyPalette(species.head.tubeOutlineColor, palette),
+            lobeColor: tintColorSpec(species.head.lobeColor, palette),
+            lobeOutlineColor: species.head.lobeOutlineColor && applyPalette(species.head.lobeOutlineColor, palette),
+            throatColor: tintColorSpec(species.head.throatColor, palette),
+            throatOutlineColor: species.head.throatOutlineColor && applyPalette(species.head.throatOutlineColor, palette),
+            speckleColor: species.head.speckleColor && applyPalette(species.head.speckleColor, palette),
             palette,
         };
     } else {
@@ -752,6 +790,213 @@ export function drawConeflowerHead(
     ctx.restore();
 }
 
+interface BeardtongueLobe {
+    /** Direction of the lobe tip in screen radians (-π/2 points up). */
+    angle: number;
+    /** Tip distance from the mouth center. */
+    reach: number;
+    /** Angular half-support of the raised-cosine bump, in radians. */
+    halfWidth: number;
+}
+
+function drawTube(ctx: CanvasRenderingContext2D, p: BeardtongueHeadParams, cutY: number): void {
+    // A tall narrow ellipse hanging from the attach point (+y), clipped flat at `cutY` so the
+    // mouth sits near the oval's center rather than at its tip ("clipped oval").
+    const cy = p.tubeLength / 2;
+    const rx = p.tubeWidth / 2;
+    const ry = p.tubeLength / 2;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(-rx * 4, cy - ry - 2, rx * 8, cutY - (cy - ry - 2));
+    ctx.clip();
+
+    ctx.beginPath();
+    ctx.ellipse(0, cy, rx, ry, 0, 0, Math.PI * 2);
+    // Horizontal gradient gives a cylindrical shade (dark edges, lit center) when the
+    // tube color is a multi spec with a light middle stop.
+    ctx.fillStyle = createLinearGradientFromSpec(ctx, -rx, cy, rx, cy, p.tubeColor);
+    ctx.fill();
+    ctx.lineWidth = 0.6;
+    ctx.strokeStyle = p.tubeOutlineColor ?? "rgba(0, 0, 0, 0.4)";
+    ctx.stroke();
+    ctx.restore();
+}
+
+function drawTubeSpeckles(ctx: CanvasRenderingContext2D, p: BeardtongueHeadParams, cutY: number): void {
+    if (!p.speckleColor || !p.speckleCount) return;
+
+    const cy = p.tubeLength / 2;
+    const rx = p.tubeWidth / 2;
+    const ry = p.tubeLength / 2;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.ellipse(0, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.clip();
+
+    let seed = (p.speckleSeed ?? 1) * 9973 + 1;
+    const rand = () => {
+        seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+        return seed / 0x7fffffff;
+    };
+
+    ctx.fillStyle = p.speckleColor;
+    for (let i = 0; i < p.speckleCount; i++) {
+        const radial = Math.sqrt(rand());
+        const ang = rand() * Math.PI * 2;
+        const ex = Math.cos(ang) * radial * rx * 0.92;
+        const ey = cy + Math.sin(ang) * radial * ry * 0.92;
+        const dot = 0.4 + rand() * 0.7;
+        if (ey >= cutY) continue;
+        ctx.beginPath();
+        ctx.ellipse(ex, ey, dot, dot * 1.4, 0, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
+interface FaceNotch {
+    /** Angle (screen radians) where the inward cleft is carved. */
+    angle: number;
+    halfWidth: number;
+    depth: number;
+}
+
+function buildBeardtongueFacePath(
+    ctx: CanvasRenderingContext2D,
+    lobes: BeardtongueLobe[],
+    valleyR: number,
+    squashY: number,
+    notch?: FaceNotch,
+): void {
+    const faceRadius = (theta: number): number => {
+        let r = valleyR;
+        for (const lobe of lobes) {
+            let d = theta - lobe.angle;
+            while (d > Math.PI) d -= Math.PI * 2;
+            while (d < -Math.PI) d += Math.PI * 2;
+            const x = d / lobe.halfWidth;
+            if (Math.abs(x) < 1) {
+                const bump = valleyR + (lobe.reach - valleyR) * 0.5 * (1 + Math.cos(Math.PI * x));
+                if (bump > r) r = bump;
+            }
+        }
+        if (notch) {
+            let d = theta - notch.angle;
+            while (d > Math.PI) d -= Math.PI * 2;
+            while (d < -Math.PI) d += Math.PI * 2;
+            const x = d / notch.halfWidth;
+            if (Math.abs(x) < 1) {
+                r -= notch.depth * 0.5 * (1 + Math.cos(Math.PI * x));
+            }
+        }
+        return Math.max(0, r);
+    };
+
+    const steps = 160;
+    ctx.beginPath();
+    for (let i = 0; i <= steps; i++) {
+        const theta = -Math.PI + (i / steps) * Math.PI * 2;
+        const r = faceRadius(theta);
+        const px = Math.cos(theta) * r;
+        const py = Math.sin(theta) * r * squashY;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+}
+
+export function drawBeardtongueHead(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    p: BeardtongueHeadParams,
+    _stemEndAngle: number,
+): void {
+    // Beardtongue flowers nod: the narrow tube tilts/hangs along nodAngle. The mouth, however,
+    // is drawn gravity-aligned (three lobes always point down) and only sheared to hint at the
+    // tube's 3D turn — turning the flower must not swing the lobes sideways.
+    const tubeAngle = p.nodAngle ?? 0;
+    const minReach = Math.min(p.upperLobeReach, p.lowerLobeReach);
+
+    // Mouth opening sits partway down the tube, near the oval's center.
+    const cutY = p.tubeLength * 0.62;
+
+    // Tube (tilted), clipped at the mouth, then its spots.
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(tubeAngle);
+    drawTube(ctx, p, cutY);
+    ctx.restore();
+
+    // World position of the mouth, walked out along the tilted tube axis.
+    const dirX = -Math.sin(tubeAngle);
+    const dirY = Math.cos(tubeAngle);
+    const mx = x + dirX * cutY;
+    const my = y + dirY * cutY;
+
+    // Five lobes in two lips, gravity-aligned: a wide lower trio pointing down (+y) and a
+    // smaller upper pair folding back over the throat (-y). Wide gaps at the corners (no lobe
+    // near 0°/180°) pinch the face into a two-lipped mouth.
+    const D = Math.PI / 180;
+    const lobes: BeardtongueLobe[] = [
+        { angle: 48 * D, reach: p.lowerLobeReach, halfWidth: 0.72 },   // lower-right
+        { angle: 90 * D, reach: p.lowerLobeReach * 1.05, halfWidth: 0.68 }, // lower-middle
+        { angle: 132 * D, reach: p.lowerLobeReach, halfWidth: 0.72 },  // lower-left
+        { angle: -148 * D, reach: p.upperLobeReach, halfWidth: 1 }, // upper-left
+        { angle: -62 * D, reach: p.upperLobeReach, halfWidth: 1 },  // upper-right
+    ];
+    const valleyR = minReach * 0.92;
+    const squashY = 0.92;
+    const shear = Math.sin(tubeAngle) * 0.55;
+    // Carve a small cleft at the very top so the two upper lobes read as rounded halves meeting
+    // in the middle rather than one flat shoulder.
+    const notch: FaceNotch = { angle: -Math.PI / 2, halfWidth: 0.42, depth: p.upperLobeReach * 0.2 };
+
+    ctx.save();
+    ctx.translate(mx, my);
+    // Horizontal shear fakes the perspective of the opening rotating with the tube while the
+    // lobe layout stays locked to gravity.
+    ctx.transform(1, 0, shear, 1, 0, 0);
+
+    buildBeardtongueFacePath(ctx, lobes, valleyR, squashY, notch);
+    ctx.fillStyle = createLinearGradientFromSpec(
+        ctx,
+        0,
+        -p.upperLobeReach,
+        0,
+        p.lowerLobeReach,
+        p.lobeColor,
+    );
+    ctx.fill();
+    ctx.lineWidth = 0.6;
+    ctx.strokeStyle = p.lobeOutlineColor ?? "rgba(0, 0, 0, 0.4)";
+    ctx.stroke();
+
+    // Dark throat opening: a narrow horizontal oval, set toward the upper lip (the "inside"
+    // seen above the mouth center).
+    const throatRx = minReach * 0.5;
+    const throatRy = minReach * 0.26;
+    const throatCy = -p.upperLobeReach * 0.05;
+    ctx.beginPath();
+    ctx.ellipse(0, throatCy, throatRx, throatRy, 0, 0, Math.PI * 2);
+    ctx.fillStyle = createLinearGradientFromSpec(
+        ctx,
+        0,
+        throatCy - throatRy,
+        0,
+        throatCy + throatRy,
+        p.throatColor,
+    );
+    ctx.fill();
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = p.throatOutlineColor ?? "rgba(0, 0, 0, 0.45)";
+    ctx.stroke();
+
+    ctx.restore();
+}
+
 export function generateFlower(ctx: CanvasRenderingContext2D, x: number, y: number, species: SpeciesProfile): void {
     const stem = computeStemCurve(x, y, species.stem);
     drawLeaves(ctx, stem, species.leaf);
@@ -762,6 +1007,9 @@ export function generateFlower(ctx: CanvasRenderingContext2D, x: number, y: numb
     } else if (species.head.type === "coneflower") {
         const stemEndAngle = getBezierTangentAngle(1, stem.p0, stem.p1, stem.p2);
         drawConeflowerHead(ctx, stem.p2.x, stem.p2.y, species.head, stemEndAngle);
+    } else if (species.head.type === "beardtongue") {
+        const stemEndAngle = getBezierTangentAngle(1, stem.p0, stem.p1, stem.p2);
+        drawBeardtongueHead(ctx, stem.p2.x, stem.p2.y, species.head, stemEndAngle);
     } else {
         drawFlowerHead(ctx, stem.p2.x, stem.p2.y, species.head);
     }

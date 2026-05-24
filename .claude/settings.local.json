@@ -1,12 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "mcp__Claude_in_Chrome__tabs_context_mcp",
-      "Skill(playwright-cli)",
-      "Skill(playwright-cli:*)",
-      "Bash(npx --no-install playwright-cli *)",
-      "Bash(node -e *)",
-      "Bash(npx --no-install playwright-cli screenshot \"#flower-canvas\" --filename=coneflower-zoom.png)"
+      "Bash(git ls-tree *)",
+      "Bash(npx tsc *)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s \"http://localhost:5173/flowers.html\")"
     ]
   }
 }
