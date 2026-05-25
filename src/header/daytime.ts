@@ -1,6 +1,6 @@
 import { AnySpec } from "./drawing/elements";
 import {bigClouds, mediumClouds, smallClouds} from "./drawing/elements/clouds.ts";
-import {flowers, tintedFlowers} from "./flowers.ts";
+import {flowers, tintedFlowers} from "./drawing/elements/flowers.ts";
 
 export const daytimeSpec: AnySpec[] = [
     {

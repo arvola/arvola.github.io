@@ -2,8 +2,9 @@ import {
     ConeflowerHeadParams,
     createLinearGradientFromSpec,
     FlowerColorSpec,
-    SpeciesProfile
-} from "./flower.ts";
+    SpeciesProfile,
+} from "./flower-primitives.ts";
+import { applyPalette } from "../color.ts";
 
 const palePurplePetal: FlowerColorSpec = {
     type: "multi",
@@ -133,9 +134,22 @@ function buildConeflowerPetal(
     const normalX = -dy / len;
     const normalY = dx / len;
 
-    const widthScale = Math.max(0.6, Math.sqrt(sinT * sinT + cosT * cosT * tilt * tilt));
+    const widthScale = Math.max(
+        0.6,
+        Math.sqrt(sinT * sinT + cosT * cosT * tilt * tilt),
+    );
 
-    return { attachX, attachY, tipX, tipY, ctrlX, ctrlY, normalX, normalY, widthScale };
+    return {
+        attachX,
+        attachY,
+        tipX,
+        tipY,
+        ctrlX,
+        ctrlY,
+        normalX,
+        normalY,
+        widthScale,
+    };
 }
 
 function drawConeflowerPetal(
@@ -155,8 +169,10 @@ function drawConeflowerPetal(
     };
     const tangent = (t: number) => {
         const u = 1 - t;
-        const dx = 2 * u * (pe.ctrlX - pe.attachX) + 2 * t * (pe.tipX - pe.ctrlX);
-        const dy = 2 * u * (pe.ctrlY - pe.attachY) + 2 * t * (pe.tipY - pe.ctrlY);
+        const dx =
+            2 * u * (pe.ctrlX - pe.attachX) + 2 * t * (pe.tipX - pe.ctrlX);
+        const dy =
+            2 * u * (pe.ctrlY - pe.attachY) + 2 * t * (pe.tipY - pe.ctrlY);
         const len = Math.sqrt(dx * dx + dy * dy) || 1;
         return { tx: dx / len, ty: dy / len, px: -dy / len, py: dx / len };
     };
@@ -183,79 +199,143 @@ function drawConeflowerPetal(
     const c1Tan = tangent(0.35);
     const c2Center = center(0.8);
     const c2Tan = tangent(0.8);
+    const c1Off = halfW * 0.95;
+    const c2Off = halfW * 1.3;
+
+    const upperC1x = c1Center.x + c1Tan.px * c1Off;
+    const upperC1y = c1Center.y + c1Tan.py * c1Off;
+    const upperC2x = c2Center.x + c2Tan.px * c2Off;
+    const upperC2y = c2Center.y + c2Tan.py * c2Off;
+    const lowerC1x = c2Center.x - c2Tan.px * c2Off;
+    const lowerC1y = c2Center.y - c2Tan.py * c2Off;
+    const lowerC2x = c1Center.x - c1Tan.px * c1Off;
+    const lowerC2y = c1Center.y - c1Tan.py * c1Off;
+
+    // Rounded caps: extend in the centerline tangent direction at each end.
+    const tipCapDist = tipR * 1.35;
+    const tipCapC1x = upperTipX + t1.tx * tipCapDist;
+    const tipCapC1y = upperTipY + t1.ty * tipCapDist;
+    const tipCapC2x = lowerTipX + t1.tx * tipCapDist;
+    const tipCapC2y = lowerTipY + t1.ty * tipCapDist;
+
+    const baseCapDist = baseR * 1.35;
+    const baseCapC1x = lowerBaseX - t0.tx * baseCapDist;
+    const baseCapC1y = lowerBaseY - t0.ty * baseCapDist;
+    const baseCapC2x = upperBaseX - t0.tx * baseCapDist;
+    const baseCapC2y = upperBaseY - t0.ty * baseCapDist;
+
+    const grad = createLinearGradientFromSpec(
+        ctx,
+        pe.attachX,
+        pe.attachY,
+        pe.tipX,
+        pe.tipY,
+        p.petalColor,
+    );
 
     ctx.beginPath();
     ctx.moveTo(upperBaseX, upperBaseY);
     ctx.bezierCurveTo(
-        c1Center.x + c1Tan.px * halfW * 0.75,
-        c1Center.y + c1Tan.py * halfW * 0.75,
-        c2Center.x + c2Tan.px * halfW,
-        c2Center.y + c2Tan.py * halfW,
-        upperTipX, upperTipY,
+        upperC1x,
+        upperC1y,
+        upperC2x,
+        upperC2y,
+        upperTipX,
+        upperTipY,
     );
-    ctx.arc(pe.tipX, pe.tipY, tipR, Math.atan2(t1.py, t1.px) - Math.PI / 2, Math.atan2(t1.py, t1.px) + Math.PI / 2);
     ctx.bezierCurveTo(
-        c2Center.x - c2Tan.px * halfW,
-        c2Center.y - c2Tan.py * halfW,
-        c1Center.x - c1Tan.px * halfW * 0.75,
-        c1Center.y - c1Tan.py * halfW * 0.75,
-        lowerBaseX, lowerBaseY,
+        tipCapC1x,
+        tipCapC1y,
+        tipCapC2x,
+        tipCapC2y,
+        lowerTipX,
+        lowerTipY,
+    );
+    ctx.bezierCurveTo(
+        lowerC1x,
+        lowerC1y,
+        lowerC2x,
+        lowerC2y,
+        lowerBaseX,
+        lowerBaseY,
+    );
+    ctx.bezierCurveTo(
+        baseCapC1x,
+        baseCapC1y,
+        baseCapC2x,
+        baseCapC2y,
+        upperBaseX,
+        upperBaseY,
     );
     ctx.closePath();
 
-    ctx.fillStyle = createLinearGradientFromSpec(ctx, pe.attachX, pe.attachY, pe.tipX, pe.tipY, p.petalColor);
+    ctx.fillStyle = grad;
     ctx.fill();
-    ctx.strokeStyle = p.petalOutlineColor ?? "rgba(0,0,0,0.3)";
-    ctx.lineWidth = 0.45;
+    ctx.lineWidth = 0.4;
+    ctx.strokeStyle = p.petalOutlineColor ?? "rgba(0, 0, 0, 0.4)";
     ctx.stroke();
 }
 
-function drawConeDomePath(ctx: CanvasRenderingContext2D, p: ConeflowerHeadParams): void {
+function drawConeDomePath(
+    ctx: CanvasRenderingContext2D,
+    p: ConeflowerHeadParams,
+): void {
     ctx.beginPath();
+    ctx.moveTo(-p.coneWidth, 0);
+    ctx.ellipse(0, 0, p.coneWidth, p.coneHeight, 0, Math.PI, 2 * Math.PI);
     ctx.ellipse(0, 0, p.coneWidth, p.coneRimDepth, 0, 0, Math.PI);
-    ctx.bezierCurveTo(-p.coneWidth, -p.coneHeight * 0.65, p.coneWidth, -p.coneHeight * 0.65, p.coneWidth, 0);
     ctx.closePath();
 }
 
-function drawConeDome(ctx: CanvasRenderingContext2D, p: ConeflowerHeadParams): void {
-    ctx.save();
+function drawConeDome(
+    ctx: CanvasRenderingContext2D,
+    p: ConeflowerHeadParams,
+): void {
     drawConeDomePath(ctx, p);
-    const grad = ctx.createRadialGradient(0, -p.coneHeight * 0.45, 0, 0, -p.coneHeight * 0.2, p.coneHeight * 1.2);
-    if (p.coneColor.type === "single") {
-        grad.addColorStop(0, p.coneColor.baseHex);
-        grad.addColorStop(1, p.coneColor.baseHex);
-    } else {
-        p.coneColor.stops.forEach(s => grad.addColorStop(s.offset, s.hex));
-    }
+
+    const grad = createLinearGradientFromSpec(
+        ctx,
+        0,
+        -p.coneHeight,
+        0,
+        p.coneRimDepth,
+        p.coneColor,
+    );
     ctx.fillStyle = grad;
     ctx.fill();
 
-    // Texture the cone with "seeds/spikes" using a Fibonacci spiral projected onto the dome.
-    const spikeCount = 140;
-    const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-    ctx.fillStyle = p.coneOutlineColor ?? "rgba(0,0,0,0.4)";
-    for (let i = 0; i < spikeCount; i++) {
-        const r = Math.sqrt(i / spikeCount);
-        const theta = i * goldenAngle;
-        const lx = Math.cos(theta) * r;
-        const ly = Math.sin(theta) * r;
-
-        // Map the unit disc spiral onto the dome silhouette: horizontal is coneWidth,
-        // vertical is a blend of rim foreshortening (at bottom) and dome height (at top).
-        const px = lx * p.coneWidth * 0.95;
-        const py = ly < 0
-            ? ly * p.coneHeight * 0.8  // Upper dome
-            : ly * p.coneRimDepth * 0.95; // Lower rim
-
-        const dotSize = 0.4 + (1 - r) * 0.65;
-        ctx.beginPath();
-        ctx.arc(px, py, dotSize, 0, Math.PI * 2);
-        ctx.fill();
-    }
-
-    ctx.strokeStyle = p.coneOutlineColor ?? "rgba(0,0,0,0.5)";
+    drawConeDomePath(ctx, p);
     ctx.lineWidth = 0.6;
+    ctx.strokeStyle =
+        p.coneOutlineColor ?? applyPalette("rgba(60, 25, 8, 0.7)", p.palette);
     ctx.stroke();
+
+    const highlight = ctx.createRadialGradient(
+        -p.coneWidth * 0.25,
+        -p.coneHeight * 0.55,
+        0,
+        -p.coneWidth * 0.25,
+        -p.coneHeight * 0.55,
+        p.coneWidth * 0.6,
+    );
+    highlight.addColorStop(
+        0,
+        applyPalette("rgba(255, 220, 170, 0.35)", p.palette),
+    );
+    highlight.addColorStop(
+        1,
+        applyPalette("rgba(255, 220, 170, 0)", p.palette),
+    );
+    ctx.save();
+    drawConeDomePath(ctx, p);
+    ctx.clip();
+    ctx.fillStyle = highlight;
+    ctx.fillRect(
+        -p.coneWidth * 1.2,
+        -p.coneHeight * 1.2,
+        p.coneWidth * 2.4,
+        (p.coneHeight + p.coneRimDepth) * 1.2,
+    );
     ctx.restore();
 }
 
@@ -266,27 +346,32 @@ export function drawConeflowerHead(
     p: ConeflowerHeadParams,
     stemEndAngle: number,
 ): void {
+    // Align head with the stem direction. A stem tangent of -π/2 (pointing up) maps to no rotation.
+    const headRotation = stemEndAngle + Math.PI / 2;
+
     ctx.save();
     ctx.translate(x, y);
-    const headRotation = stemEndAngle + Math.PI / 2;
     ctx.rotate(headRotation);
+    ctx.translate(0, -p.coneRimDepth);
 
     const petals: ConeflowerPetalLayout[] = [];
     for (let i = 0; i < p.petalCount; i++) {
-        const theta = (i / p.petalCount) * Math.PI * 2 + (p.petalAngleOffsets?.[i] ?? 0);
-        petals.push(buildConeflowerPetal(theta, p.petalLengthMultipliers?.[i] ?? 1, p, headRotation));
+        const theta =
+            (i / p.petalCount) * 2 * Math.PI + (p.petalAngleOffsets[i] ?? 0);
+        const lengthMul = p.petalLengthMultipliers[i] ?? 1;
+        petals.push(buildConeflowerPetal(theta, lengthMul, p, headRotation));
     }
 
     const backPetals = petals
-        .filter(pe => pe.attachY < 0)
+        .filter((pe) => pe.attachY < 0)
         .sort((a, b) => a.attachY - b.attachY);
     const frontPetals = petals
-        .filter(pe => pe.attachY >= 0)
+        .filter((pe) => pe.attachY >= 0)
         .sort((a, b) => a.attachY - b.attachY);
 
-    backPetals.forEach(pe => drawConeflowerPetal(ctx, pe, p));
+    backPetals.forEach((pe) => drawConeflowerPetal(ctx, pe, p));
     drawConeDome(ctx, p);
-    frontPetals.forEach(pe => drawConeflowerPetal(ctx, pe, p));
+    frontPetals.forEach((pe) => drawConeflowerPetal(ctx, pe, p));
 
     ctx.restore();
 }

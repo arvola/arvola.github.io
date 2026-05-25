@@ -5,8 +5,9 @@
  * spotted corolla tube and a five-lobed, two-lipped mouth around a dark throat.
  */
 
-import { generateFlower } from "./header/drawing/elements/flower.ts";
+
 import { makeCalicoBeardtongue } from "./header/drawing/elements/calico-beardtongue.ts";
+import { generateFlower } from "./header/drawing/elements/flowers.ts";
 
 const canvas = document.getElementById("flower-canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;

@@ -5,10 +5,11 @@ import { drawClouds } from "./clouds.ts";
 import { drawGround } from "./ground.ts";
 import { DrawingProps } from "../canvases.ts";
 import { drawImage } from "./image.ts";
-import {drawStars} from "./stars.ts";
-import {drawRain} from "./rain.ts";
-import {drawFlower} from "./flower.ts";
-import {drawMound} from "./mound.ts";
+import { drawStars } from "./stars.ts";
+import { drawRain } from "./rain.ts";
+
+import { drawMound } from "./mound.ts";
+import { drawFlower } from "./flowers.ts";
 
 export const DrawingSpec = {
     sky: drawSky,
@@ -20,7 +21,7 @@ export const DrawingSpec = {
     stars: drawStars,
     rain: drawRain,
     flower: drawFlower,
-    mound: drawMound
+    mound: drawMound,
 };
 
 export type AnySpec = Parameters<

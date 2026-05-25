@@ -2,8 +2,8 @@ import {
     BeardtongueHeadParams,
     createLinearGradientFromSpec,
     FlowerColorSpec,
-    SpeciesProfile
-} from "./flower.ts";
+    SpeciesProfile,
+} from "./flower-primitives.ts";
 
 // Calico beardtongue (Penstemon calycosus): a dusty pink-lilac tubular corolla. The tube is
 // shaded as a soft cylinder (darker edges, lit center) and the flared mouth lips are a touch
@@ -20,9 +20,9 @@ const tubePink: FlowerColorSpec = {
 const lobePink: FlowerColorSpec = {
     type: "multi",
     stops: [
-        { offset: 0.0, hex: "#e7c6d8" },  // pale upper lip
+        { offset: 0.0, hex: "#e7c6d8" }, // pale upper lip
         { offset: 0.55, hex: "#dcb3cb" },
-        { offset: 1.0, hex: "#cf9fbd" },  // slightly deeper lower lip
+        { offset: 1.0, hex: "#cf9fbd" }, // slightly deeper lower lip
     ],
 };
 
@@ -30,7 +30,7 @@ const throatPurple: FlowerColorSpec = {
     type: "multi",
     stops: [
         { offset: 0.0, hex: "#9e7d95" },
-        { offset: 1.0, hex: "#bc90b8" },  // muted interior shadow
+        { offset: 1.0, hex: "#bc90b8" }, // muted interior shadow
     ],
 };
 
@@ -59,7 +59,7 @@ const speckleColor = "rgba(120, 60, 95, 0.5)";
 const stemOutline = "#3b5028";
 const leafOutline = "#4c6a2c";
 
-export interface BeardtongueLobe {
+interface BeardtongueLobe {
     /** Direction of the lobe tip in screen radians (-π/2 points up). */
     angle: number;
     /** Tip distance from the mouth center. */
@@ -68,7 +68,11 @@ export interface BeardtongueLobe {
     halfWidth: number;
 }
 
-export function drawTube(ctx: CanvasRenderingContext2D, p: BeardtongueHeadParams, cutY: number): void {
+function drawTube(
+    ctx: CanvasRenderingContext2D,
+    p: BeardtongueHeadParams,
+    cutY: number,
+): void {
     // A tall narrow ellipse hanging from the attach point (+y), clipped flat at `cutY` so the
     // mouth sits near the oval's center rather than at its tip ("clipped oval").
     const cy = p.tubeLength / 2;
@@ -82,8 +86,16 @@ export function drawTube(ctx: CanvasRenderingContext2D, p: BeardtongueHeadParams
 
     ctx.beginPath();
     ctx.ellipse(0, cy, rx, ry, 0, 0, Math.PI * 2);
-    // Vertical gradient (light top, dark bottom).
-    ctx.fillStyle = createLinearGradientFromSpec(ctx, 0, cy - ry, 0, cy + ry, p.tubeColor);
+    // Horizontal gradient gives a cylindrical shade (dark edges, lit center) when the
+    // tube color is a multi spec with a light middle stop.
+    ctx.fillStyle = createLinearGradientFromSpec(
+        ctx,
+        -rx,
+        cy,
+        rx,
+        cy,
+        p.tubeColor,
+    );
     ctx.fill();
     ctx.lineWidth = 0.6;
     ctx.strokeStyle = p.tubeOutlineColor ?? "rgba(0, 0, 0, 0.4)";
@@ -91,7 +103,7 @@ export function drawTube(ctx: CanvasRenderingContext2D, p: BeardtongueHeadParams
     ctx.restore();
 }
 
-export function drawTubeSpeckles(
+function drawTubeSpeckles(
     ctx: CanvasRenderingContext2D,
     p: BeardtongueHeadParams,
     cutY: number,
@@ -128,14 +140,14 @@ export function drawTubeSpeckles(
     ctx.restore();
 }
 
-export interface FaceNotch {
+interface FaceNotch {
     /** Angle (screen radians) where the inward cleft is carved. */
     angle: number;
     halfWidth: number;
     depth: number;
 }
 
-export function buildBeardtongueFacePath(
+function buildBeardtongueFacePath(
     ctx: CanvasRenderingContext2D,
     lobes: BeardtongueLobe[],
     valleyR: number,
@@ -195,66 +207,82 @@ export function drawBeardtongueHead(
     const minReach = Math.min(p.upperLobeReach, p.lowerLobeReach);
 
     // Mouth opening sits partway down the tube, near the oval's center.
-    const mouthX = Math.cos(tubeAngle) * (p.tubeLength * 0.3);
-    const mouthY = p.tubeLength * 0.45 + Math.sin(tubeAngle) * (p.tubeLength * 0.3);
+    const cutY = p.tubeLength * 0.62;
 
-    const squashY = 0.5 + Math.abs(Math.cos(tubeAngle)) * 0.35;
-    const valleyR = minReach * 0.52;
-
-    const upperLobes: BeardtongueLobe[] = [
-        { angle: -Math.PI * 0.68, reach: p.upperLobeReach, halfWidth: 0.55 },
-        { angle: -Math.PI * 0.32, reach: p.upperLobeReach, halfWidth: 0.55 },
-    ];
-    const lowerLobes: BeardtongueLobe[] = [
-        { angle: Math.PI * 0.22, reach: p.lowerLobeReach, halfWidth: 0.55 },
-        { angle: Math.PI * 0.5, reach: p.lowerLobeReach * 1.08, halfWidth: 0.65 },
-        { angle: Math.PI * 0.78, reach: p.lowerLobeReach, halfWidth: 0.55 },
-    ];
-
+    // Tube (tilted), clipped at the mouth, then its spots.
     ctx.save();
     ctx.translate(x, y);
-
-    // Draw the tube first (it's "behind" the mouth lips).
-    ctx.save();
     ctx.rotate(tubeAngle);
-    drawTube(ctx, p, mouthY);
-    drawTubeSpeckles(ctx, p, mouthY);
+    drawTube(ctx, p, cutY);
     ctx.restore();
 
-    ctx.translate(mouthX, mouthY);
+    // World position of the mouth, walked out along the tilted tube axis.
+    const dirX = -Math.sin(tubeAngle);
+    const dirY = Math.cos(tubeAngle);
+    const mx = x + dirX * cutY;
+    const my = y + dirY * cutY;
 
-    // Back lip (upper lobes)
+    // Five lobes in two lips, gravity-aligned: a wide lower trio pointing down (+y) and a
+    // smaller upper pair folding back over the throat (-y). Wide gaps at the corners (no lobe
+    // near 0°/180°) pinch the face into a two-lipped mouth.
+    const D = Math.PI / 180;
+    const lobes: BeardtongueLobe[] = [
+        { angle: 48 * D, reach: p.lowerLobeReach, halfWidth: 0.72 }, // lower-right
+        { angle: 90 * D, reach: p.lowerLobeReach * 1.05, halfWidth: 0.68 }, // lower-middle
+        { angle: 132 * D, reach: p.lowerLobeReach, halfWidth: 0.72 }, // lower-left
+        { angle: -148 * D, reach: p.upperLobeReach, halfWidth: 1 }, // upper-left
+        { angle: -62 * D, reach: p.upperLobeReach, halfWidth: 1 }, // upper-right
+    ];
+    const valleyR = minReach * 0.92;
+    const squashY = 0.92;
+    const shear = Math.sin(tubeAngle) * 0.55;
+    // Carve a small cleft at the very top so the two upper lobes read as rounded halves meeting
+    // in the middle rather than one flat shoulder.
+    const notch: FaceNotch = {
+        angle: -Math.PI / 2,
+        halfWidth: 0.42,
+        depth: p.upperLobeReach * 0.2,
+    };
+
     ctx.save();
-    buildBeardtongueFacePath(ctx, upperLobes, valleyR, squashY);
-    ctx.fillStyle = createLinearGradientFromSpec(ctx, 0, -p.upperLobeReach, 0, 0, p.lobeColor);
+    ctx.translate(mx, my);
+    // Horizontal shear fakes the perspective of the opening rotating with the tube while the
+    // lobe layout stays locked to gravity.
+    ctx.transform(1, 0, shear, 1, 0, 0);
+
+    buildBeardtongueFacePath(ctx, lobes, valleyR, squashY, notch);
+    ctx.fillStyle = createLinearGradientFromSpec(
+        ctx,
+        0,
+        -p.upperLobeReach,
+        0,
+        p.lowerLobeReach,
+        p.lobeColor,
+    );
     ctx.fill();
-    ctx.strokeStyle = p.lobeOutlineColor ?? "rgba(0,0,0,0.3)";
-    ctx.lineWidth = 0.5;
+    ctx.lineWidth = 0.6;
+    ctx.strokeStyle = p.lobeOutlineColor ?? "rgba(0, 0, 0, 0.4)";
     ctx.stroke();
-    ctx.restore();
 
-    // Throat interior (darker "hole").
-    ctx.save();
+    // Dark throat opening: a narrow horizontal oval, set toward the upper lip (the "inside"
+    // seen above the mouth center).
+    const throatRx = minReach * 0.5;
+    const throatRy = minReach * 0.26;
+    const throatCy = -p.upperLobeReach * 0.05;
     ctx.beginPath();
-    ctx.ellipse(0, 0, valleyR * 0.9, valleyR * 0.8 * squashY, 0, 0, Math.PI * 2);
-    ctx.fillStyle = createLinearGradientFromSpec(ctx, 0, -valleyR, 0, valleyR, p.throatColor);
+    ctx.ellipse(0, throatCy, throatRx, throatRy, 0, 0, Math.PI * 2);
+    ctx.fillStyle = createLinearGradientFromSpec(
+        ctx,
+        0,
+        throatCy - throatRy,
+        0,
+        throatCy + throatRy,
+        p.throatColor,
+    );
     ctx.fill();
-    ctx.strokeStyle = p.throatOutlineColor ?? "rgba(0,0,0,0.4)";
-    ctx.lineWidth = 0.4;
-    ctx.stroke();
-    ctx.restore();
-
-    // Front lip (lower lobes).
-    ctx.save();
-    // The lower lip has a slight notch at the very bottom center.
-    const lowerNotch: FaceNotch = { angle: Math.PI / 2, halfWidth: 0.18, depth: p.lowerLobeReach * 0.12 };
-    buildBeardtongueFacePath(ctx, lowerLobes, valleyR, squashY, lowerNotch);
-    ctx.fillStyle = createLinearGradientFromSpec(ctx, 0, 0, 0, p.lowerLobeReach, p.lobeColor);
-    ctx.fill();
-    ctx.strokeStyle = p.lobeOutlineColor ?? "rgba(0,0,0,0.3)";
     ctx.lineWidth = 0.5;
+    ctx.strokeStyle = p.throatOutlineColor ?? "rgba(0, 0, 0, 0.45)";
     ctx.stroke();
-    ctx.restore();
 
     ctx.restore();
 }

@@ -1,11 +1,14 @@
-import { SpecDrawingFunc } from "./base.ts";
 import { applyPalette, ColorPalette, darken, lighten } from "../color.ts";
-import { drawGoldenAlexanderHead } from "./golden-alexander.ts";
-import { drawConeflowerHead } from "./pale-purple-coneflower.ts";
-import { drawBeardtongueHead } from "./calico-beardtongue.ts";
 
-export interface Point { x: number; y: number; }
-export interface StemCurve { p0: Point; p1: Point; p2: Point; }
+export interface Point {
+    x: number;
+    y: number;
+}
+export interface StemCurve {
+    p0: Point;
+    p1: Point;
+    p2: Point;
+}
 
 export interface FlowerColorStop {
     offset: number;
@@ -140,7 +143,7 @@ export interface BeardtongueHeadParams {
     palette?: ColorPalette;
 }
 
-export type FlowerHeadSpec = FlowerHeadParams | GoldenAlexanderHeadParams | ConeflowerHeadParams | BeardtongueHeadParams;
+export type FlowerHeadSpec = { type: string; }
 
 export interface SpeciesProfile {
     stem: StemParams;
@@ -156,28 +159,40 @@ export interface FlowerSpec {
     palette?: ColorPalette;
 }
 
-function tintColorSpec(spec: FlowerColorSpec, palette: ColorPalette): FlowerColorSpec {
+function tintColorSpec(
+    spec: FlowerColorSpec,
+    palette: ColorPalette,
+): FlowerColorSpec {
     if (spec.type === "single") {
         return { type: "single", baseHex: applyPalette(spec.baseHex, palette) };
     }
     return {
         type: "multi",
-        stops: spec.stops.map(s => ({ offset: s.offset, hex: applyPalette(s.hex, palette) })),
+        stops: spec.stops.map((s) => ({
+            offset: s.offset,
+            hex: applyPalette(s.hex, palette),
+        })),
     };
 }
 
-function tintSpecies(species: SpeciesProfile, palette: ColorPalette | undefined): SpeciesProfile {
+export function tintSpecies(
+    species: SpeciesProfile,
+    palette: ColorPalette | undefined,
+): SpeciesProfile {
     if (!palette) return species;
     const stem: StemParams = {
         ...species.stem,
         color: tintColorSpec(species.stem.color, palette),
-        outlineColor: species.stem.outlineColor && applyPalette(species.stem.outlineColor, palette),
+        outlineColor:
+            species.stem.outlineColor &&
+            applyPalette(species.stem.outlineColor, palette),
     };
     const leaf: LeafParams = {
-        instances: species.leaf.instances.map(l => ({
+        instances: species.leaf.instances.map((l) => ({
             ...l,
             color: tintColorSpec(l.color, palette),
-            outlineColor: l.outlineColor && applyPalette(l.outlineColor, palette),
+            outlineColor:
+                l.outlineColor && applyPalette(l.outlineColor, palette),
         })),
     };
     let head: FlowerHeadSpec;
@@ -185,12 +200,19 @@ function tintSpecies(species: SpeciesProfile, palette: ColorPalette | undefined)
         head = {
             ...species.head,
             splitStemColor: tintColorSpec(species.head.splitStemColor, palette),
-            splitStemOutlineColor: species.head.splitStemOutlineColor && applyPalette(species.head.splitStemOutlineColor, palette),
+            splitStemOutlineColor:
+                species.head.splitStemOutlineColor &&
+                applyPalette(species.head.splitStemOutlineColor, palette),
             cluster: {
                 ...species.head.cluster,
                 color: tintColorSpec(species.head.cluster.color, palette),
-                speckleColor: applyPalette(species.head.cluster.speckleColor, palette),
-                outlineColor: species.head.cluster.outlineColor && applyPalette(species.head.cluster.outlineColor, palette),
+                speckleColor: applyPalette(
+                    species.head.cluster.speckleColor,
+                    palette,
+                ),
+                outlineColor:
+                    species.head.cluster.outlineColor &&
+                    applyPalette(species.head.cluster.outlineColor, palette),
                 palette,
             },
             palette,
@@ -199,35 +221,61 @@ function tintSpecies(species: SpeciesProfile, palette: ColorPalette | undefined)
         head = {
             ...species.head,
             coneColor: tintColorSpec(species.head.coneColor, palette),
-            coneOutlineColor: species.head.coneOutlineColor && applyPalette(species.head.coneOutlineColor, palette),
+            coneOutlineColor:
+                species.head.coneOutlineColor &&
+                applyPalette(species.head.coneOutlineColor, palette),
             petalColor: tintColorSpec(species.head.petalColor, palette),
-            petalOutlineColor: species.head.petalOutlineColor && applyPalette(species.head.petalOutlineColor, palette),
-            petalCenterVeinColor: species.head.petalCenterVeinColor && applyPalette(species.head.petalCenterVeinColor, palette),
+            petalOutlineColor:
+                species.head.petalOutlineColor &&
+                applyPalette(species.head.petalOutlineColor, palette),
+            petalCenterVeinColor:
+                species.head.petalCenterVeinColor &&
+                applyPalette(species.head.petalCenterVeinColor, palette),
             palette,
         };
     } else if (species.head.type === "beardtongue") {
         head = {
             ...species.head,
             tubeColor: tintColorSpec(species.head.tubeColor, palette),
-            tubeOutlineColor: species.head.tubeOutlineColor && applyPalette(species.head.tubeOutlineColor, palette),
+            tubeOutlineColor:
+                species.head.tubeOutlineColor &&
+                applyPalette(species.head.tubeOutlineColor, palette),
             lobeColor: tintColorSpec(species.head.lobeColor, palette),
-            lobeOutlineColor: species.head.lobeOutlineColor && applyPalette(species.head.lobeOutlineColor, palette),
+            lobeOutlineColor:
+                species.head.lobeOutlineColor &&
+                applyPalette(species.head.lobeOutlineColor, palette),
             throatColor: tintColorSpec(species.head.throatColor, palette),
-            throatOutlineColor: species.head.throatOutlineColor && applyPalette(species.head.throatOutlineColor, palette),
-            speckleColor: species.head.speckleColor && applyPalette(species.head.speckleColor, palette),
+            throatOutlineColor:
+                species.head.throatOutlineColor &&
+                applyPalette(species.head.throatOutlineColor, palette),
+            speckleColor:
+                species.head.speckleColor &&
+                applyPalette(species.head.speckleColor, palette),
             palette,
         };
     } else {
         head = {
             ...species.head,
             discColor: tintColorSpec(species.head.discColor, palette),
-            discOutlineColor: species.head.discOutlineColor && applyPalette(species.head.discOutlineColor, palette),
+            discOutlineColor:
+                species.head.discOutlineColor &&
+                applyPalette(species.head.discOutlineColor, palette),
             petalColor: tintColorSpec(species.head.petalColor, palette),
-            petalOutlineColor: species.head.petalOutlineColor && applyPalette(species.head.petalOutlineColor, palette),
+            petalOutlineColor:
+                species.head.petalOutlineColor &&
+                applyPalette(species.head.petalOutlineColor, palette),
             backPetals: species.head.backPetals && {
                 ...species.head.backPetals,
-                petalColor: tintColorSpec(species.head.backPetals.petalColor, palette),
-                petalOutlineColor: species.head.backPetals.petalOutlineColor && applyPalette(species.head.backPetals.petalOutlineColor, palette),
+                petalColor: tintColorSpec(
+                    species.head.backPetals.petalColor,
+                    palette,
+                ),
+                petalOutlineColor:
+                    species.head.backPetals.petalOutlineColor &&
+                    applyPalette(
+                        species.head.backPetals.petalOutlineColor,
+                        palette,
+                    ),
             },
             palette,
         };
@@ -235,11 +283,12 @@ function tintSpecies(species: SpeciesProfile, palette: ColorPalette | undefined)
     return { stem, leaf, head };
 }
 
-export const drawFlower: SpecDrawingFunc<FlowerSpec> = (spec, { ctx }) => {
-    generateFlower(ctx, spec.x, spec.y, tintSpecies(spec.species, spec.palette));
-};
-
-export function getBezierPoint(t: number, p0: Point, p1: Point, p2: Point): Point {
+export function getBezierPoint(
+    t: number,
+    p0: Point,
+    p1: Point,
+    p2: Point,
+): Point {
     const u = 1 - t;
     return {
         x: u * u * p0.x + 2 * u * t * p1.x + t * t * p2.x,
@@ -247,7 +296,12 @@ export function getBezierPoint(t: number, p0: Point, p1: Point, p2: Point): Poin
     };
 }
 
-export function getBezierTangentAngle(t: number, p0: Point, p1: Point, p2: Point): number {
+export function getBezierTangentAngle(
+    t: number,
+    p0: Point,
+    p1: Point,
+    p2: Point,
+): number {
     const u = 1 - t;
     const dx = 2 * u * (p1.x - p0.x) + 2 * t * (p2.x - p1.x);
     const dy = 2 * u * (p1.y - p0.y) + 2 * t * (p2.y - p1.y);
@@ -270,28 +324,39 @@ export function createLinearGradientFromSpec(
         grad.addColorStop(0.0, adjustBrightness(colorSpec.baseHex, -0.15));
         grad.addColorStop(1.0, adjustBrightness(colorSpec.baseHex, 0.1));
     } else {
-        colorSpec.stops.forEach(s => grad.addColorStop(s.offset, s.hex));
+        colorSpec.stops.forEach((s) => grad.addColorStop(s.offset, s.hex));
     }
     return grad;
 }
 
-function createRadialDiscGradient(
+export function createRadialDiscGradient(
     ctx: CanvasRenderingContext2D,
     radius: number,
     domeHeight: number,
     colorSpec: FlowerColorSpec,
 ): CanvasGradient {
-    const grad = ctx.createRadialGradient(0, -radius * 0.3 - domeHeight * 0.4, 0, 0, 0, radius);
+    const grad = ctx.createRadialGradient(
+        0,
+        -radius * 0.3 - domeHeight * 0.4,
+        0,
+        0,
+        0,
+        radius,
+    );
     if (colorSpec.type === "single") {
         grad.addColorStop(0.0, adjustBrightness(colorSpec.baseHex, 0.15));
         grad.addColorStop(1.0, adjustBrightness(colorSpec.baseHex, -0.2));
     } else {
-        colorSpec.stops.forEach(s => grad.addColorStop(s.offset, s.hex));
+        colorSpec.stops.forEach((s) => grad.addColorStop(s.offset, s.hex));
     }
     return grad;
 }
 
-function drawTeardrop(ctx: CanvasRenderingContext2D, len: number, w: number): void {
+export function drawTeardrop(
+    ctx: CanvasRenderingContext2D,
+    len: number,
+    w: number,
+): void {
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.bezierCurveTo(len * 0.3, -w / 2, len * 0.7, -w / 2, len, 0);
@@ -299,7 +364,7 @@ function drawTeardrop(ctx: CanvasRenderingContext2D, len: number, w: number): vo
     ctx.closePath();
 }
 
-function drawArrowLeaf(
+export function drawArrowLeaf(
     ctx: CanvasRenderingContext2D,
     len: number,
     w: number,
@@ -321,13 +386,21 @@ function drawArrowLeaf(
     ctx.closePath();
 }
 
-function drawEllipsePetal(ctx: CanvasRenderingContext2D, len: number, w: number): void {
+export function drawEllipsePetal(
+    ctx: CanvasRenderingContext2D,
+    len: number,
+    w: number,
+): void {
     ctx.beginPath();
     ctx.ellipse(len / 2, 0, len / 2, w / 2, 0, 0, Math.PI * 2);
     ctx.closePath();
 }
 
-function drawNotchedPetal(ctx: CanvasRenderingContext2D, len: number, w: number): void {
+export function drawNotchedPetal(
+    ctx: CanvasRenderingContext2D,
+    len: number,
+    w: number,
+): void {
     // Coreopsis-style wedge: narrow base, widest at tip, tip divided into three rounded teeth
     // with pronounced notches between them.
     const halfW = w / 2;
@@ -341,24 +414,52 @@ function drawNotchedPetal(ctx: CanvasRenderingContext2D, len: number, w: number)
     ctx.beginPath();
     ctx.moveTo(0, -baseHalfW);
     // Upper edge: gradual outward curve from base to shoulder of upper tooth.
-    ctx.bezierCurveTo(len * 0.28, -halfW * 0.55, len * 0.7, -halfW * 0.98, shoulderX, -halfW);
+    ctx.bezierCurveTo(
+        len * 0.28,
+        -halfW * 0.55,
+        len * 0.7,
+        -halfW * 0.98,
+        shoulderX,
+        -halfW,
+    );
     // Upper (outer) tooth: round around outer corner, then inward to upper notch.
     ctx.quadraticCurveTo(len, -halfW, len, -sideToothInnerY);
-    ctx.quadraticCurveTo(len - notchDepth, -middleToothInnerY, len, -middleToothInnerY);
+    ctx.quadraticCurveTo(
+        len - notchDepth,
+        -middleToothInnerY,
+        len,
+        -middleToothInnerY,
+    );
     // Middle tooth: slight outward bulge across center.
     ctx.quadraticCurveTo(len + middleToothBulge, 0, len, middleToothInnerY);
     // Lower notch + lower (outer) tooth, mirrored.
-    ctx.quadraticCurveTo(len - notchDepth, middleToothInnerY, len, sideToothInnerY);
+    ctx.quadraticCurveTo(
+        len - notchDepth,
+        middleToothInnerY,
+        len,
+        sideToothInnerY,
+    );
     ctx.quadraticCurveTo(len, halfW, shoulderX, halfW);
     // Lower edge: back to base.
-    ctx.bezierCurveTo(len * 0.7, halfW * 0.98, len * 0.28, halfW * 0.55, 0, baseHalfW);
+    ctx.bezierCurveTo(
+        len * 0.7,
+        halfW * 0.98,
+        len * 0.28,
+        halfW * 0.55,
+        0,
+        baseHalfW,
+    );
     ctx.closePath();
 }
 
-const applyDroop = (ctx: CanvasRenderingContext2D, d: number) =>
+export const applyDroop = (ctx: CanvasRenderingContext2D, d: number) =>
     d > 0 && ctx.transform(1, d * 0.35, 0, 1 - d * 0.15, 0, 0);
 
-export function computeStemCurve(startX: number, startY: number, p: StemParams): StemCurve {
+export function computeStemCurve(
+    startX: number,
+    startY: number,
+    p: StemParams,
+): StemCurve {
     const endX = startX + Math.cos(p.baseAngle) * p.length;
     const endY = startY + Math.sin(p.baseAngle) * p.length;
     const normal = p.baseAngle - Math.PI / 2;
@@ -366,48 +467,87 @@ export function computeStemCurve(startX: number, startY: number, p: StemParams):
     const cpX = (startX + endX) / 2 + Math.cos(normal) * offset;
     const cpY = (startY + endY) / 2 + Math.sin(normal) * offset;
 
-    return { p0: { x: startX, y: startY }, p1: { x: cpX, y: cpY }, p2: { x: endX, y: endY } };
+    return {
+        p0: { x: startX, y: startY },
+        p1: { x: cpX, y: cpY },
+        p2: { x: endX, y: endY },
+    };
 }
 
-export function drawStemCurve(ctx: CanvasRenderingContext2D, stem: StemCurve, p: StemParams): void {
+export function drawStemCurve(
+    ctx: CanvasRenderingContext2D,
+    stem: StemCurve,
+    p: StemParams,
+): void {
     ctx.save();
     ctx.lineCap = "round";
     ctx.beginPath();
     ctx.moveTo(stem.p0.x, stem.p0.y);
     ctx.quadraticCurveTo(stem.p1.x, stem.p1.y, stem.p2.x, stem.p2.y);
-    
+
     ctx.lineWidth = p.thickness + 0.2;
     ctx.strokeStyle = p.outlineColor ?? "rgba(0, 0, 0, 0.5)";
     ctx.stroke();
 
-    ctx.strokeStyle = createLinearGradientFromSpec(ctx, stem.p0.x, stem.p0.y, stem.p2.x, stem.p2.y, p.color);
+    ctx.strokeStyle = createLinearGradientFromSpec(
+        ctx,
+        stem.p0.x,
+        stem.p0.y,
+        stem.p2.x,
+        stem.p2.y,
+        p.color,
+    );
     ctx.lineWidth = p.thickness;
     ctx.stroke();
     ctx.restore();
 }
 
-export function drawStem(ctx: CanvasRenderingContext2D, startX: number, startY: number, p: StemParams): StemCurve {
+export function drawStem(
+    ctx: CanvasRenderingContext2D,
+    startX: number,
+    startY: number,
+    p: StemParams,
+): StemCurve {
     const stem = computeStemCurve(startX, startY, p);
     drawStemCurve(ctx, stem, p);
     return stem;
 }
 
-export function drawLeaves(ctx: CanvasRenderingContext2D, stem: StemCurve, params: LeafParams): void {
-    params.instances.forEach(leaf => {
+export function drawLeaves(
+    ctx: CanvasRenderingContext2D,
+    stem: StemCurve,
+    params: LeafParams,
+): void {
+    params.instances.forEach((leaf) => {
         const pos = getBezierPoint(leaf.t, stem.p0, stem.p1, stem.p2);
-        const tangentAngle = getBezierTangentAngle(leaf.t, stem.p0, stem.p1, stem.p2);
-        const finalAngle = tangentAngle + (Math.PI / 2 + leaf.angleOffset) * leaf.side;
+        const tangentAngle = getBezierTangentAngle(
+            leaf.t,
+            stem.p0,
+            stem.p1,
+            stem.p2,
+        );
+        const finalAngle =
+            tangentAngle + (Math.PI / 2 + leaf.angleOffset) * leaf.side;
 
         ctx.save();
         ctx.translate(pos.x, pos.y);
         ctx.rotate(finalAngle);
 
-        const s = Math.sin(finalAngle), c = Math.cos(finalAngle);
-        const L = leaf.size, W = L * leaf.widthRatio;
+        const s = Math.sin(finalAngle),
+            c = Math.cos(finalAngle);
+        const L = leaf.size,
+            W = L * leaf.widthRatio;
         const r = (Math.abs(s) * L + Math.abs(c) * W) / 2;
         const cx = L / 2;
 
-        ctx.fillStyle = createLinearGradientFromSpec(ctx, cx + r * s, r * c, cx - r * s, -r * c, leaf.color);
+        ctx.fillStyle = createLinearGradientFromSpec(
+            ctx,
+            cx + r * s,
+            r * c,
+            cx - r * s,
+            -r * c,
+            leaf.color,
+        );
         if (leaf.shape === "arrow") {
             drawArrowLeaf(ctx, L, W);
         } else {
@@ -421,7 +561,10 @@ export function drawLeaves(ctx: CanvasRenderingContext2D, stem: StemCurve, param
     });
 }
 
-function drawPetalRing(ctx: CanvasRenderingContext2D, p: PetalParams): void {
+export function drawPetalRing(
+    ctx: CanvasRenderingContext2D,
+    p: PetalParams,
+): void {
     const step = (2 * Math.PI) / p.petalCount;
     const shape = p.petalShape ?? "elliptical";
 
@@ -448,7 +591,14 @@ function drawPetalRing(ctx: CanvasRenderingContext2D, p: PetalParams): void {
         ctx.save();
         ctx.rotate(i * step + (p.petalAngleOffsets[i] ?? 0));
         applyDroop(ctx, p.petalDroop);
-        ctx.fillStyle = createLinearGradientFromSpec(ctx, 0, 0, len, 0, p.petalColor);
+        ctx.fillStyle = createLinearGradientFromSpec(
+            ctx,
+            0,
+            0,
+            len,
+            0,
+            p.petalColor,
+        );
         if (shape === "pointed") {
             drawTeardrop(ctx, len, p.petalWidth);
         } else if (shape === "notched") {
@@ -461,36 +611,37 @@ function drawPetalRing(ctx: CanvasRenderingContext2D, p: PetalParams): void {
     }
 }
 
-export function drawFlowerHead(ctx: CanvasRenderingContext2D, x: number, y: number, p: FlowerHeadParams): void {
+export function drawFlowerHead(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    p: FlowerHeadParams,
+): void {
     ctx.save();
     ctx.translate(x, y);
     if (p.backPetals) drawPetalRing(ctx, p.backPetals);
     drawPetalRing(ctx, p);
-    ctx.fillStyle = createRadialDiscGradient(ctx, p.discRadius, p.discDomeHeight, p.discColor);
+    ctx.fillStyle = createRadialDiscGradient(
+        ctx,
+        p.discRadius,
+        p.discDomeHeight,
+        p.discColor,
+    );
     ctx.beginPath();
-    if (p.discDomeHeight > 0) ctx.ellipse(0, 0, p.discRadius, p.discRadius + p.discDomeHeight, 0, Math.PI, 0);
+    if (p.discDomeHeight > 0)
+        ctx.ellipse(
+            0,
+            0,
+            p.discRadius,
+            p.discRadius + p.discDomeHeight,
+            0,
+            Math.PI,
+            0,
+        );
     else ctx.arc(0, 0, p.discRadius, 0, Math.PI * 2);
     ctx.fill();
     ctx.lineWidth = 0.5;
     ctx.strokeStyle = p.discOutlineColor ?? "rgba(0, 0, 0, 0.5)";
     ctx.stroke();
     ctx.restore();
-}
-
-export function generateFlower(ctx: CanvasRenderingContext2D, x: number, y: number, species: SpeciesProfile): void {
-    const stem = computeStemCurve(x, y, species.stem);
-    drawLeaves(ctx, stem, species.leaf);
-    drawStemCurve(ctx, stem, species.stem);
-    if (species.head.type === "golden-alexander") {
-        const stemEndAngle = getBezierTangentAngle(1, stem.p0, stem.p1, stem.p2);
-        drawGoldenAlexanderHead(ctx, stem.p2.x, stem.p2.y, species.head, stemEndAngle);
-    } else if (species.head.type === "coneflower") {
-        const stemEndAngle = getBezierTangentAngle(1, stem.p0, stem.p1, stem.p2);
-        drawConeflowerHead(ctx, stem.p2.x, stem.p2.y, species.head, stemEndAngle);
-    } else if (species.head.type === "beardtongue") {
-        const stemEndAngle = getBezierTangentAngle(1, stem.p0, stem.p1, stem.p2);
-        drawBeardtongueHead(ctx, stem.p2.x, stem.p2.y, species.head, stemEndAngle);
-    } else {
-        drawFlowerHead(ctx, stem.p2.x, stem.p2.y, species.head);
-    }
 }

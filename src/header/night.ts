@@ -1,7 +1,7 @@
 import milky from "../img/milkyway.png";
 import {AnySpec} from "./drawing/elements";
 import {bigClouds, mediumClouds, smallClouds} from "./drawing/elements/clouds.ts";
-import {tintedFlowers} from "./flowers.ts";
+import {tintedFlowers} from "./drawing/elements/flowers.ts";
 
 export const overcastNight: AnySpec[] = [
             {

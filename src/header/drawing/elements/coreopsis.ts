@@ -1,4 +1,4 @@
-import { FlowerColorSpec, SpeciesProfile } from "./flower.ts";
+import { FlowerColorSpec, SpeciesProfile } from "./flower-primitives.ts";
 
 export interface CoreopsisPalette {
     petalColor: FlowerColorSpec;

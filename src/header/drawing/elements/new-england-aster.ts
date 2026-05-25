@@ -1,4 +1,4 @@
-import { FlowerColorSpec, SpeciesProfile } from "./flower.ts";
+import { FlowerColorSpec, SpeciesProfile } from "./flower-primitives.ts";
 
 const purplePetal: FlowerColorSpec = {
     type: "multi",
@@ -90,8 +90,9 @@ export function makeNewEnglandAster(opts: {
                     serrationDepth: 1.25,
                     color: leafGreen,
                     outlineColor: leafOutline,
-                    shape: "arrow"
-                }, {
+                    shape: "arrow",
+                },
+                {
                     t: 0.35,
                     side: 1,
                     angleOffset: -0.9,
@@ -101,7 +102,7 @@ export function makeNewEnglandAster(opts: {
                     serrationDepth: 1.25,
                     color: leafGreen,
                     outlineColor: leafOutline,
-                    shape: "arrow"
+                    shape: "arrow",
                 },
                 {
                     t: 0.55,
@@ -113,7 +114,7 @@ export function makeNewEnglandAster(opts: {
                     serrationDepth: 1.2,
                     color: leafGreen,
                     outlineColor: leafOutline,
-                    shape: "arrow"
+                    shape: "arrow",
                 },
             ],
         },
