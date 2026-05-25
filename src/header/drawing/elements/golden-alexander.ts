@@ -1,4 +1,14 @@
-import { FlowerColorSpec, SpeciesProfile } from "./flower.ts";
+import {
+    applyPalette,
+    computeStemCurve,
+    createRadialDiscGradient,
+    drawStemCurve,
+    FlowerColorSpec,
+    GoldenAlexanderClusterParams,
+    GoldenAlexanderHeadParams,
+    SpeciesProfile,
+    StemCurve
+} from "./flower.ts";
 
 const yellowCluster: FlowerColorSpec = {
     type: "multi",
@@ -27,6 +37,76 @@ const leafGreen: FlowerColorSpec = {
         { offset: 1.0, hex: "#a3ae58" },
     ],
 };
+
+function drawGoldenAlexanderCluster(ctx: CanvasRenderingContext2D, p: GoldenAlexanderClusterParams): void {
+    ctx.save();
+    ctx.lineWidth = 0.25;
+    ctx.strokeStyle = p.outlineColor ?? applyPalette("rgba(124, 95, 0, 0.45)", p.palette);
+    for (let i = 0; i < p.circleCount; i++) {
+        const angle = i * Math.PI * (3 - Math.sqrt(5));
+        const distance = p.spread * Math.sqrt(i / Math.max(1, p.circleCount - 1));
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance * 0.65;
+        const radius = p.radius * (0.82 + Math.sin(i * 2.17) * 0.14);
+
+        ctx.fillStyle = createRadialDiscGradient(ctx, radius, radius * 0.3, p.color);
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+    }
+    ctx.restore();
+}
+
+export function drawGoldenAlexanderHead(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    p: GoldenAlexanderHeadParams,
+    mainStemAngle: number,
+): void {
+    const maxSplitAngle = Math.PI / 2.6;
+    const minSplitAngle = Math.max(0, maxSplitAngle - p.fanAngle);
+    const halfSplitCount = Math.max(1, Math.ceil(p.splitStemCount / 2));
+    const stems: StemCurve[] = [];
+
+    for (let i = 0; i < p.splitStemCount; i++) {
+        const normalized = p.splitStemCount > 1 ? i / (p.splitStemCount - 1) : 0.5;
+        const side = normalized < 0.5 ? -1 : normalized > 0.5 ? 1 : 0;
+        const sideIndex = side < 0 ? i : p.splitStemCount - 1 - i;
+        const sideNormalized = side === 0 ? 1 : sideIndex / Math.max(1, halfSplitCount - 1);
+        const splitAngle = side * (maxSplitAngle - (maxSplitAngle - minSplitAngle) * sideNormalized);
+        const angle = mainStemAngle + splitAngle;
+        const lengthTier = i % 2 === 0 ? 1 : 0.6;
+        const length = p.splitStemLength * lengthTier * (0.82 + Math.sin(i * 1.71) * 0.1 + Math.sin(normalized * Math.PI) * 0.14);
+        const curveDirection = side < 0 ? 1 : side > 0 ? -1 : 0;
+        stems.push(computeStemCurve(x, y, {
+            length,
+            thickness: p.splitStemThickness,
+            baseAngle: angle,
+            curveStrength: p.upwardCurveStrength * curveDirection,
+            color: p.splitStemColor,
+            outlineColor: p.splitStemOutlineColor,
+        }));
+    }
+
+    stems.forEach(stem => drawStemCurve(ctx, stem, {
+        length: 0,
+        thickness: p.splitStemThickness,
+        baseAngle: 0,
+        curveStrength: 0,
+        color: p.splitStemColor,
+        outlineColor: p.splitStemOutlineColor,
+    }));
+    stems.forEach(stem => {
+        ctx.save();
+        ctx.translate(stem.p2.x, stem.p2.y);
+        ctx.rotate(mainStemAngle + Math.PI / 2);
+        drawGoldenAlexanderCluster(ctx, p.cluster);
+        ctx.restore();
+    });
+}
 
 export function makeGoldenAlexander(opts: {
     stemLength: number;
