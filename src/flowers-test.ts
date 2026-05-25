@@ -6,7 +6,7 @@
  */
 
 
-import { makeCalicoBeardtongue } from "./header/drawing/elements/calico-beardtongue.ts";
+import { makeCalicoBeardtongue } from "./header/drawing/elements/beardtongue.ts";
 import { generateFlower } from "./header/drawing/elements/flowers.ts";
 
 const canvas = document.getElementById("flower-canvas") as HTMLCanvasElement;

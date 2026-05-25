@@ -59,7 +59,7 @@ export interface PetalParams {
 }
 
 export interface FlowerHeadParams extends PetalParams {
-    type?: "petal";
+    type: "petal";
     discRadius: number;
     discDomeHeight: number;
     discColor: FlowerColorSpec;
@@ -68,94 +68,19 @@ export interface FlowerHeadParams extends PetalParams {
     palette?: ColorPalette;
 }
 
-export interface GoldenAlexanderClusterParams {
-    circleCount: number;
-    radius: number;
-    spread: number;
-    color: FlowerColorSpec;
-    speckleColor: string;
-    outlineColor?: string;
-    palette?: ColorPalette;
-}
-
-export interface GoldenAlexanderHeadParams {
-    type: "golden-alexander";
-    splitStemCount: number;
-    splitStemLength: number;
-    splitStemThickness: number;
-    fanAngle: number;
-    upwardCurveStrength: number;
-    splitStemColor: FlowerColorSpec;
-    splitStemOutlineColor?: string;
-    cluster: GoldenAlexanderClusterParams;
-    palette?: ColorPalette;
-}
-
-export interface ConeflowerHeadParams {
-    type: "coneflower";
-    coneWidth: number;
-    coneRimDepth: number;
-    coneHeight: number;
-    coneColor: FlowerColorSpec;
-    coneOutlineColor?: string;
-    petalCount: number;
-    petalLength: number;
-    petalWidth: number;
-    petalRadialReach: number;
-    petalDroop: number;
-    /**
-     * 0 = straight petal (ctrl at attach→tip midpoint),
-     * 1 = full L-curve (ctrl at the corner (tipX, attachY) so petals start radial then hook
-     * straight down). Values around 0.7–0.85 produce a strong gravity bend.
-     */
-    petalCurveStrength: number;
-    petalColor: FlowerColorSpec;
-    petalOutlineColor?: string;
-    petalCenterVeinColor?: string;
-    petalAngleOffsets: number[];
-    petalLengthMultipliers: number[];
-    palette?: ColorPalette;
-}
-
-export interface BeardtongueHeadParams {
-    type: "beardtongue";
-    /** Length of the oval corolla tube along the stem axis. */
-    tubeLength: number;
-    /** Width of the oval corolla tube. */
-    tubeWidth: number;
-    tubeColor: FlowerColorSpec;
-    tubeOutlineColor?: string;
-    /** Tip distance of the two upper-lip lobes from the mouth center. */
-    upperLobeReach: number;
-    /** Tip distance of the three lower-lip lobes from the mouth center. */
-    lowerLobeReach: number;
-    lobeColor: FlowerColorSpec;
-    lobeOutlineColor?: string;
-    /** Dark oval throat opening drawn above the mouth center. */
-    throatColor: FlowerColorSpec;
-    throatOutlineColor?: string;
-    /** Spots scattered across the tube (calico = spotted). */
-    speckleColor?: string;
-    speckleCount?: number;
-    speckleSeed?: number;
-    /** Nod direction in radians: 0 = hangs straight down, positive leans left, negative right. */
-    nodAngle?: number;
-    palette?: ColorPalette;
-}
-
 export type FlowerHeadSpec = { type: string; }
 
-export interface SpeciesProfile {
+export interface SpeciesProfile<H extends FlowerHeadSpec = FlowerHeadSpec> {
     stem: StemParams;
     leaf: LeafParams;
-    head: FlowerHeadSpec;
+    head: H;
 }
 
 export interface FlowerSpec {
     type: "flower";
     x: number;
     y: number;
-    species: SpeciesProfile;
+    species: SpeciesProfile<FlowerHeadSpec>;
     palette?: ColorPalette;
 }
 
@@ -175,10 +100,39 @@ function tintColorSpec(
     };
 }
 
+function isFlowerColorSpec(v: unknown): v is FlowerColorSpec {
+    return (
+        typeof v === "object" &&
+        v !== null &&
+        "type" in v &&
+        ((v as FlowerColorSpec).type === "single" ||
+            (v as FlowerColorSpec).type === "multi")
+    );
+}
+
+function tintObject<T extends Record<string, unknown>>(obj: T, palette: ColorPalette): T {
+    const result: Record<string, unknown> = {};
+    for (const key of Object.keys(obj)) {
+        const val = obj[key];
+        if (isFlowerColorSpec(val)) {
+            result[key] = tintColorSpec(val, palette);
+        } else if (typeof val === "string") {
+            result[key] = applyPalette(val, palette);
+        } else if (Array.isArray(val)) {
+            result[key] = val;
+        } else if (typeof val === "object" && val !== null) {
+            result[key] = tintObject(val as Record<string, unknown>, palette);
+        } else {
+            result[key] = val;
+        }
+    }
+    return result as T;
+}
+
 export function tintSpecies(
-    species: SpeciesProfile,
+    species: SpeciesProfile<FlowerHeadSpec>,
     palette: ColorPalette | undefined,
-): SpeciesProfile {
+): SpeciesProfile<FlowerHeadSpec> {
     if (!palette) return species;
     const stem: StemParams = {
         ...species.stem,
@@ -195,91 +149,7 @@ export function tintSpecies(
                 l.outlineColor && applyPalette(l.outlineColor, palette),
         })),
     };
-    let head: FlowerHeadSpec;
-    if (species.head.type === "golden-alexander") {
-        head = {
-            ...species.head,
-            splitStemColor: tintColorSpec(species.head.splitStemColor, palette),
-            splitStemOutlineColor:
-                species.head.splitStemOutlineColor &&
-                applyPalette(species.head.splitStemOutlineColor, palette),
-            cluster: {
-                ...species.head.cluster,
-                color: tintColorSpec(species.head.cluster.color, palette),
-                speckleColor: applyPalette(
-                    species.head.cluster.speckleColor,
-                    palette,
-                ),
-                outlineColor:
-                    species.head.cluster.outlineColor &&
-                    applyPalette(species.head.cluster.outlineColor, palette),
-                palette,
-            },
-            palette,
-        };
-    } else if (species.head.type === "coneflower") {
-        head = {
-            ...species.head,
-            coneColor: tintColorSpec(species.head.coneColor, palette),
-            coneOutlineColor:
-                species.head.coneOutlineColor &&
-                applyPalette(species.head.coneOutlineColor, palette),
-            petalColor: tintColorSpec(species.head.petalColor, palette),
-            petalOutlineColor:
-                species.head.petalOutlineColor &&
-                applyPalette(species.head.petalOutlineColor, palette),
-            petalCenterVeinColor:
-                species.head.petalCenterVeinColor &&
-                applyPalette(species.head.petalCenterVeinColor, palette),
-            palette,
-        };
-    } else if (species.head.type === "beardtongue") {
-        head = {
-            ...species.head,
-            tubeColor: tintColorSpec(species.head.tubeColor, palette),
-            tubeOutlineColor:
-                species.head.tubeOutlineColor &&
-                applyPalette(species.head.tubeOutlineColor, palette),
-            lobeColor: tintColorSpec(species.head.lobeColor, palette),
-            lobeOutlineColor:
-                species.head.lobeOutlineColor &&
-                applyPalette(species.head.lobeOutlineColor, palette),
-            throatColor: tintColorSpec(species.head.throatColor, palette),
-            throatOutlineColor:
-                species.head.throatOutlineColor &&
-                applyPalette(species.head.throatOutlineColor, palette),
-            speckleColor:
-                species.head.speckleColor &&
-                applyPalette(species.head.speckleColor, palette),
-            palette,
-        };
-    } else {
-        head = {
-            ...species.head,
-            discColor: tintColorSpec(species.head.discColor, palette),
-            discOutlineColor:
-                species.head.discOutlineColor &&
-                applyPalette(species.head.discOutlineColor, palette),
-            petalColor: tintColorSpec(species.head.petalColor, palette),
-            petalOutlineColor:
-                species.head.petalOutlineColor &&
-                applyPalette(species.head.petalOutlineColor, palette),
-            backPetals: species.head.backPetals && {
-                ...species.head.backPetals,
-                petalColor: tintColorSpec(
-                    species.head.backPetals.petalColor,
-                    palette,
-                ),
-                petalOutlineColor:
-                    species.head.backPetals.petalOutlineColor &&
-                    applyPalette(
-                        species.head.backPetals.petalOutlineColor,
-                        palette,
-                    ),
-            },
-            palette,
-        };
-    }
+    const head = tintObject(species.head as Record<string, unknown>, palette) as FlowerHeadSpec;
     return { stem, leaf, head };
 }
 
@@ -323,6 +193,23 @@ export function createLinearGradientFromSpec(
     if (colorSpec.type === "single") {
         grad.addColorStop(0.0, adjustBrightness(colorSpec.baseHex, -0.15));
         grad.addColorStop(1.0, adjustBrightness(colorSpec.baseHex, 0.1));
+    } else {
+        colorSpec.stops.forEach((s) => grad.addColorStop(s.offset, s.hex));
+    }
+    return grad;
+}
+
+export function createRadialGradientFromSpec(
+    ctx: CanvasRenderingContext2D,
+    cx: number,
+    cy: number,
+    radius: number,
+    colorSpec: FlowerColorSpec,
+): CanvasGradient {
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+    if (colorSpec.type === "single") {
+        grad.addColorStop(0.0, adjustBrightness(colorSpec.baseHex, 0.15));
+        grad.addColorStop(1.0, adjustBrightness(colorSpec.baseHex, -0.15));
     } else {
         colorSpec.stops.forEach((s) => grad.addColorStop(s.offset, s.hex));
     }

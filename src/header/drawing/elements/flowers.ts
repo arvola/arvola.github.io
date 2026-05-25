@@ -3,6 +3,7 @@ import {
     drawFlowerHead,
     drawLeaves,
     drawStemCurve,
+    FlowerHeadParams,
     FlowerSpec,
     getBezierTangentAngle,
     SpeciesProfile,
@@ -11,15 +12,17 @@ import {
 import { makeNewEnglandAster } from "./new-england-aster.ts";
 import {
     drawGoldenAlexanderHead,
+    GoldenAlexanderHeadParams,
     makeGoldenAlexander,
 } from "./golden-alexander.ts";
 import {
+    ConeflowerHeadParams,
     drawConeflowerHead,
     makePalePurpleConeflower,
 } from "./pale-purple-coneflower.ts";
 import { MoundSpec } from "./mound.ts";
 import { ColorPalette } from "../color.ts";
-import { drawBeardtongueHead } from "./calico-beardtongue.ts";
+import { BeardtongueHeadParams, drawBeardtongueHead } from "./beardtongue.ts";
 import { SpecDrawingFunc } from "./base.ts";
 
 export type FlowerSceneSpec = FlowerSpec | MoundSpec;
@@ -336,7 +339,7 @@ export function generateFlower(
             ctx,
             stem.p2.x,
             stem.p2.y,
-            species.head,
+            species.head as GoldenAlexanderHeadParams,
             stemEndAngle,
         );
     } else if (species.head.type === "coneflower") {
@@ -350,7 +353,7 @@ export function generateFlower(
             ctx,
             stem.p2.x,
             stem.p2.y,
-            species.head,
+            species.head as ConeflowerHeadParams,
             stemEndAngle,
         );
     } else if (species.head.type === "beardtongue") {
@@ -364,11 +367,11 @@ export function generateFlower(
             ctx,
             stem.p2.x,
             stem.p2.y,
-            species.head,
+            species.head as BeardtongueHeadParams,
             stemEndAngle,
         );
     } else {
-        drawFlowerHead(ctx, stem.p2.x, stem.p2.y, species.head);
+        drawFlowerHead(ctx, stem.p2.x, stem.p2.y, species.head as FlowerHeadParams);
     }
 }
 

@@ -3,12 +3,33 @@ import {
     createRadialDiscGradient,
     drawStemCurve,
     FlowerColorSpec,
-    GoldenAlexanderClusterParams,
-    GoldenAlexanderHeadParams,
     SpeciesProfile,
     StemCurve,
 } from "./flower-primitives.ts";
-import { applyPalette } from "../color.ts";
+import { applyPalette, ColorPalette } from "../color.ts";
+
+export interface GoldenAlexanderClusterParams {
+    circleCount: number;
+    radius: number;
+    spread: number;
+    color: FlowerColorSpec;
+    speckleColor: string;
+    outlineColor?: string;
+    palette?: ColorPalette;
+}
+
+export interface GoldenAlexanderHeadParams {
+    type: "golden-alexander";
+    splitStemCount: number;
+    splitStemLength: number;
+    splitStemThickness: number;
+    fanAngle: number;
+    upwardCurveStrength: number;
+    splitStemColor: FlowerColorSpec;
+    splitStemOutlineColor?: string;
+    cluster: GoldenAlexanderClusterParams;
+    palette?: ColorPalette;
+}
 
 const yellowCluster: FlowerColorSpec = {
     type: "multi",
@@ -142,7 +163,7 @@ export function makeGoldenAlexander(opts: {
     clusterRadius?: number;
     clusterSpread?: number;
     leafScale?: number;
-}): SpeciesProfile {
+}): SpeciesProfile<GoldenAlexanderHeadParams> {
     const leafScale = opts.leafScale ?? 1;
     return {
         stem: {

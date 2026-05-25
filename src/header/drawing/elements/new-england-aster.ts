@@ -1,4 +1,4 @@
-import { FlowerColorSpec, SpeciesProfile } from "./flower-primitives.ts";
+import { FlowerColorSpec, FlowerHeadParams, SpeciesProfile } from "./flower-primitives.ts";
 
 const purplePetal: FlowerColorSpec = {
     type: "multi",
@@ -66,7 +66,7 @@ export function makeNewEnglandAster(opts: {
     leafSeed: number;
     petalSeed: number;
     petalShape?: "pointed" | "elliptical";
-}): SpeciesProfile {
+}): SpeciesProfile<FlowerHeadParams> {
     const petals = buildPetalArrays(opts.petalCount, opts.petalSeed);
 
     return {
@@ -119,6 +119,7 @@ export function makeNewEnglandAster(opts: {
             ],
         },
         head: {
+            type: "petal",
             discRadius: opts.discRadius,
             discDomeHeight: 0,
             discColor: yellowDisc,

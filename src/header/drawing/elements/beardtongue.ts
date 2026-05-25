@@ -1,9 +1,35 @@
 import {
-    BeardtongueHeadParams,
     createLinearGradientFromSpec,
+    createRadialGradientFromSpec,
     FlowerColorSpec,
     SpeciesProfile,
 } from "./flower-primitives.ts";
+import { ColorPalette } from "../color.ts";
+
+export interface BeardtongueHeadParams {
+    type: "beardtongue";
+    /** Length of the oval corolla tube along the stem axis. */
+    tubeLength: number;
+    /** Width of the oval corolla tube. */
+    tubeWidth: number;
+    tubeColor: FlowerColorSpec;
+    tubeOutlineColor?: string;
+    /** Tip distance of the two upper-lip lobes from the mouth center. */
+    upperLobeReach: number;
+    /** Tip distance of the three lower-lip lobes from the mouth center. */
+    lowerLobeReach: number;
+    lobeColor: FlowerColorSpec;
+    lobeOutlineColor?: string;
+
+    throatOutlineColor?: string;
+    /** Spots scattered across the tube (calico = spotted). */
+    speckleColor?: string;
+    speckleCount?: number;
+    speckleSeed?: number;
+    /** Nod direction in radians: 0 = hangs straight down, positive leans left, negative right. */
+    nodAngle?: number;
+    palette?: ColorPalette;
+}
 
 // Calico beardtongue (Penstemon calycosus): a dusty pink-lilac tubular corolla. The tube is
 // shaded as a soft cylinder (darker edges, lit center) and the flared mouth lips are a touch
@@ -20,19 +46,12 @@ const tubePink: FlowerColorSpec = {
 const lobePink: FlowerColorSpec = {
     type: "multi",
     stops: [
-        { offset: 0.0, hex: "#e7c6d8" }, // pale upper lip
-        { offset: 0.55, hex: "#dcb3cb" },
-        { offset: 1.0, hex: "#cf9fbd" }, // slightly deeper lower lip
+        { offset: 0.0, hex: "#cf9fbd" }, // pale upper lip
+        { offset: 0.55, hex: "#edc6dd" },
+        { offset: 1.0, hex: "#fde6f2" }, // slightly deeper lower lip
     ],
 };
 
-const throatPurple: FlowerColorSpec = {
-    type: "multi",
-    stops: [
-        { offset: 0.0, hex: "#9e7d95" },
-        { offset: 1.0, hex: "#bc90b8" }, // muted interior shadow
-    ],
-};
 
 const stemGreen: FlowerColorSpec = {
     type: "multi",
@@ -54,7 +73,7 @@ const leafGreen: FlowerColorSpec = {
 
 const tubeOutline = "#7e5570";
 const lobeOutline = "#a87a99";
-const throatOutline = "#af7cba";
+const throatOutline = "#bc90b8";
 const speckleColor = "rgba(120, 60, 95, 0.5)";
 const stemOutline = "#3b5028";
 const leafOutline = "#4c6a2c";
@@ -86,14 +105,14 @@ function drawTube(
 
     ctx.beginPath();
     ctx.ellipse(0, cy, rx, ry, 0, 0, Math.PI * 2);
-    // Horizontal gradient gives a cylindrical shade (dark edges, lit center) when the
-    // tube color is a multi spec with a light middle stop.
+    // Vertical gradient starts at the top of the tube (cy - ry) and goes down to the bottom
+    // (cy + ry), preserving the tube's tilt via the saved transform.
     ctx.fillStyle = createLinearGradientFromSpec(
         ctx,
-        -rx,
-        cy,
-        rx,
-        cy,
+        0,
+        cy - ry,
+        0,
+        cy + ry,
         p.tubeColor,
     );
     ctx.fill();
@@ -164,7 +183,7 @@ function buildBeardtongueFacePath(
             if (Math.abs(x) < 1) {
                 const bump =
                     valleyR +
-                    (lobe.reach - valleyR) * 0.5 * (1 + Math.cos(Math.PI * x));
+                    (lobe.reach - valleyR) * 0.6 * (1 + Math.cos(Math.PI * x));
                 if (bump > r) r = bump;
             }
         }
@@ -227,14 +246,14 @@ export function drawBeardtongueHead(
     // near 0°/180°) pinch the face into a two-lipped mouth.
     const D = Math.PI / 180;
     const lobes: BeardtongueLobe[] = [
-        { angle: 48 * D, reach: p.lowerLobeReach, halfWidth: 0.72 }, // lower-right
+        { angle: 48 * D, reach: p.lowerLobeReach, halfWidth: 0.82 }, // lower-right
         { angle: 90 * D, reach: p.lowerLobeReach * 1.05, halfWidth: 0.68 }, // lower-middle
-        { angle: 132 * D, reach: p.lowerLobeReach, halfWidth: 0.72 }, // lower-left
+        { angle: 132 * D, reach: p.lowerLobeReach , halfWidth: 0.82 }, // lower-left
         { angle: -148 * D, reach: p.upperLobeReach, halfWidth: 1 }, // upper-left
         { angle: -62 * D, reach: p.upperLobeReach, halfWidth: 1 }, // upper-right
     ];
     const valleyR = minReach * 0.92;
-    const squashY = 0.92;
+    const squashY = 0.82;
     const shear = Math.sin(tubeAngle) * 0.55;
     // Carve a small cleft at the very top so the two upper lobes read as rounded halves meeting
     // in the middle rather than one flat shoulder.
@@ -251,12 +270,13 @@ export function drawBeardtongueHead(
     ctx.transform(1, 0, shear, 1, 0, 0);
 
     buildBeardtongueFacePath(ctx, lobes, valleyR, squashY, notch);
-    ctx.fillStyle = createLinearGradientFromSpec(
+    const throatCyForFace = -p.upperLobeReach * 0.05;
+    const faceRadius = Math.max(p.upperLobeReach, p.lowerLobeReach) * 1.1;
+    ctx.fillStyle = createRadialGradientFromSpec(
         ctx,
         0,
-        -p.upperLobeReach,
-        0,
-        p.lowerLobeReach,
+        throatCyForFace,
+        faceRadius,
         p.lobeColor,
     );
     ctx.fill();
@@ -266,20 +286,12 @@ export function drawBeardtongueHead(
 
     // Dark throat opening: a narrow horizontal oval, set toward the upper lip (the "inside"
     // seen above the mouth center).
-    const throatRx = minReach * 0.5;
-    const throatRy = minReach * 0.26;
+    const throatRx = minReach * 0.45;
+    const throatRy = minReach * 0.19;
     const throatCy = -p.upperLobeReach * 0.05;
     ctx.beginPath();
     ctx.ellipse(0, throatCy, throatRx, throatRy, 0, 0, Math.PI * 2);
-    ctx.fillStyle = createLinearGradientFromSpec(
-        ctx,
-        0,
-        throatCy - throatRy,
-        0,
-        throatCy + throatRy,
-        p.throatColor,
-    );
-    ctx.fill();
+
     ctx.lineWidth = 0.5;
     ctx.strokeStyle = p.throatOutlineColor ?? "rgba(0, 0, 0, 0.45)";
     ctx.stroke();
@@ -301,7 +313,7 @@ export function makeCalicoBeardtongue(opts: {
     speckleSeed?: number;
     leafSeed: number;
     leafScale?: number;
-}): SpeciesProfile {
+}): SpeciesProfile<BeardtongueHeadParams> {
     const leafScale = opts.leafScale ?? 1;
 
     return {
@@ -367,7 +379,6 @@ export function makeCalicoBeardtongue(opts: {
             lowerLobeReach: opts.lowerLobeReach,
             lobeColor: lobePink,
             lobeOutlineColor: lobeOutline,
-            throatColor: throatPurple,
             throatOutlineColor: throatOutline,
             speckleColor,
             speckleCount: opts.speckleCount ?? 14,

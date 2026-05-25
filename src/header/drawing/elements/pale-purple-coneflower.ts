@@ -1,10 +1,35 @@
 import {
-    ConeflowerHeadParams,
     createLinearGradientFromSpec,
     FlowerColorSpec,
     SpeciesProfile,
 } from "./flower-primitives.ts";
-import { applyPalette } from "../color.ts";
+import { applyPalette, ColorPalette } from "../color.ts";
+
+export interface ConeflowerHeadParams {
+    type: "coneflower";
+    coneWidth: number;
+    coneRimDepth: number;
+    coneHeight: number;
+    coneColor: FlowerColorSpec;
+    coneOutlineColor?: string;
+    petalCount: number;
+    petalLength: number;
+    petalWidth: number;
+    petalRadialReach: number;
+    petalDroop: number;
+    /**
+     * 0 = straight petal (ctrl at attach→tip midpoint),
+     * 1 = full L-curve (ctrl at the corner (tipX, attachY) so petals start radial then hook
+     * straight down). Values around 0.7–0.85 produce a strong gravity bend.
+     */
+    petalCurveStrength: number;
+    petalColor: FlowerColorSpec;
+    petalOutlineColor?: string;
+    petalCenterVeinColor?: string;
+    petalAngleOffsets: number[];
+    petalLengthMultipliers: number[];
+    palette?: ColorPalette;
+}
 
 const palePurplePetal: FlowerColorSpec = {
     type: "multi",
@@ -393,7 +418,7 @@ export function makePalePurpleConeflower(opts: {
     leafSeed: number;
     petalSeed: number;
     leafScale?: number;
-}): SpeciesProfile {
+}): SpeciesProfile<ConeflowerHeadParams> {
     const petals = buildPetalArrays(opts.petalCount, opts.petalSeed);
     const leafScale = opts.leafScale ?? 1;
 

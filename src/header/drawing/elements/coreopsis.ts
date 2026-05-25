@@ -1,4 +1,4 @@
-import { FlowerColorSpec, SpeciesProfile } from "./flower-primitives.ts";
+import { FlowerColorSpec, FlowerHeadParams, SpeciesProfile } from "./flower-primitives.ts";
 
 export interface CoreopsisPalette {
     petalColor: FlowerColorSpec;
@@ -101,7 +101,7 @@ export function makeCoreopsis(opts: {
     leafSeed: number;
     petalSeed: number;
     palette?: CoreopsisPalette;
-}): SpeciesProfile {
+}): SpeciesProfile<FlowerHeadParams> {
     const petalCount = opts.petalCount ?? 8;
     const petals = buildPetalArrays(petalCount, opts.petalSeed);
     const palette = opts.palette ?? coreopsisRosePalette;
@@ -150,6 +150,7 @@ export function makeCoreopsis(opts: {
             ],
         },
         head: {
+            type: "petal",
             discRadius: opts.discRadius,
             discDomeHeight: 0,
             discColor: palette.discColor,
