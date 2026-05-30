@@ -73,8 +73,8 @@ const tubePink: FlowerColorSpec = {
 const lobePink: FlowerColorSpec = {
     type: "multi",
     stops: [
-        { offset: 0.0, hex: "#cf9fbd" }, // pale upper lip
-        { offset: 0.55, hex: "#edc6dd" },
+        { offset: 0.0, hex: "#bc86a8" }, // pale upper lip
+        { offset: 0.35, hex: "#edc6dd" },
         { offset: 1.0, hex: "#fde6f2" }, // slightly deeper lower lip
     ],
 };
@@ -146,43 +146,6 @@ function drawTube(
     ctx.lineWidth = 0.6;
     ctx.strokeStyle = p.tubeOutlineColor ?? "rgba(0, 0, 0, 0.4)";
     ctx.stroke();
-    ctx.restore();
-}
-
-function drawTubeSpeckles(
-    ctx: CanvasRenderingContext2D,
-    p: BeardtongueHeadParams,
-    cutY: number,
-): void {
-    if (!p.speckleColor || !p.speckleCount) return;
-
-    const cy = p.tubeLength / 2;
-    const rx = p.tubeWidth / 2;
-    const ry = p.tubeLength / 2;
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.ellipse(0, cy, rx, ry, 0, 0, Math.PI * 2);
-    ctx.clip();
-
-    let seed = (p.speckleSeed ?? 1) * 9973 + 1;
-    const rand = () => {
-        seed = (seed * 1103515245 + 12345) & 0x7fffffff;
-        return seed / 0x7fffffff;
-    };
-
-    ctx.fillStyle = p.speckleColor;
-    for (let i = 0; i < p.speckleCount; i++) {
-        const radial = Math.sqrt(rand());
-        const ang = rand() * Math.PI * 2;
-        const ex = Math.cos(ang) * radial * rx * 0.92;
-        const ey = cy + Math.sin(ang) * radial * ry * 0.92;
-        const dot = 0.4 + rand() * 0.7;
-        if (ey >= cutY) continue;
-        ctx.beginPath();
-        ctx.ellipse(ex, ey, dot, dot * 1.4, 0, 0, Math.PI * 2);
-        ctx.fill();
-    }
     ctx.restore();
 }
 
