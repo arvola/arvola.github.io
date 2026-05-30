@@ -1,4 +1,9 @@
-import { FlowerColorSpec, FlowerHeadParams, SpeciesProfile } from "./flower-primitives.ts";
+import {
+    FlowerColorSpec,
+    FlowerHeadParams,
+    LeafInstance,
+    SpeciesProfile,
+} from "./flower-primitives.ts";
 
 export interface CoreopsisPalette {
     petalColor: FlowerColorSpec;
@@ -38,9 +43,9 @@ export const coreopsisGrandifloraPalette: CoreopsisPalette = {
         type: "multi",
         stops: [
             { offset: 0.0, hex: "#5a1408" },
-            { offset: 0.18, hex: "#8c1d0c" },
-            { offset: 0.28, hex: "#b03217" },
-            { offset: 0.36, hex: "#e89224" },
+            { offset: 0.28, hex: "#8c1d0c" },
+            { offset: 0.38, hex: "#b03217" },
+            { offset: 0.46, hex: "#e89224" },
             { offset: 0.55, hex: "#fcd03a" },
             { offset: 0.85, hex: "#ffe35e" },
             { offset: 1.0, hex: "#fff088" },
@@ -100,11 +105,73 @@ export function makeCoreopsis(opts: {
     discRadius: number;
     leafSeed: number;
     petalSeed: number;
+    leafScale?: number;
+    /**
+     * Foliage habit. "thread" = the fine, almost threadlike leaves of rose coreopsis
+     * (C. rosea); "lance" = the broader, more numerous lanceolate leaves of large-flowered
+     * tickseed (C. grandiflora).
+     */
+    leafStyle?: "thread" | "lance";
     palette?: CoreopsisPalette;
 }): SpeciesProfile<FlowerHeadParams> {
     const petalCount = opts.petalCount ?? 8;
     const petals = buildPetalArrays(petalCount, opts.petalSeed);
     const palette = opts.palette ?? coreopsisRosePalette;
+    const leafScale = opts.leafScale ?? 1;
+    const leafStyle = opts.leafStyle ?? "thread";
+
+    const threadLeaves: LeafInstance[] = [
+        {
+            t: 0.06,
+            side: -1,
+            angleOffset: -0.15 + Math.sin(opts.leafSeed) * 0.05,
+            size: 34 * leafScale,
+            widthRatio: 0.11,
+            color: leafGreen,
+            outlineColor: leafOutline,
+            shape: "teardrop",
+        },
+        {
+            t: 0.1,
+            side: 1,
+            angleOffset: -0.18 + Math.cos(opts.leafSeed * 1.4) * 0.05,
+            size: 30 * leafScale,
+            widthRatio: 0.11,
+            color: leafGreen,
+            outlineColor: leafOutline,
+            shape: "teardrop",
+        },
+        {
+            t: 0.32,
+            side: Math.sin(opts.leafSeed * 0.7) > 0 ? 1 : -1,
+            angleOffset: -0.45,
+            size: 18 * leafScale,
+            widthRatio: 0.11,
+            color: leafGreen,
+            outlineColor: leafOutline,
+            shape: "teardrop",
+        },
+    ];
+
+    // Lanceolate leaves: broader than the thread form and more numerous, clustered low and up
+    // the lower-to-mid stem in opposite pairs that taper toward the head.
+    const lanceLeaves: LeafInstance[] = [
+        { t: 0.08, side: -1, angleOffset: -0.5, size: 18 },
+        { t: 0.13, side: 1, angleOffset: -0.52, size: 17 },
+        { t: 0.26, side: -1, angleOffset: -0.55, size: 15 },
+        { t: 0.32, side: 1, angleOffset: -0.58, size: 14 },
+        { t: 0.46, side: -1, angleOffset: -0.62, size: 11 },
+        { t: 0.54, side: 1, angleOffset: -0.64, size: 10 },
+    ].map((l, i) => ({
+        t: l.t,
+        side: l.side as 1 | -1,
+        angleOffset: l.angleOffset + Math.sin(opts.leafSeed + i) * 0.05,
+        size: l.size * leafScale,
+        widthRatio: 0.22,
+        color: leafGreen,
+        outlineColor: leafOutline,
+        shape: "teardrop" as const,
+    }));
 
     return {
         stem: {
@@ -116,38 +183,7 @@ export function makeCoreopsis(opts: {
             outlineColor: stemOutline,
         },
         leaf: {
-            instances: [
-                {
-                    t: 0.06,
-                    side: -1,
-                    angleOffset: -0.15 + Math.sin(opts.leafSeed) * 0.05,
-                    size: 34,
-                    widthRatio: 0.11,
-                    color: leafGreen,
-                    outlineColor: leafOutline,
-                    shape: "teardrop",
-                },
-                {
-                    t: 0.1,
-                    side: 1,
-                    angleOffset: -0.18 + Math.cos(opts.leafSeed * 1.4) * 0.05,
-                    size: 30,
-                    widthRatio: 0.11,
-                    color: leafGreen,
-                    outlineColor: leafOutline,
-                    shape: "teardrop",
-                },
-                {
-                    t: 0.32,
-                    side: Math.sin(opts.leafSeed * 0.7) > 0 ? 1 : -1,
-                    angleOffset: -0.45,
-                    size: 18,
-                    widthRatio: 0.11,
-                    color: leafGreen,
-                    outlineColor: leafOutline,
-                    shape: "teardrop",
-                },
-            ],
+            instances: leafStyle === "lance" ? lanceLeaves : threadLeaves,
         },
         head: {
             type: "petal",

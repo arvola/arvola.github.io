@@ -28,13 +28,20 @@ const center = makeCalicoBeardtongue({
     stemThickness: 2.4,
     baseAngle: -Math.PI / 2 + 0.02,
     curveStrength: 0.04,
-    tubeLength: 58,
-    tubeWidth: 15,
-    upperLobeReach: 12,
-    lowerLobeReach: 19,
-    nodAngle: 0.12,
-    speckleCount: 20,
+    tubeLength: 40,
+    tubeWidth: 11,
+    upperLobeReach: 9,
+    lowerLobeReach: 14,
+    speckleCount: 16,
     leafSeed: 1.1,
+    tierCount: 5,
+    tierSpacing: 34,
+    topOffset: 0,
+    pedicelLength: 11,
+    pedicelArch: 9,
+    pedicelShrink: 0.12,
+    pedicelThickness: 2,
+    flowerNod: 0.4,
 });
 
 const left = makeCalicoBeardtongue({
@@ -42,13 +49,20 @@ const left = makeCalicoBeardtongue({
     stemThickness: 2.3,
     baseAngle: -Math.PI / 2 - 0.22,
     curveStrength: -0.06,
-    tubeLength: 52,
-    tubeWidth: 14,
-    upperLobeReach: 12,
-    lowerLobeReach: 19,
-    nodAngle: 0.5,
-    speckleCount: 17,
+    tubeLength: 36,
+    tubeWidth: 10,
+    upperLobeReach: 8,
+    lowerLobeReach: 13,
+    speckleCount: 14,
     leafSeed: 2.4,
+    tierCount: 6,
+    tierSpacing: 31,
+    topOffset: 0,
+    pedicelLength: 10,
+    pedicelArch: 8,
+    pedicelShrink: 0.12,
+    pedicelThickness: 1.9,
+    flowerNod: 0.4,
 });
 
 const right = makeCalicoBeardtongue({
@@ -56,50 +70,25 @@ const right = makeCalicoBeardtongue({
     stemThickness: 2.3,
     baseAngle: -Math.PI / 2 + 0.24,
     curveStrength: 0.07,
-    tubeLength: 53,
-    tubeWidth: 14,
-    upperLobeReach: 12,
-    lowerLobeReach: 19,
-    nodAngle: -0.5,
-    speckleCount: 17,
+    tubeLength: 37,
+    tubeWidth: 10,
+    upperLobeReach: 8,
+    lowerLobeReach: 13,
+    speckleCount: 14,
     leafSeed: 3.7,
-});
-
-const leftOuter = makeCalicoBeardtongue({
-    stemLength: 182,
-    stemThickness: 2.0,
-    baseAngle: -Math.PI / 2 - 0.5,
-    curveStrength: -0.11,
-    tubeLength: 44,
-    tubeWidth: 12,
-    upperLobeReach: 12,
-    lowerLobeReach: 19,
-    nodAngle: 0.72,
-    speckleCount: 14,
-    leafSeed: 4.2,
-    leafScale: 0.85,
-});
-
-const rightOuter = makeCalicoBeardtongue({
-    stemLength: 188,
-    stemThickness: 2.0,
-    baseAngle: -Math.PI / 2 + 0.52,
-    curveStrength: 0.1,
-    tubeLength: 45,
-    tubeWidth: 12,
-    upperLobeReach: 12,
-    lowerLobeReach: 19,
-    nodAngle: -0.72,
-    speckleCount: 14,
-    leafSeed: 5.5,
-    leafScale: 0.85,
+    tierCount: 4,
+    tierSpacing: 32,
+    topOffset: 0,
+    pedicelLength: 10,
+    pedicelArch: 8,
+    pedicelShrink: 0.12,
+    pedicelThickness: 1.9,
+    flowerNod: 0.4,
 });
 
 const groundY = (canvas.height / totalScale) - 30;
 const centerX = (canvas.width / totalScale) / 2;
 
 generateFlower(ctx, centerX - 5, groundY, center);
-generateFlower(ctx, centerX - 40, groundY, left);
-generateFlower(ctx, centerX + 26, groundY, right);
-generateFlower(ctx, centerX - 74, groundY, leftOuter);
-generateFlower(ctx, centerX + 60, groundY, rightOuter);
+generateFlower(ctx, centerX - 70, groundY, left);
+generateFlower(ctx, centerX + 60, groundY, right);

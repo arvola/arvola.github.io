@@ -22,7 +22,15 @@ import {
 } from "./pale-purple-coneflower.ts";
 import { MoundSpec } from "./mound.ts";
 import { ColorPalette } from "../color.ts";
-import { BeardtongueHeadParams, drawBeardtongueHead } from "./beardtongue.ts";
+import {
+    BeardtongueHeadParams,
+    drawBeardtongueHead,
+    makeCalicoBeardtongue,
+} from "./beardtongue.ts";
+import {
+    coreopsisGrandifloraPalette,
+    makeCoreopsis,
+} from "./coreopsis.ts";
 import { SpecDrawingFunc } from "./base.ts";
 
 export type FlowerSceneSpec = FlowerSpec | MoundSpec;
@@ -241,20 +249,210 @@ const coneflowerRight = makePalePurpleConeflower({
     leafScale: 0.3,
 });
 
+// Calico beardtongues (Penstemon calycosus) — scaled to ~0.28 of the test-page sizes so the
+// flowering spikes sit alongside the other species. Each carries 4 or 3 paired bloom tiers.
+const beardtongueCenter = makeCalicoBeardtongue({
+    stemLength: 72,
+    stemThickness: 1.6,
+    baseAngle: -Math.PI / 2 + 0.02,
+    curveStrength: 0.03,
+    tubeLength: 11,
+    tubeWidth: 3.1,
+    upperLobeReach: 2.5,
+    lowerLobeReach: 3.9,
+    speckleCount: 8,
+    leafSeed: 1.1,
+    leafScale: 0.3,
+    tierCount: 4,
+    tierSpacing: 9.5,
+    topOffset: 0,
+    pedicelLength: 3.1,
+    pedicelArch: 2.6,
+    pedicelShrink: 0.12,
+    pedicelThickness: 1,
+    flowerNod: 0.4,
+});
+
+const beardtongueLeft = makeCalicoBeardtongue({
+    stemLength: 66,
+    stemThickness: 1.5,
+    baseAngle: -Math.PI / 2 - 0.2,
+    curveStrength: -0.06,
+    tubeLength: 10,
+    tubeWidth: 2.9,
+    upperLobeReach: 2.3,
+    lowerLobeReach: 3.6,
+    speckleCount: 8,
+    leafSeed: 2.4,
+    leafScale: 0.3,
+    tierCount: 4,
+    tierSpacing: 9,
+    topOffset: 0,
+    pedicelLength: 2.9,
+    pedicelArch: 2.4,
+    pedicelShrink: 0.12,
+    pedicelThickness: 1,
+    flowerNod: 0.4,
+});
+
+const beardtongueRight = makeCalicoBeardtongue({
+    stemLength: 58,
+    stemThickness: 1.5,
+    baseAngle: -Math.PI / 2 + 0.22,
+    curveStrength: 0.07,
+    tubeLength: 10,
+    tubeWidth: 2.9,
+    upperLobeReach: 2.3,
+    lowerLobeReach: 3.6,
+    speckleCount: 8,
+    leafSeed: 3.7,
+    leafScale: 0.3,
+    tierCount: 3,
+    tierSpacing: 9,
+    topOffset: 0,
+    pedicelLength: 2.9,
+    pedicelArch: 2.4,
+    pedicelShrink: 0.12,
+    pedicelThickness: 1,
+    flowerNod: 0.4,
+});
+
+const beardtongueRightOuter = makeCalicoBeardtongue({
+    stemLength: 50,
+    stemThickness: 1.4,
+    baseAngle: -Math.PI / 2 + 0.5,
+    curveStrength: 0.1,
+    tubeLength: 9,
+    tubeWidth: 2.7,
+    upperLobeReach: 2.1,
+    lowerLobeReach: 3.3,
+    speckleCount: 7,
+    leafSeed: 5.5,
+    leafScale: 0.26,
+    tierCount: 3,
+    tierSpacing: 8.5,
+    topOffset: 0,
+    pedicelLength: 2.7,
+    pedicelArch: 2.2,
+    pedicelShrink: 0.12,
+    pedicelThickness: 0.9,
+    flowerNod: 0.4,
+});
+
+// Large-flowered tickseed clump (Coreopsis grandiflora) — bright yellow maroon-ringed daisies on
+// thin wiry stems sized to the golden alexanders, with broad lanceolate foliage. (Rose coreopsis
+// isn't blooming yet, so the whole clump is the red-and-yellow grandiflora form.)
+const coreopsisCenter = makeCoreopsis({
+    stemLength: 23,
+    stemThickness: 1.4,
+    baseAngle: -Math.PI / 2 + 0.03,
+    curveStrength: 0.04,
+    petalCount: 8,
+    petalLength: 5,
+    petalWidth: 2.3,
+    discRadius: 1.4,
+    leafSeed: 1.3,
+    petalSeed: 0.5,
+    leafScale: 0.62,
+    leafStyle: "lance",
+    palette: coreopsisGrandifloraPalette,
+});
+
+const coreopsisLeft = makeCoreopsis({
+    stemLength: 25,
+    stemThickness: 1.3,
+    baseAngle: -Math.PI / 2 - 0.2,
+    curveStrength: -0.07,
+    petalCount: 8,
+    petalLength: 4.6,
+    petalWidth: 2.3,
+    discRadius: 1.4,
+    leafSeed: 2.6,
+    petalSeed: 1.4,
+    leafScale: 0.62,
+    leafStyle: "lance",
+    palette: coreopsisGrandifloraPalette,
+});
+
+const coreopsisRight = makeCoreopsis({
+    stemLength: 23,
+    stemThickness: 1.3,
+    baseAngle: -Math.PI / 2 + 0.24,
+    curveStrength: 0.08,
+    petalCount: 8,
+    petalLength: 3.6,
+    petalWidth: 1.6,
+    discRadius: 1.2,
+    leafSeed: 3.9,
+    petalSeed: 2.3,
+    leafScale: 0.55,
+    leafStyle: "lance",
+    palette: coreopsisGrandifloraPalette,
+});
+
+const coreopsisRightOuter = makeCoreopsis({
+    stemLength: 15,
+    stemThickness: 1.2,
+    baseAngle: -Math.PI / 2 - 0.2,
+    curveStrength: 0.11,
+    petalCount: 8,
+    petalLength: 3.2,
+    petalWidth: 1.9,
+    discRadius: 1,
+    leafSeed: 5.1,
+    petalSeed: 3.6,
+    leafScale: 0.5,
+    leafStyle: "lance",
+    palette: coreopsisGrandifloraPalette,
+});
+
 const coneflowerBase = { x: 312, y: 185 };
 const gaBase = { x: 274, y: 190 };
-const asterBase = { x: 220, y: 150 };
+const beardtongueBase = { x: 220, y: 150 };
+const coreopsisBase = { x: 160, y: 184 };
 
 export const flowers: FlowerSceneSpec[] = [
-    // { type: "mound", x: asterBase.x + 1, y: asterBase.y + 1, width: 11, height: 3, tilt: -0.05 },
-    // { type: "flower", x: asterBase.x, y: asterBase.y, species: asterCenter },
-    // { type: "flower", x: asterBase.x - 3, y: asterBase.y, species: asterMidLeft },
-    // { type: "flower", x: asterBase.x + 5, y: asterBase.y, species: asterMidRight },
-    // { type: "flower", x: asterBase.x - 6, y: asterBase.y, species: asterLeft },
-    // { type: "flower", x: asterBase.x + 2, y: asterBase.y, species: asterRight },
-    // { type: "flower", x: asterBase.x, y: asterBase.y, species: asterLeftOuter },
-    // { type: "flower", x: asterBase.x + 8, y: asterBase.y, species: asterRightOuter },
-    // { type: "mound", x: asterBase.x + 1, y: asterBase.y + 1, width: 11, height: 3, tilt: -0.05, half: "bottom" },
+    {
+        type: "mound",
+        x: beardtongueBase.x,
+        y: beardtongueBase.y + 1,
+        width: 11,
+        height: 3,
+        tilt: -0.05,
+    },
+    {
+        type: "flower",
+        x: beardtongueBase.x - 6,
+        y: beardtongueBase.y,
+        species: beardtongueLeft,
+    },
+    {
+        type: "flower",
+        x: beardtongueBase.x - 1,
+        y: beardtongueBase.y,
+        species: beardtongueCenter,
+    },
+    {
+        type: "flower",
+        x: beardtongueBase.x + 4,
+        y: beardtongueBase.y,
+        species: beardtongueRight,
+    },
+    {
+        type: "flower",
+        x: beardtongueBase.x + 8,
+        y: beardtongueBase.y,
+        species: beardtongueRightOuter,
+    },
+    {
+        type: "mound",
+        x: beardtongueBase.x,
+        y: beardtongueBase.y + 1,
+        width: 11,
+        height: 3,
+        tilt: -0.05,
+        half: "bottom",
+    },
 
     {
         type: "mound",
@@ -313,6 +511,48 @@ export const flowers: FlowerSceneSpec[] = [
         tilt: 0.04,
         half: "bottom",
     },
+
+    {
+        type: "mound",
+        x: coreopsisBase.x,
+        y: coreopsisBase.y + 1,
+        width: 10,
+        height: 2.5,
+        tilt: 0.03,
+    },
+    {
+        type: "flower",
+        x: coreopsisBase.x - 5,
+        y: coreopsisBase.y,
+        species: coreopsisLeft,
+    },
+    {
+        type: "flower",
+        x: coreopsisBase.x - 1,
+        y: coreopsisBase.y,
+        species: coreopsisCenter,
+    },
+    {
+        type: "flower",
+        x: coreopsisBase.x + 3,
+        y: coreopsisBase.y,
+        species: coreopsisRight,
+    },
+    {
+        type: "flower",
+        x: coreopsisBase.x + 6,
+        y: coreopsisBase.y,
+        species: coreopsisRightOuter,
+    },
+    {
+        type: "mound",
+        x: coreopsisBase.x,
+        y: coreopsisBase.y + 1,
+        width: 10,
+        height: 2.5,
+        tilt: 0.03,
+        half: "bottom",
+    },
 ];
 
 export function tintedFlowers(palette: ColorPalette): FlowerSceneSpec[] {
@@ -369,6 +609,7 @@ export function generateFlower(
             stem.p2.y,
             species.head as BeardtongueHeadParams,
             stemEndAngle,
+            stem,
         );
     } else {
         drawFlowerHead(ctx, stem.p2.x, stem.p2.y, species.head as FlowerHeadParams);

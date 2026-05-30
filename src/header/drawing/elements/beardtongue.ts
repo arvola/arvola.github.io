@@ -2,7 +2,10 @@ import {
     createLinearGradientFromSpec,
     createRadialGradientFromSpec,
     FlowerColorSpec,
+    getBezierPoint,
+    getBezierTangentAngle,
     SpeciesProfile,
+    StemCurve,
 } from "./flower-primitives.ts";
 import { ColorPalette } from "../color.ts";
 
@@ -28,6 +31,30 @@ export interface BeardtongueHeadParams {
     speckleSeed?: number;
     /** Nod direction in radians: 0 = hangs straight down, positive leans left, negative right. */
     nodAngle?: number;
+
+    // --- Inflorescence arrangement ---
+    // Beardtongues carry their flowers in opposite pairs spaced up the stem, each flower held out
+    // on a short curved pedicel. These params lay out that array; with tierCount <= 1 the head
+    // collapses to a single flower at the stem tip.
+    /** Number of paired tiers along the upper stem (each tier = one flower per side). */
+    tierCount?: number;
+    /** Distance along the stem axis between adjacent tiers. */
+    tierSpacing?: number;
+    /** Gap from the stem tip down to the topmost tier. */
+    topOffset?: number;
+    /** Lateral reach of the topmost pedicel from the stem out to its flower. */
+    pedicelLength?: number;
+    /** Height the pedicel arches up before the flower hangs (along the stem axis). */
+    pedicelArch?: number;
+    /** Fraction the pedicel reach/arch shrinks per tier going down (0 = uniform). */
+    pedicelShrink?: number;
+    pedicelThickness?: number;
+    pedicelColor?: FlowerColorSpec;
+    pedicelOutlineColor?: string;
+    /** Outward lean of each flower tube away from the stem, in radians. */
+    flowerNod?: number;
+    /** Per-tier size growth from top to bottom (0 = uniform, positive = larger toward base). */
+    tierScaleStep?: number;
     palette?: ColorPalette;
 }
 
@@ -212,17 +239,27 @@ function buildBeardtongueFacePath(
     ctx.closePath();
 }
 
-export function drawBeardtongueHead(
+function drawSingleBeardtongueFlower(
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    p: BeardtongueHeadParams,
-    _stemEndAngle: number,
+    params: BeardtongueHeadParams,
+    tubeAngle: number,
+    scale: number,
 ): void {
-    // Beardtongue flowers nod: the narrow tube tilts/hangs along nodAngle. The mouth, however,
+    // Beardtongue flowers nod: the narrow tube tilts/hangs along tubeAngle. The mouth, however,
     // is drawn gravity-aligned (three lobes always point down) and only sheared to hint at the
     // tube's 3D turn — turning the flower must not swing the lobes sideways.
-    const tubeAngle = p.nodAngle ?? 0;
+    const p: BeardtongueHeadParams =
+        scale === 1
+            ? params
+            : {
+                  ...params,
+                  tubeLength: params.tubeLength * scale,
+                  tubeWidth: params.tubeWidth * scale,
+                  upperLobeReach: params.upperLobeReach * scale,
+                  lowerLobeReach: params.lowerLobeReach * scale,
+              };
     const minReach = Math.min(p.upperLobeReach, p.lowerLobeReach);
 
     // Mouth opening sits partway down the tube, near the oval's center.
@@ -299,6 +336,135 @@ export function drawBeardtongueHead(
     ctx.restore();
 }
 
+function drawPedicel(
+    ctx: CanvasRenderingContext2D,
+    ax: number,
+    ay: number,
+    cpx: number,
+    cpy: number,
+    fx: number,
+    fy: number,
+    p: BeardtongueHeadParams,
+): void {
+    const thickness = p.pedicelThickness ?? 2;
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(ax, ay);
+    ctx.quadraticCurveTo(cpx, cpy, fx, fy);
+    ctx.lineWidth = thickness + 0.4;
+    ctx.strokeStyle = p.pedicelOutlineColor ?? stemOutline;
+    ctx.stroke();
+    ctx.strokeStyle = createLinearGradientFromSpec(
+        ctx,
+        ax,
+        ay,
+        fx,
+        fy,
+        p.pedicelColor ?? stemGreen,
+    );
+    ctx.lineWidth = thickness;
+    ctx.stroke();
+    ctx.restore();
+}
+
+/**
+ * Walk the stem bezier from the tip (t=1) back toward the base, accumulating arc length until
+ * `dist` has been travelled. Returns that point and the tangent angle pointing up-stem (toward
+ * the tip). Tiers are attached along this real curve so they hug the stem all the way down
+ * instead of drifting off a straight axis taken from the tip.
+ */
+function sampleStemFromTip(
+    stem: StemCurve,
+    dist: number,
+): { x: number; y: number; angle: number } {
+    const steps = 120;
+    let prev = getBezierPoint(1, stem.p0, stem.p1, stem.p2);
+    let acc = 0;
+    for (let i = steps - 1; i >= 0; i--) {
+        const t = i / steps;
+        const pt = getBezierPoint(t, stem.p0, stem.p1, stem.p2);
+        const seg = Math.hypot(pt.x - prev.x, pt.y - prev.y);
+        if (acc + seg >= dist) {
+            const f = seg > 0 ? (dist - acc) / seg : 0;
+            return {
+                x: prev.x + (pt.x - prev.x) * f,
+                y: prev.y + (pt.y - prev.y) * f,
+                // getBezierTangentAngle increases with t, so it already points up-stem.
+                angle: getBezierTangentAngle(t, stem.p0, stem.p1, stem.p2),
+            };
+        }
+        acc += seg;
+        prev = pt;
+    }
+    return {
+        x: prev.x,
+        y: prev.y,
+        angle: getBezierTangentAngle(0, stem.p0, stem.p1, stem.p2),
+    };
+}
+
+export function drawBeardtongueHead(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    p: BeardtongueHeadParams,
+    stemEndAngle: number,
+    stem?: StemCurve,
+): void {
+    const tierCount = p.tierCount ?? 1;
+    if (tierCount <= 1) {
+        drawSingleBeardtongueFlower(ctx, x, y, p, p.nodAngle ?? 0, 1);
+        return;
+    }
+
+    const spacing = p.tierSpacing ?? p.tubeLength * 0.9;
+    // Topmost tier sits at (or just below) the very tip so the bare stem doesn't poke out above
+    // the flowers — its upswept pedicels cover the tip.
+    const topOffset = p.topOffset ?? 0;
+    const out = p.pedicelLength ?? p.tubeWidth * 0.8;
+    const arch = p.pedicelArch ?? out * 0.7;
+    const shrink = p.pedicelShrink ?? 0;
+    const flowerNod = p.flowerNod ?? 0.35;
+    const scaleStep = p.tierScaleStep ?? 0;
+
+    // Draw bottom tiers first so each higher tier layers in front of the one below it, matching
+    // how a spike's upper flowers overlap the ones beneath them.
+    for (let i = tierCount - 1; i >= 0; i--) {
+        const d = topOffset + i * spacing;
+        // Attach point + local stem axes, taken from the actual curve at this depth so pedicels
+        // stay anchored to the stem as it bends. (ux, uy) points up-stem; perp is its +x side.
+        const sample = stem
+            ? sampleStemFromTip(stem, d)
+            : { x: x - Math.cos(stemEndAngle) * d, y: y - Math.sin(stemEndAngle) * d, angle: stemEndAngle };
+        const ax = sample.x;
+        const ay = sample.y;
+        const ux = Math.cos(sample.angle);
+        const uy = Math.sin(sample.angle);
+        const perpX = -uy;
+        const perpY = ux;
+
+        // Pedicels shorten toward the base; the top one keeps its full reach/arch.
+        const k = Math.pow(1 - shrink, i);
+        const reach = out * k;
+        const lift = arch * k;
+        const drop = reach * 0.15;
+        const scale = 1 + i * scaleStep;
+
+        for (const side of [-1, 1] as const) {
+            const fx = ax + perpX * side * reach + -ux * drop;
+            const fy = ay + perpY * side * reach + -uy * drop;
+            // Control point lifted up-stem and partway out gives the little upswept crook.
+            const cpx = ax + perpX * side * reach * 0.55 + ux * lift;
+            const cpy = ay + perpY * side * reach * 0.55 + uy * lift;
+
+            drawPedicel(ctx, ax, ay, cpx, cpy, fx, fy, p);
+            // Negative tubeAngle leans right; pair each flower so it tilts away from the stem.
+            drawSingleBeardtongueFlower(ctx, fx, fy, p, -side * flowerNod, scale);
+        }
+    }
+}
+
 export function makeCalicoBeardtongue(opts: {
     stemLength: number;
     stemThickness: number;
@@ -311,6 +477,15 @@ export function makeCalicoBeardtongue(opts: {
     nodAngle?: number;
     speckleCount?: number;
     speckleSeed?: number;
+    tierCount?: number;
+    tierSpacing?: number;
+    topOffset?: number;
+    pedicelLength?: number;
+    pedicelArch?: number;
+    pedicelShrink?: number;
+    pedicelThickness?: number;
+    flowerNod?: number;
+    tierScaleStep?: number;
     leafSeed: number;
     leafScale?: number;
 }): SpeciesProfile<BeardtongueHeadParams> {
@@ -327,11 +502,53 @@ export function makeCalicoBeardtongue(opts: {
         },
         leaf: {
             instances: [
+                // Largest pair at the very base of the stem.
                 {
-                    t: 0.18,
+                    t: 0.02,
                     side: -1,
-                    angleOffset: -0.55 + Math.sin(opts.leafSeed) * 0.05,
-                    size: 40 * leafScale,
+                    angleOffset: -0.8 + Math.sin(opts.leafSeed * 0.7) * 0.05,
+                    size: 72 * leafScale,
+                    widthRatio: 0.35,
+                    color: leafGreen,
+                    outlineColor: leafOutline,
+                    shape: "teardrop",
+                },
+                {
+                    t: 0.02,
+                    side: 1,
+                    angleOffset: -0.8 - Math.cos(opts.leafSeed * 0.8) * 0.05,
+                    size: 72 * leafScale,
+                    widthRatio: 0.35,
+                    color: leafGreen,
+                    outlineColor: leafOutline,
+                    shape: "teardrop",
+                },
+                // Large basal pair low on the stem.
+                {
+                    t: 0.1,
+                    side: -1,
+                    angleOffset: -0.78 + Math.sin(opts.leafSeed * 0.9) * 0.05,
+                    size: 56 * leafScale,
+                    widthRatio: 0.34,
+                    color: leafGreen,
+                    outlineColor: leafOutline,
+                    shape: "teardrop",
+                },
+                {
+                    t: 0.11,
+                    side: 1,
+                    angleOffset: -0.78 - Math.cos(opts.leafSeed * 1.1) * 0.05,
+                    size: 56 * leafScale,
+                    widthRatio: 0.34,
+                    color: leafGreen,
+                    outlineColor: leafOutline,
+                    shape: "teardrop",
+                },
+                {
+                    t: 0.21,
+                    side: -1,
+                    angleOffset: -0.7 + Math.sin(opts.leafSeed) * 0.05,
+                    size: 46 * leafScale,
                     widthRatio: 0.32,
                     color: leafGreen,
                     outlineColor: leafOutline,
@@ -340,8 +557,8 @@ export function makeCalicoBeardtongue(opts: {
                 {
                     t: 0.22,
                     side: 1,
-                    angleOffset: -0.55 - Math.cos(opts.leafSeed) * 0.05,
-                    size: 40 * leafScale,
+                    angleOffset: -0.7 - Math.cos(opts.leafSeed) * 0.05,
+                    size: 46 * leafScale,
                     widthRatio: 0.32,
                     color: leafGreen,
                     outlineColor: leafOutline,
@@ -350,7 +567,7 @@ export function makeCalicoBeardtongue(opts: {
                 {
                     t: 0.5,
                     side: 1,
-                    angleOffset: -0.5 + Math.sin(opts.leafSeed * 1.7) * 0.05,
+                    angleOffset: -0.65 + Math.sin(opts.leafSeed * 1.7) * 0.05,
                     size: 28 * leafScale,
                     widthRatio: 0.3,
                     color: leafGreen,
@@ -360,7 +577,7 @@ export function makeCalicoBeardtongue(opts: {
                 {
                     t: 0.54,
                     side: -1,
-                    angleOffset: -0.5 - Math.cos(opts.leafSeed * 1.3) * 0.05,
+                    angleOffset: -0.65 - Math.cos(opts.leafSeed * 1.3) * 0.05,
                     size: 28 * leafScale,
                     widthRatio: 0.3,
                     color: leafGreen,
@@ -384,6 +601,17 @@ export function makeCalicoBeardtongue(opts: {
             speckleCount: opts.speckleCount ?? 14,
             speckleSeed: opts.speckleSeed ?? opts.leafSeed,
             nodAngle: opts.nodAngle,
+            tierCount: opts.tierCount,
+            tierSpacing: opts.tierSpacing,
+            topOffset: opts.topOffset,
+            pedicelLength: opts.pedicelLength,
+            pedicelArch: opts.pedicelArch,
+            pedicelShrink: opts.pedicelShrink,
+            pedicelThickness: opts.pedicelThickness,
+            flowerNod: opts.flowerNod,
+            tierScaleStep: opts.tierScaleStep,
+            pedicelColor: stemGreen,
+            pedicelOutlineColor: stemOutline,
         },
     };
 }
