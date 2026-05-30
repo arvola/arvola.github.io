@@ -56,6 +56,8 @@ export interface PetalParams {
     petalAngleOffsets: number[];
     petalLengthMultipliers: number[];
     petalShape?: "pointed" | "elliptical" | "notched";
+    /** Rotates the whole petal ring by this angle (radians), so heads don't all line up. */
+    petalRotation?: number;
 }
 
 export interface FlowerHeadParams extends PetalParams {
@@ -239,6 +241,40 @@ export function createRadialDiscGradient(
     return grad;
 }
 
+/**
+ * Fills the current path with an oval (elliptical) version of the petal gradient, centered on
+ * the petal base. The coordinate space is stretched along the petal length and squeezed across
+ * its width before a radial gradient is laid down, so the iso-colour contours become ovals: the
+ * base colour pools up the centerline of the petal and recedes along the edges, instead of
+ * sitting in a flat band as a linear gradient would. The caller must have already built the
+ * petal outline as the current path (it is used both as the clip and to scope the fill).
+ */
+export function fillOvalPetalGradient(
+    ctx: CanvasRenderingContext2D,
+    len: number,
+    colorSpec: FlowerColorSpec,
+): void {
+    // >1 stretches the gradient toward the tip (base colour reaches further up the middle);
+    // <1 squeezes it across the width (base colour recedes along the edges).
+    const stretchX = 1.35;
+    const stretchY = 0.62;
+
+    ctx.save();
+    ctx.clip();
+    ctx.scale(stretchX, stretchY);
+    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, len);
+    if (colorSpec.type === "single") {
+        grad.addColorStop(0.0, adjustBrightness(colorSpec.baseHex, -0.15));
+        grad.addColorStop(1.0, adjustBrightness(colorSpec.baseHex, 0.1));
+    } else {
+        colorSpec.stops.forEach((s) => grad.addColorStop(s.offset, s.hex));
+    }
+    ctx.fillStyle = grad;
+    // Generous overdraw in the stretched space; the clip keeps it to the petal.
+    ctx.fillRect(-len, -len * 2, len * 4, len * 4);
+    ctx.restore();
+}
+
 export function drawTeardrop(
     ctx: CanvasRenderingContext2D,
     len: number,
@@ -288,50 +324,41 @@ export function drawNotchedPetal(
     len: number,
     w: number,
 ): void {
-    // Coreopsis-style wedge: narrow base, widest at tip, tip divided into three rounded teeth
-    // with pronounced notches between them.
+    // Coreopsis ray floret: a narrow-based wedge flaring to a tip split into four rounded nubs.
+    // The inner pair reaches noticeably further than the outer pair, giving the lobed, antler-like
+    // tip of C. grandiflora.
     const halfW = w / 2;
     const baseHalfW = halfW * 0.18;
-    const shoulderX = len * 0.88;
-    const notchDepth = len * 0.16;
-    const sideToothInnerY = halfW * 0.68;
-    const middleToothInnerY = halfW * 0.24;
-    const middleToothBulge = notchDepth * 0.15;
+    const shoulderX = len * 0.78;
+    // How far each nub tip reaches toward the petal tip (outer pair short, inner pair long).
+    const outerTipX = len * 1.09;
+    const innerTipX = len * 1.34;
+    // How far the valleys between nubs cut back toward the base.
+    const outerNotchX = len * 0.84;
+    const centerNotchX = len * 0.92;
 
     ctx.beginPath();
     ctx.moveTo(0, -baseHalfW);
-    // Upper edge: gradual outward curve from base to shoulder of upper tooth.
+    // Upper side edge: narrow base flaring out to the upper shoulder.
     ctx.bezierCurveTo(
-        len * 0.28,
+        len * 0.3,
         -halfW * 0.55,
-        len * 0.7,
-        -halfW * 0.98,
+        len * 0.62,
+        -halfW * 0.95,
         shoulderX,
         -halfW,
     );
-    // Upper (outer) tooth: round around outer corner, then inward to upper notch.
-    ctx.quadraticCurveTo(len, -halfW, len, -sideToothInnerY);
-    ctx.quadraticCurveTo(
-        len - notchDepth,
-        -middleToothInnerY,
-        len,
-        -middleToothInnerY,
-    );
-    // Middle tooth: slight outward bulge across center.
-    ctx.quadraticCurveTo(len + middleToothBulge, 0, len, middleToothInnerY);
-    // Lower notch + lower (outer) tooth, mirrored.
-    ctx.quadraticCurveTo(
-        len - notchDepth,
-        middleToothInnerY,
-        len,
-        sideToothInnerY,
-    );
-    ctx.quadraticCurveTo(len, halfW, shoulderX, halfW);
-    // Lower edge: back to base.
+    // Four nubs across the tip, top to bottom: outer (short), inner (long), inner (long),
+    // outer (short). Each nub tip is the control point of a quadratic spanning two valleys.
+    ctx.quadraticCurveTo(outerTipX, -halfW * 0.95, outerNotchX, -halfW * 0.5);
+    ctx.quadraticCurveTo(innerTipX, -halfW * 0.26, centerNotchX, 0);
+    ctx.quadraticCurveTo(innerTipX, halfW * 0.26, outerNotchX, halfW * 0.5);
+    ctx.quadraticCurveTo(outerTipX, halfW * 0.95, shoulderX, halfW);
+    // Lower side edge: back to the base.
     ctx.bezierCurveTo(
-        len * 0.7,
-        halfW * 0.98,
-        len * 0.28,
+        len * 0.62,
+        halfW * 0.95,
+        len * 0.3,
         halfW * 0.55,
         0,
         baseHalfW,
@@ -454,13 +481,14 @@ export function drawPetalRing(
 ): void {
     const step = (2 * Math.PI) / p.petalCount;
     const shape = p.petalShape ?? "elliptical";
+    const rotation = p.petalRotation ?? 0;
 
     ctx.lineWidth = 1;
     ctx.strokeStyle = p.petalOutlineColor ?? "rgba(0, 0, 0, 0.5)";
     for (let i = 0; i < p.petalCount; i++) {
         const len = p.petalLength * (p.petalLengthMultipliers[i] ?? 1);
         ctx.save();
-        ctx.rotate(i * step + (p.petalAngleOffsets[i] ?? 0));
+        ctx.rotate(rotation + i * step + (p.petalAngleOffsets[i] ?? 0));
         applyDroop(ctx, p.petalDroop);
         if (shape === "pointed") {
             drawTeardrop(ctx, len, p.petalWidth);
@@ -476,24 +504,29 @@ export function drawPetalRing(
     for (let i = 0; i < p.petalCount; i++) {
         const len = p.petalLength * (p.petalLengthMultipliers[i] ?? 1);
         ctx.save();
-        ctx.rotate(i * step + (p.petalAngleOffsets[i] ?? 0));
+        ctx.rotate(rotation + i * step + (p.petalAngleOffsets[i] ?? 0));
         applyDroop(ctx, p.petalDroop);
-        ctx.fillStyle = createLinearGradientFromSpec(
-            ctx,
-            0,
-            0,
-            len,
-            0,
-            p.petalColor,
-        );
-        if (shape === "pointed") {
-            drawTeardrop(ctx, len, p.petalWidth);
-        } else if (shape === "notched") {
+        if (shape === "notched") {
+            // Notched (coreopsis) rays get an oval gradient pooling the base colour up the
+            // centerline rather than a flat linear band.
             drawNotchedPetal(ctx, len, p.petalWidth);
+            fillOvalPetalGradient(ctx, len, p.petalColor);
         } else {
-            drawEllipsePetal(ctx, len, p.petalWidth);
+            ctx.fillStyle = createLinearGradientFromSpec(
+                ctx,
+                0,
+                0,
+                len,
+                0,
+                p.petalColor,
+            );
+            if (shape === "pointed") {
+                drawTeardrop(ctx, len, p.petalWidth);
+            } else {
+                drawEllipsePetal(ctx, len, p.petalWidth);
+            }
+            ctx.fill();
         }
-        ctx.fill();
         ctx.restore();
     }
 }

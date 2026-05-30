@@ -43,12 +43,12 @@ export const coreopsisGrandifloraPalette: CoreopsisPalette = {
         type: "multi",
         stops: [
             { offset: 0.0, hex: "#5a1408" },
-            { offset: 0.28, hex: "#8c1d0c" },
-            { offset: 0.38, hex: "#b03217" },
-            { offset: 0.46, hex: "#e89224" },
-            { offset: 0.55, hex: "#fcd03a" },
-            { offset: 0.85, hex: "#ffe35e" },
-            { offset: 1.0, hex: "#fff088" },
+            { offset: 0.31, hex: "#8c2a0c" },
+            { offset: 0.40, hex: "#cd5531" },
+            { offset: 0.49, hex: "#edbc51" },
+            { offset: 0.55, hex: "#ffe071" },
+            { offset: 0.85, hex: "#ecf65e" },
+            { offset: 1.0, hex: "#faff71" },
         ],
     },
     discColor: {
@@ -102,6 +102,8 @@ export function makeCoreopsis(opts: {
     petalCount?: number;
     petalLength: number;
     petalWidth: number;
+    /** Rotates the whole ray-petal ring (radians) so neighbouring heads don't all line up. */
+    petalStartAngle?: number;
     discRadius: number;
     leafSeed: number;
     petalSeed: number;
@@ -200,6 +202,7 @@ export function makeCoreopsis(opts: {
             petalAngleOffsets: petals.angleOffsets,
             petalLengthMultipliers: petals.lengthMultipliers,
             petalShape: "notched",
+            petalRotation: opts.petalStartAngle ?? 0,
         },
     };
 }

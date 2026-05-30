@@ -4,7 +4,11 @@
       "Bash(git ls-tree *)",
       "Bash(npx tsc *)",
       "mcp__Claude_Preview__preview_start",
-      "Bash(curl -s \"http://localhost:5173/flowers.html\")"
+      "Bash(curl -s \"http://localhost:5173/flowers.html\")",
+      "Skill(playwright-cli)",
+      "Skill(playwright-cli:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5199/flowers.html)",
+      "Bash(echo \"tsc exit: $?\")"
     ]
   }
 }
